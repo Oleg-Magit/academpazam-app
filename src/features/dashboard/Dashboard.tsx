@@ -84,6 +84,7 @@ export const Dashboard: React.FC = () => {
             a.download = `${currentPlan.name}-Progress.pdf`;
             a.click();
             URL.revokeObjectURL(url);
+            alert(t('msg.export_success'));
         } catch (e) {
             console.error(e);
         }
@@ -98,6 +99,7 @@ export const Dashboard: React.FC = () => {
             a.download = `academ-pazam-backup-${new Date().toISOString().slice(0, 10)}.json`;
             a.click();
             URL.revokeObjectURL(url);
+            alert(t('msg.export_success'));
             setShowActions(false);
         } catch (e) {
             console.error(e);

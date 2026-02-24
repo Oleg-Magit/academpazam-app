@@ -21,7 +21,10 @@ export const he = {
     'status.not_started': 'לא התחיל',
     'status.in_progress': 'בתהליך',
     'status.completed': 'הושלם',
+    'status.passed': 'עבר',
+    'status.failed': 'נכשל',
     'status.manual': 'ידני',
+    'status.all': 'כל הסטטוסים',
 
     // Actions
     'action.save': 'שמור',
@@ -95,8 +98,6 @@ export const he = {
     'label.weighted_gpa': 'ממוצע משוקלל',
     'label.graded_courses': 'קורסים עם ציון',
     'label.no_grades_yet': 'אין ציונים עדיין',
-    'label.passed': 'עבר',
-    'label.failed': 'נכשל',
     'label.ungraded': 'ללא ציון',
     'msg.grade_help': 'השלם את כל הנושאים כדי להזין ציון.',
     'msg.grade_invalid': 'הציון חייב להיות בין 0 ל-100.',
@@ -126,6 +127,20 @@ export const he = {
     'footer.offline': 'אופליין',
     'footer.copyright': '© {{year}} אקדמפז"ם',
     'footer.devBadge': 'פיתוח',
+    'footer.help': 'עזרה',
+    'help.welcome_title': 'עזרה ומדריך למשתמש',
+    'help.welcome_desc': 'ברוכים הבאים לאקדמפז"ם! הנה מדריך מהיר שיעזור לכם לנהל את המסע האקדמי שלכם.',
+    'help.adding_courses.title': 'הוספת קורסים',
+    'help.adding_courses.body': 'צרו את תוכנית הלימודים שלכם על ידי הוספת קורסים לסמסטרים. תוכלו להשתמש בכפתור "הוסף קורס" בדף הקורסים או בקיצור הדרך במגירת הסמסטר בדאשבורד.',
+    'help.bulk_add.title': 'ייבוא המוני',
+    'help.bulk_add.body': 'ייבאו מספר קורסים בבת אחת באמצעות כלי ה"ייבוא המוני". אנו תומכים בפורמטים שונים: "שם הקורס | 3.0 | סמסטר 1", "שם הקורס - 3.0 - סמסטר 1" וכד\'.',
+    'help.tracking.title': 'מעקב התקדמות',
+    'help.tracking.body': 'הוסיפו נושאים לכל קורס כדי לעקוב אחר ההתקדמות השבועית שלכם. סטטוס הקורס מתעדכן אוטומטית מ"לא התחיל" ל"בתהליך" ככל שתשלימו נושאים.',
+    'help.privacy.title': 'פרטיות נתונים',
+    'help.privacy.body': 'הנתונים שלכם פרטיים ב-100% ומאוחסנים רק במכשיר שלכם (IndexedDB). שום נתון לא עוזב את הדפדפן שלכם ולא נשלח לשרת כלשהו.',
+    'help.backup.title': 'גיבויים ו-PDF',
+    'help.backup.body': 'ייצאו את הנתונים שלכם כקובץ JSON לגיבוי בהגדרות. תוכלו גם להפיק סיכום PDF יפהפה של ההתקדמות שלכם לשימוש אופליין.',
+    'help.footer_hint': 'תמיד תוכלו לגשת לעזרה זו מהפוטר.',
 
     // Share
     'share.title': 'שתף את האפליקציה',
@@ -211,6 +226,10 @@ export const he = {
     'msg.replace_confirm': 'פעולה זו תמחק את כל הנתונים הנוכחיים. להמשיך?',
     'msg.reset_confirm_suffix': 'הקלד "DELETE" לאישור.',
     'msg.no_topics_yet': 'אין נושאים עדיין.',
+    'msg.delete_course_prompt': 'האם אתה בטוח שברצונך למחוק את הקורס "{{name}}"?',
+    'msg.delete_topic_prompt': 'האם אתה בטוח שברצונך למחוק את הנושא "{{title}}"?',
+    'label.close': 'סגור',
+    'label.filter_status': 'סנן לפי סטטוס',
 
     // Bulk Add
     'modal.bulk_topic.placeholder': 'נושא 1\nנושא 2\nנושא 3...',

@@ -21,7 +21,10 @@ export const ru = {
     'status.not_started': 'Не начато',
     'status.in_progress': 'В процессе',
     'status.completed': 'Завершено',
+    'status.passed': 'Пройдено',
+    'status.failed': 'Не сдал',
     'status.manual': 'Вручную',
+    'status.all': 'Все статусы',
 
     // Actions
     'action.save': 'Сохранить',
@@ -96,8 +99,6 @@ export const ru = {
     'label.weighted_gpa': 'Взвешенный средний',
     'label.graded_courses': 'Оцененные курсы',
     'label.no_grades_yet': 'Пока нет оценок',
-    'label.passed': 'Сдал',
-    'label.failed': 'Не сдал',
     'label.ungraded': 'Без оценки',
     'msg.grade_help': 'Завершите все темы, чтобы ввести оценку.',
     'msg.grade_invalid': 'Оценка должна быть от 0 до 100.',
@@ -127,6 +128,20 @@ export const ru = {
     'footer.offline': 'Офлайн',
     'footer.copyright': '© {{year}} AcademPazam',
     'footer.devBadge': 'DEV',
+    'footer.help': 'Помощь',
+    'help.welcome_title': 'Помощь и руководство',
+    'help.welcome_desc': 'Добро пожаловать в AcademPazam! Вот краткое руководство, которое поможет вам управлять вашим учебным процессом.',
+    'help.adding_courses.title': 'Добавление курсов',
+    'help.adding_courses.body': 'Создайте свой учебный план, добавляя курсы в семестры. Вы можете использовать кнопку "Добавить курс" на странице курсов или ярлык в панели семестра на главной странице.',
+    'help.bulk_add.title': 'Массовый импорт',
+    'help.bulk_add.body': 'Импортируйте сразу несколько курсов с помощью инструмента "Массовое добавление". Мы поддерживаем различные форматы текста: "Название | 3.0 | Семестр 1", "Название - 3.0 - Сем 1" и т. д.',
+    'help.tracking.title': 'Отслеживание прогресса',
+    'help.tracking.body': 'Добавляйте темы к каждому курсу, чтобы отслеживать еженедельный прогресс. Статус курса автоматически меняется с "Не начато" на "В процессе" по мере выполнения тем.',
+    'help.privacy.title': 'Конфиденциальность',
+    'help.privacy.body': 'Ваши данные на 100% приватны и хранятся только на вашем устройстве (IndexedDB). Данные никогда не покидают ваш браузер и не отправляются на сервер.',
+    'help.backup.title': 'Бэкапы и PDF',
+    'help.backup.body': 'Экспортируйте свои данные в файл JSON для резервного копирования в Настройках. Вы также можете создать красивый PDF-отчет о вашем прогрессе для использования офлайн.',
+    'help.footer_hint': 'Вы всегда можете открыть эту справку из футера.',
 
     // Share
     'share.title': 'Поделиться приложением',
@@ -212,6 +227,10 @@ export const ru = {
     'msg.replace_confirm': 'Это удалит все текущие данные. Продолжить?',
     'msg.reset_confirm_suffix': 'Введите "DELETE" для подтверждения.',
     'msg.no_topics_yet': 'Тем пока нет.',
+    'msg.delete_course_prompt': 'Вы уверены, что хотите удалить курс "{{name}}"?',
+    'msg.delete_topic_prompt': 'Вы уверены, что хотите удалить тему "{{title}}"?',
+    'label.close': 'Закрыть',
+    'label.filter_status': 'Фильтр по статусу',
 
     // Bulk Add
     'modal.bulk_topic.placeholder': 'Тема 1\nТема 2\nТема 3...',

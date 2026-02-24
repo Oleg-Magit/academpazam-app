@@ -21,7 +21,10 @@ export const en = {
     'status.not_started': 'Not Started',
     'status.in_progress': 'In Progress',
     'status.completed': 'Completed',
+    'status.passed': 'Passed',
+    'status.failed': 'Failed',
     'status.manual': 'Manual',
+    'status.all': 'All Statuses',
 
     // Actions
     'action.save': 'Save',
@@ -96,8 +99,6 @@ export const en = {
     'label.weighted_gpa': 'Weighted GPA',
     'label.graded_courses': 'Graded Courses',
     'label.no_grades_yet': 'No grades yet',
-    'label.passed': 'Passed',
-    'label.failed': 'Failed',
     'label.ungraded': 'Ungraded',
     'msg.grade_help': 'Complete all topics to unlock grade input.',
     'msg.grade_invalid': 'Grade must be 0-100.',
@@ -126,6 +127,20 @@ export const en = {
     'footer.offline': 'Offline',
     'footer.copyright': '© {{year}} AcademPazam',
     'footer.devBadge': 'DEV',
+    'footer.help': 'Help',
+    'help.welcome_title': 'Help & Getting Started',
+    'help.welcome_desc': 'Welcome to AcademPazam! Here is a quick guide to help you manage your academic journey.',
+    'help.adding_courses.title': 'Adding Courses',
+    'help.adding_courses.body': 'Create your degree plan by adding courses to semesters. You can use the "Add Course" button on the Courses page or the shortcut in the Dashboard semester drawer.',
+    'help.bulk_add.title': 'Bulk Import',
+    'help.bulk_add.body': 'Import multiple courses at once using the "Bulk Add" tool. We support various text formats: "Course | 3.0 | Semester 1", "Course - 3.0 - Sem 1", etc.',
+    'help.tracking.title': 'Tracking Progress',
+    'help.tracking.body': 'Add topics to each course to track your weekly progress. The course status automatically updates from "Not Started" to "In Progress" as you complete topics.',
+    'help.privacy.title': 'Data Privacy',
+    'help.privacy.body': 'Your data is 100% private and stored only on your device (IndexedDB). No data ever leaves your browser or is sent to any server.',
+    'help.backup.title': 'Backups & PDF',
+    'help.backup.body': 'Export your data as a JSON file for backup in Settings. You can also generate a beautiful PDF summary of your degree progress for offline use.',
+    'help.footer_hint': 'You can always access this help from the footer.',
 
     // Share
     'share.title': 'Share this app',
@@ -211,6 +226,10 @@ export const en = {
     'msg.replace_confirm': 'This will wipe all current data. Continue?',
     'msg.reset_confirm_suffix': 'Type "DELETE" to confirm.',
     'msg.no_topics_yet': 'No topics yet.',
+    'msg.delete_course_prompt': 'Are you sure you want to delete course "{{name}}"?',
+    'msg.delete_topic_prompt': 'Are you sure you want to delete topic "{{title}}"?',
+    'label.close': 'Close',
+    'label.filter_status': 'Filter by Status',
 
     // Bulk Add
     'modal.bulk_topic.placeholder': 'Topic 1\nTopic 2\nTopic 3...',

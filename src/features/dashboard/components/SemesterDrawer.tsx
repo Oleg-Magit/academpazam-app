@@ -169,6 +169,20 @@ export const SemesterDrawer: React.FC<SemesterDrawerProps> = ({
                                 </li>
                             ))}
                         </ul>
+
+                        <div style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid var(--color-border)' }}>
+                            <Button
+                                variant="secondary"
+                                style={{ width: '100%', justifyContent: 'center' }}
+                                onClick={onClose}
+                            // We close the drawer and the caller should open the modal
+                            // But since this is a drawer, it's better if we just use a prop callback
+                            >
+                                <Link to="/courses" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    + {t('dashboard.add_course')}
+                                </Link>
+                            </Button>
+                        </div>
                     </div>
                 </div>
             </div>

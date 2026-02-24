@@ -39,9 +39,9 @@ export const CourseDetails: React.FC = () => {
         setIsModalOpen(true);
     };
 
-    const handleDeleteTopic = async (topicId: string) => {
-        if (confirm(t('msg.delete_course_confirm'))) {
-            await deleteTopic(topicId);
+    const handleDeleteTopic = async (topic: Topic) => {
+        if (confirm(t('msg.delete_topic_prompt', { title: topic.title }))) {
+            await deleteTopic(topic.id);
             refreshTopics();
         }
     };
@@ -101,7 +101,7 @@ export const CourseDetails: React.FC = () => {
     return (
         <div>
             <Button variant="ghost" onClick={() => navigate('/courses')} style={{ marginBottom: 'var(--space-md)' }}>
-                <ArrowLeft size={16} style={{ marginRight: '8px' }} />
+                <ArrowLeft size={16} style={{ marginRight: '8px' }} aria-hidden="true" />
                 {t('action.back')}
             </Button>
 
@@ -138,8 +138,8 @@ export const CourseDetails: React.FC = () => {
                             </div>
                             {course.grade !== null && course.grade !== undefined && (
                                 <div style={{ paddingTop: '14px' }}>
-                                    <Badge variant={gradeStatus === 'passed' ? 'success' : 'error'}>
-                                        {t(`label.${gradeStatus}`)}
+                                    <Badge variant={gradeStatus === 'passed' ? 'success' : 'error'} aria-label={t(gradeStatus === 'ungraded' ? 'label.ungraded' : `status.${gradeStatus}`)}>
+                                        {t(gradeStatus === 'ungraded' ? 'label.ungraded' : `status.${gradeStatus}`)}
                                     </Badge>
                                 </div>
                             )}
@@ -180,7 +180,7 @@ export const CourseDetails: React.FC = () => {
                         >
                             {topic.status === 'done' ? <CheckCircle size={24} /> :
                                 topic.status === 'in_progress' ? <Clock size={24} /> :
-                                    <Circle size={24} />}
+                                    <Circle size={24} aria-hidden="true" />}
                         </button>
 
                         <div style={{ flex: 1 }}>
@@ -191,11 +191,17 @@ export const CourseDetails: React.FC = () => {
                         </div>
 
                         <div style={{ display: 'flex', gap: 'var(--space-sm)' }}>
-                            <Button variant="ghost" size="sm" onClick={() => handleEditTopic(topic)}>
-                                <Edit2 size={16} />
+                            <Button variant="ghost" size="sm" onClick={() => handleEditTopic(topic)} aria-label={t('action.edit')}>
+                                <Edit2 size={16} aria-hidden="true" />
                             </Button>
-                            <Button variant="ghost" size="sm" style={{ color: 'var(--color-danger)' }} onClick={() => handleDeleteTopic(topic.id)}>
-                                <Trash2 size={16} />
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                style={{ color: 'var(--color-danger)' }}
+                                onClick={() => handleDeleteTopic(topic)}
+                                aria-label={t('action.delete')}
+                            >
+                                <Trash2 size={16} aria-hidden="true" />
                             </Button>
                         </div>
                     </Card>

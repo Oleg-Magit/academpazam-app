@@ -26,6 +26,7 @@ export const Courses: React.FC = () => {
     const [editingCourse, setEditingCourse] = useState<Course | null>(null);
     const [selectedSemester, setSelectedSemester] = useState<string>('1');
     const [searchTerm, setSearchTerm] = useState('');
+    const [statusFilter, setStatusFilter] = useState('all');
 
     const [semesterConfig, setSemesterConfig] = useState<{ count: number, labels: string[] }>({ count: 8, labels: [] });
     const [editingSemesterId, setEditingSemesterId] = useState<string | null>(null);
@@ -139,9 +140,9 @@ export const Courses: React.FC = () => {
         setIsModalOpen(true);
     };
 
-    const handleDelete = async (id: string) => {
-        if (confirm(t('msg.delete_course_confirm') || 'Are you sure you want to delete this course?')) {
-            await deleteCourse(id);
+    const handleDelete = async (course: Course) => {
+        if (confirm(t('msg.delete_course_prompt', { name: course.name }))) {
+            await deleteCourse(course.id);
             refresh();
         }
     };
@@ -164,11 +165,16 @@ export const Courses: React.FC = () => {
     const displayedCourses = React.useMemo(() => {
         const group = bySemester.find(g => g.semester === selectedSemester);
         if (!group) return [];
-        return group.courses.filter(c =>
-            c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (c.code && c.code.toLowerCase().includes(searchTerm.toLowerCase()))
-        );
-    }, [bySemester, selectedSemester, searchTerm]);
+        return group.courses.filter(c => {
+            const matchesSearch = c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (c.code && c.code.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                (c.topics && c.topics.some(t => t.title.toLowerCase().includes(searchTerm.toLowerCase())));
+
+            const matchesStatus = statusFilter === 'all' || c.effectiveStatus === statusFilter;
+
+            return matchesSearch && matchesStatus;
+        });
+    }, [bySemester, selectedSemester, searchTerm, statusFilter]);
 
     if (!currentPlan) return <div>{t('msg.no_plan_found') || 'No plan found.'}</div>;
     if (loading) return <div>{t('msg.loading_courses') || 'Loading courses...'}</div>;
@@ -312,6 +318,26 @@ export const Courses: React.FC = () => {
                                 autoComplete="off"
                             />
                         </div>
+                        <select
+                            value={statusFilter}
+                            onChange={e => setStatusFilter(e.target.value)}
+                            style={{
+                                padding: '8px',
+                                borderRadius: '6px',
+                                border: '1px solid var(--color-border)',
+                                backgroundColor: 'var(--color-bg-secondary)',
+                                color: 'var(--color-text-primary)',
+                                fontSize: '0.9rem',
+                                cursor: 'pointer'
+                            }}
+                            aria-label={t('label.filter_status')}
+                        >
+                            <option value="all">{t('status.all')}</option>
+                            <option value="not_started">{t('status.not_started')}</option>
+                            <option value="in_progress">{t('status.in_progress')}</option>
+                            <option value="completed">{t('status.completed')}</option>
+                            <option value="failed">{t('status.failed')}</option>
+                        </select>
                         <Button variant="secondary" onClick={() => setIsBulkModalOpen(true)}>
                             <FileText size={16} />
                         </Button>
@@ -369,11 +395,17 @@ export const Courses: React.FC = () => {
                                     </Badge>
 
                                     <div style={{ display: 'flex', gap: '4px' }} onClick={e => e.stopPropagation()}>
-                                        <Button variant="ghost" size="sm" onClick={() => handleEdit(course)}>
-                                            <Edit2 size={16} />
+                                        <Button variant="ghost" size="sm" onClick={() => handleEdit(course)} aria-label={t('action.edit')}>
+                                            <Edit2 size={16} aria-hidden="true" />
                                         </Button>
-                                        <Button variant="ghost" size="sm" style={{ color: 'var(--color-danger)' }} onClick={() => handleDelete(course.id)}>
-                                            <Trash2 size={16} />
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            style={{ color: 'var(--color-danger)' }}
+                                            onClick={() => handleDelete(course)}
+                                            aria-label={t('action.delete')}
+                                        >
+                                            <Trash2 size={16} aria-hidden="true" />
                                         </Button>
                                         <Button variant="ghost" size="sm" onClick={() => navigate(`/courses/${course.id}`)}>
                                             <ChevronRight size={16} />
@@ -402,17 +434,19 @@ export const Courses: React.FC = () => {
                 planId={currentPlan.id}
             />
 
-            {semesterToDelete && (
-                <DeleteSemesterModal
-                    isOpen={deleteModalOpen}
-                    onClose={() => setDeleteModalOpen(false)}
-                    semesterId={semesterToDelete.id}
-                    semesterLabel={semesterToDelete.label}
-                    courses={courses.filter(c => c.semester === semesterToDelete.id)}
-                    totalSemesters={semesterConfig.count}
-                    onDelete={confirmDeleteSemester}
-                />
-            )}
-        </div>
+            {
+                semesterToDelete && (
+                    <DeleteSemesterModal
+                        isOpen={deleteModalOpen}
+                        onClose={() => setDeleteModalOpen(false)}
+                        semesterId={semesterToDelete.id}
+                        semesterLabel={semesterToDelete.label}
+                        courses={courses.filter(c => c.semester === semesterToDelete.id)}
+                        totalSemesters={semesterConfig.count}
+                        onDelete={confirmDeleteSemester}
+                    />
+                )
+            }
+        </div >
     );
 };
