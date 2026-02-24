@@ -178,4 +178,44 @@ export const en = {
     'onboarding.install_desc': 'Install AcademPazam on your device for a native-like experience, offline access, and faster loading.',
     'onboarding.install_button': 'Install Now',
     'onboarding.skip_button': 'Maybe Later',
+
+    // Missing Global Labels/Actions
+    'label.loading': 'Loading...',
+    'action.export_json': 'Export JSON',
+    'action.import_json': 'Import JSON',
+    'action.reset_all_data': 'Reset All Data',
+    'action.switch_light': 'Switch to Light',
+    'action.switch_dark': 'Switch to Dark',
+    'label.rtl_mode': 'RTL Mode',
+    'label.ltr_mode': 'LTR Mode',
+    'label.dark_mode': 'Dark Mode',
+    'label.light_mode': 'Light Mode',
+    'label.direction': 'Direction',
+    'label.dir_auto': 'Automatic (Based on language)',
+    'label.dir_rtl': 'Forced RTL',
+    'label.dir_ltr': 'Forced LTR',
+
+    // Settings
+    'settings.data_management': 'Data Management',
+    'settings.export_group': 'Export & Backup',
+    'settings.restore_group': 'Restore Data',
+    'settings.danger_zone': 'Danger Zone',
+    'settings.danger_zone_desc': 'Irreversible actions. Be careful.',
+    'settings.merge': 'Merge',
+    'settings.replace': 'Replace',
+
+    // Messages
+    'msg.pdf_export_failed': 'PDF Export failed.',
+    'msg.export_success': 'Export successful!',
+    'msg.export_failed': 'Export failed.',
+    'msg.replace_confirm': 'This will wipe all current data. Continue?',
+    'msg.reset_confirm_suffix': 'Type "DELETE" to confirm.',
+    'msg.no_topics_yet': 'No topics yet.',
+
+    // Bulk Add
+    'modal.bulk_topic.placeholder': 'Topic 1\nTopic 2\nTopic 3...',
+    'modal.paste_courses.instruction_formats': 'Formats:',
+    'modal.paste_courses.format_1': 'Course Name | 3.0 | Semester 1',
+    'modal.paste_courses.format_2': 'Course Name - 3.0 - Semester 1',
+    'modal.paste_courses.format_3': 'Algorithm (4.5) Semester A',
 };

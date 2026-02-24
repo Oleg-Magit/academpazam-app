@@ -172,10 +172,50 @@ export const he = {
     'legal.terms.sections.liability.body': 'יוצרי אקדמפז"ם לא יהיו אחראים לכל נזק ישיר, עקיף, מקרי או תוצאתי הנובע מהשימוש באפליקציה.',
     'legal.terms.sections.modifications.title': 'שינויים',
     'legal.terms.sections.modifications.body': 'האפליקציה ותנאיה עשויים להתעדכן או להשתנות בכל עת ללא הודעה מוקדמת.',
-    'common.back': 'חזרה',
+    'common.back': 'חזור',
     // PWA Onboarding
-    'onboarding.install_title': 'התקן את אקדמפז"ם',
-    'onboarding.install_desc': 'התקן את אקדמפז"ם במכשיר שלך לחוויה דמוית אפליקציה מקומית, גישה לא מקוונת וטעינה מהירה יותר.',
-    'onboarding.install_button': 'התקן כעת',
+    'onboarding.install_title': 'התקנת אקדמפז"ם',
+    'onboarding.install_desc': 'התקן את אקדמפז"ם במכשיר שלך לחוויה דמויית אפליקציה מקורית, גישה לא מקוונת וטעינה מהירה יותר.',
+    'onboarding.install_button': 'התקן עכשיו',
     'onboarding.skip_button': 'אולי מאוחר יותר',
+
+    // Missing Global Labels/Actions
+    'label.loading': 'טוען...',
+    'action.export_json': 'ייצוא JSON',
+    'action.import_json': 'ייבוא JSON',
+    'action.reset_all_data': 'איפוס כל הנתונים',
+    'action.switch_light': 'עבור למצב בהיר',
+    'action.switch_dark': 'עבור למצב כהה',
+    'label.rtl_mode': 'מצב RTL',
+    'label.ltr_mode': 'מצב LTR',
+    'label.dark_mode': 'מצב כהה',
+    'label.light_mode': 'מצב בהיר',
+    'label.direction': 'כיוון',
+    'label.dir_auto': 'אוטומטי (לפי שפה)',
+    'label.dir_rtl': 'RTL כפוי',
+    'label.dir_ltr': 'LTR כפוי',
+
+    // Settings
+    'settings.data_management': 'ניהול נתונים',
+    'settings.export_group': 'ייצוא וגיבוי',
+    'settings.restore_group': 'שחזור נתונים',
+    'settings.danger_zone': 'אזור סכנה',
+    'settings.danger_zone_desc': 'פעולות בלתי הפיכות. היזהר.',
+    'settings.merge': 'מיזוג',
+    'settings.replace': 'החלפה',
+
+    // Messages
+    'msg.pdf_export_failed': 'ייצוא PDF נכשל.',
+    'msg.export_success': 'הייצוא בוצע בהצלחה!',
+    'msg.export_failed': 'הייצוא נכשל.',
+    'msg.replace_confirm': 'פעולה זו תמחק את כל הנתונים הנוכחיים. להמשיך?',
+    'msg.reset_confirm_suffix': 'הקלד "DELETE" לאישור.',
+    'msg.no_topics_yet': 'אין נושאים עדיין.',
+
+    // Bulk Add
+    'modal.bulk_topic.placeholder': 'נושא 1\nנושא 2\nנושא 3...',
+    'modal.paste_courses.instruction_formats': 'פורמטים:',
+    'modal.paste_courses.format_1': 'שם הקורס | 3.0 | סמסטר 1',
+    'modal.paste_courses.format_2': 'שם הקורס - 3.0 - סמסטר 1',
+    'modal.paste_courses.format_3': 'אלגוריתמים (4.5) סמסטר א',
 };

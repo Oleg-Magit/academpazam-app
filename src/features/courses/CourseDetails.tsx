@@ -40,7 +40,7 @@ export const CourseDetails: React.FC = () => {
     };
 
     const handleDeleteTopic = async (topicId: string) => {
-        if (confirm(t('msg.delete_course_confirm') || 'Delete this topic?')) {
+        if (confirm(t('msg.delete_course_confirm'))) {
             await deleteTopic(topicId);
             refreshTopics();
         }
@@ -203,7 +203,7 @@ export const CourseDetails: React.FC = () => {
 
                 {topics.length === 0 && (
                     <div style={{ textAlign: 'center', padding: 'var(--space-lg)', color: 'var(--color-text-secondary)' }}>
-                        {t('label.no_courses_found') || 'No topics yet.'}
+                        {t('msg.no_topics_yet')}
                     </div>
                 )}
             </div>

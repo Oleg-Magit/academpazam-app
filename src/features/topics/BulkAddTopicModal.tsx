@@ -50,7 +50,7 @@ export const BulkAddTopicModal: React.FC<BulkAddTopicModalProps> = ({ isOpen, on
                     value={text}
                     onChange={e => setText(e.target.value)}
                     style={{ width: '100%', height: '300px', padding: 'var(--space-sm)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-primary)', color: 'var(--color-text-primary)' }}
-                    placeholder="Topic 1&#10;Topic 2&#10;Topic 3..."
+                    placeholder={t('modal.bulk_topic.placeholder')}
                 />
                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 'var(--space-md)' }}>
                     <Button onClick={handleSave} disabled={!text.trim()}>{t('action.save_topics')}</Button>

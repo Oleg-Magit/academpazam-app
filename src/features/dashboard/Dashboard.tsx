@@ -118,7 +118,7 @@ export const Dashboard: React.FC = () => {
     };
 
     if (plansLoading) {
-        return <div style={{ padding: '40px', textAlign: 'center', color: 'var(--color-text-secondary)' }}>Loading...</div>;
+        return <div style={{ padding: '40px', textAlign: 'center', color: 'var(--color-text-secondary)' }}>{t('label.loading')}</div>;
     }
 
     // EMPTY STATE: No plan exists
@@ -190,8 +190,8 @@ export const Dashboard: React.FC = () => {
                         }}>
                             <MenuLink to="/courses" icon={<List size={16} />} label={t('label.manage_courses')} />
                             <MenuButton onClick={handleExportPDF} icon={<FileDown size={16} />} label={t('action.export_pdf')} />
-                            <MenuButton onClick={handleExportJSON} icon={<Database size={16} />} label="Export JSON" />
-                            <MenuButton onClick={() => importInputRef.current?.click()} icon={<Upload size={16} />} label="Import JSON" />
+                            <MenuButton onClick={handleExportJSON} icon={<Database size={16} />} label={t('action.export_json')} />
+                            <MenuButton onClick={() => importInputRef.current?.click()} icon={<Upload size={16} />} label={t('action.import_json')} />
                             <input type="file" ref={importInputRef} style={{ display: 'none' }} onChange={handleImportJSON} accept=".json" />
                         </div>
                     )}

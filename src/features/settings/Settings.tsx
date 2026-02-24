@@ -70,7 +70,7 @@ export const Settings: React.FC = () => {
             setTimeout(() => setMessage(''), 3000);
         } catch (e) {
             console.error(e);
-            setMessage('PDF Export failed.');
+            setMessage(t('msg.pdf_export_failed'));
         }
     };
 
@@ -83,11 +83,11 @@ export const Settings: React.FC = () => {
             a.download = `academ-pazam-backup-${new Date().toISOString().slice(0, 10)}.json`;
             a.click();
             URL.revokeObjectURL(url);
-            setMessage('Export successful!');
+            setMessage(t('msg.export_success'));
             setTimeout(() => setMessage(''), 3000);
         } catch (e) {
             console.error(e);
-            setMessage('Export failed.');
+            setMessage(t('msg.export_failed'));
         }
     };
 
@@ -95,7 +95,7 @@ export const Settings: React.FC = () => {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        if (mode === 'replace' && !confirm('This will wipe all current data. Continue?')) {
+        if (mode === 'replace' && !confirm(t('msg.replace_confirm'))) {
             return;
         }
 
@@ -113,7 +113,7 @@ export const Settings: React.FC = () => {
 
 
     const handleReset = async () => {
-        const confirmation = prompt(t('msg.reset_confirm') + ' Type "DELETE" to confirm.');
+        const confirmation = prompt(t('msg.reset_confirm') + ' ' + t('msg.reset_confirm_suffix'));
         if (confirmation === 'DELETE') {
             await clearAllData();
             window.location.reload();
@@ -143,7 +143,7 @@ export const Settings: React.FC = () => {
                     <div>
                         <h2 style={{ fontSize: '1rem', margin: 0 }}>{t('settings.language')}</h2>
                         <p style={{ margin: '4px 0 0', fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
-                            {language === 'he' ? 'RTL Mode' : 'LTR Mode'}
+                            {language === 'he' ? t('label.rtl_mode') : t('label.ltr_mode')}
                         </p>
                     </div>
                     <div style={{ width: '150px' }}>
@@ -162,12 +162,12 @@ export const Settings: React.FC = () => {
                     <div>
                         <h2 style={{ fontSize: '1rem', margin: 0 }}>{t('settings.theme')}</h2>
                         <p style={{ margin: '4px 0 0', fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
-                            {theme === 'dark' ? 'Dark Mode' : 'Light Mode'}
+                            {theme === 'dark' ? t('label.dark_mode') : t('label.light_mode')}
                         </p>
                     </div>
                     <Button variant="secondary" onClick={toggleTheme} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         {theme === 'dark' ? <Moon size={18} /> : <Sun size={18} />}
-                        {theme === 'dark' ? 'Switch to Light' : 'Switch to Dark'}
+                        {theme === 'dark' ? t('action.switch_light') : t('action.switch_dark')}
                     </Button>
                 </Card>
 
@@ -175,10 +175,10 @@ export const Settings: React.FC = () => {
                 <Card style={{ padding: '16px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div>
-                            <h2 style={{ fontSize: '1rem', margin: 0 }}>Direction</h2>
+                            <h2 style={{ fontSize: '1rem', margin: 0 }}>{t('label.direction')}</h2>
                             <p style={{ margin: '4px 0 0', fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
-                                {direction === 'auto' ? 'Automatic (Based on language)' :
-                                    direction === 'rtl' ? 'Forced RTL' : 'Forced LTR'}
+                                {direction === 'auto' ? t('label.dir_auto') :
+                                    direction === 'rtl' ? t('label.dir_rtl') : t('label.dir_ltr')}
                             </p>
                         </div>
                         <div style={{ display: 'flex', gap: '8px' }}>
@@ -187,7 +187,7 @@ export const Settings: React.FC = () => {
                                 onClick={() => setDirection('auto')}
                                 size="sm"
                             >
-                                Auto
+                                {t('label.dir_auto').split(' ')[0]}
                             </Button>
                             <Button
                                 variant={direction === 'rtl' ? 'primary' : 'secondary'}
@@ -256,22 +256,22 @@ export const Settings: React.FC = () => {
 
                 {/* Data Management */}
                 <Card style={{ padding: '16px' }}>
-                    <h2 style={{ fontSize: '1rem', marginBottom: '20px' }}>Data Management</h2>
+                    <h2 style={{ fontSize: '1rem', marginBottom: '20px' }}>{t('settings.data_management')}</h2>
 
                     <div style={{ display: 'grid', gap: '24px' }}>
                         {/* Export Group */}
                         <div>
                             <h3 style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                                Export & Backup
+                                {t('settings.export_group')}
                             </h3>
                             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                                 <Button variant="primary" onClick={handleExportPDF} style={{ flex: '1 1 160px' }}>
                                     <FileDown size={16} style={{ marginRight: '8px' }} />
-                                    Export PDF
+                                    {t('action.export_pdf')}
                                 </Button>
                                 <Button variant="secondary" onClick={handleExportJSON} style={{ flex: '1 1 160px' }}>
                                     <Download size={16} style={{ marginRight: '8px' }} />
-                                    Backup JSON
+                                    {t('action.export_json')}
                                 </Button>
                             </div>
                         </div>
@@ -279,16 +279,16 @@ export const Settings: React.FC = () => {
                         {/* Import Group */}
                         <div>
                             <h3 style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                                Restore Data
+                                {t('settings.restore_group')}
                             </h3>
                             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                                 <Button variant="secondary" onClick={() => mergeInputRef.current?.click()} disabled={importing} style={{ flex: '1 1 160px' }}>
                                     <Upload size={16} style={{ marginRight: '8px' }} />
-                                    Restore (Merge)
+                                    {t('action.import_json')} ({t('settings.merge')})
                                 </Button>
                                 <Button variant="secondary" onClick={() => replaceInputRef.current?.click()} disabled={importing} style={{ flex: '1 1 160px' }}>
                                     <Upload size={16} style={{ marginRight: '8px' }} />
-                                    Restore (Replace)
+                                    {t('action.import_json')} ({t('settings.replace')})
                                 </Button>
                                 <input id="restore-merge-input" ref={mergeInputRef} type="file" accept=".json" style={{ display: 'none' }} onChange={e => handleImportJSON(e, 'merge')} />
                                 <input id="restore-replace-input" ref={replaceInputRef} type="file" accept=".json" style={{ display: 'none' }} onChange={e => handleImportJSON(e, 'replace')} />
@@ -308,7 +308,7 @@ export const Settings: React.FC = () => {
                                 </div>
                                 <Button variant="danger" onClick={handleReset}>
                                     <Trash2 size={16} style={{ marginRight: '8px' }} />
-                                    Reset All Data
+                                    {t('action.reset_all_data')}
                                 </Button>
                             </div>
                         </div>

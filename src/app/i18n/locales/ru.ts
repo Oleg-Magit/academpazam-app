@@ -175,8 +175,48 @@ export const ru = {
     'legal.terms.sections.modifications.body': 'Приложение и его условия могут быть обновлены или изменены в любое время без предварительного уведомления.',
     'common.back': 'Назад',
     // PWA Onboarding
-    'onboarding.install_title': 'Установить AcademPazam',
-    'onboarding.install_desc': 'Установите AcademPazam на свое устройство для работы в режиме приложения, оффлайн-доступа и быстрой загрузки.',
+    'onboarding.install_title': 'Установить АкадемПазам',
+    'onboarding.install_desc': 'Установите АкадемПазам на свое устройство для работы в режиме приложения, офлайн-доступа и быстрой загрузки.',
     'onboarding.install_button': 'Установить сейчас',
-    'onboarding.skip_button': 'Может позже',
+    'onboarding.skip_button': 'Возможно позже',
+
+    // Missing Global Labels/Actions
+    'label.loading': 'Загрузка...',
+    'action.export_json': 'Экспорт JSON',
+    'action.import_json': 'Импорт JSON',
+    'action.reset_all_data': 'Сбросить все данные',
+    'action.switch_light': 'Перейти на светлую',
+    'action.switch_dark': 'Перейти на темную',
+    'label.rtl_mode': 'Режим RTL',
+    'label.ltr_mode': 'Режим LTR',
+    'label.dark_mode': 'Темная тема',
+    'label.light_mode': 'Светлая тема',
+    'label.direction': 'Направление',
+    'label.dir_auto': 'Автоматически (по языку)',
+    'label.dir_rtl': 'Принудительно RTL',
+    'label.dir_ltr': 'Принудительно LTR',
+
+    // Settings
+    'settings.data_management': 'Управление данными',
+    'settings.export_group': 'Экспорт и бэкап',
+    'settings.restore_group': 'Восстановление данных',
+    'settings.danger_zone': 'Опасная зона',
+    'settings.danger_zone_desc': 'Необратимые действия. Будьте осторожны.',
+    'settings.merge': 'Объединить',
+    'settings.replace': 'Заменить',
+
+    // Messages
+    'msg.pdf_export_failed': 'Ошибка экспорта PDF.',
+    'msg.export_success': 'Экспорт выполнен успешно!',
+    'msg.export_failed': 'Ошибка экспорта.',
+    'msg.replace_confirm': 'Это удалит все текущие данные. Продолжить?',
+    'msg.reset_confirm_suffix': 'Введите "DELETE" для подтверждения.',
+    'msg.no_topics_yet': 'Тем пока нет.',
+
+    // Bulk Add
+    'modal.bulk_topic.placeholder': 'Тема 1\nТема 2\nТема 3...',
+    'modal.paste_courses.instruction_formats': 'Форматы:',
+    'modal.paste_courses.format_1': 'Название курса | 3.0 | Семестр 1',
+    'modal.paste_courses.format_2': 'Название курса - 3.0 - Семестр 1',
+    'modal.paste_courses.format_3': 'Алгоритмы (4.5) Семестр А',
 };

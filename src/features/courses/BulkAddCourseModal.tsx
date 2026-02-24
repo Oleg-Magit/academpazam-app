@@ -114,10 +114,10 @@ export const BulkAddCourseModal: React.FC<BulkAddCourseModalProps> = ({ isOpen, 
                     <p style={{ marginBottom: 'var(--space-md)', fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
                         {t('modal.paste_courses.instruction')}
                         <br />
-                        Formats:<br />
-                        - Course Name | 3.0 | Semester 1<br />
-                        - Course Name - 3.0 - Semester 1<br />
-                        - Algorithm (4.5) Semester A
+                        {t('modal.paste_courses.instruction_formats')}<br />
+                        - {t('modal.paste_courses.format_1')}<br />
+                        - {t('modal.paste_courses.format_2')}<br />
+                        - {t('modal.paste_courses.format_3')}
                     </p>
                     <label htmlFor="bulk-courses-textarea" style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>
                         {t('modal.paste_courses.title')}
@@ -159,7 +159,7 @@ export const BulkAddCourseModal: React.FC<BulkAddCourseModalProps> = ({ isOpen, 
                                                     setPreview(newPreview);
                                                 }}
                                                 style={{ width: '100%', border: 'none', background: 'transparent', color: 'inherit' }}
-                                                aria-label="Course Name"
+                                                aria-label={t('label.course_name')}
                                             />
                                         </td>
                                         <td style={{ padding: '8px' }}>
@@ -174,7 +174,7 @@ export const BulkAddCourseModal: React.FC<BulkAddCourseModalProps> = ({ isOpen, 
                                                     setPreview(newPreview);
                                                 }}
                                                 style={{ width: '50px', border: 'none', background: 'transparent', color: 'inherit' }}
-                                                aria-label="Credits"
+                                                aria-label={t('label.credits')}
                                             />
                                         </td>
                                         <td style={{ padding: '8px' }}>
@@ -188,7 +188,7 @@ export const BulkAddCourseModal: React.FC<BulkAddCourseModalProps> = ({ isOpen, 
                                                     setPreview(newPreview);
                                                 }}
                                                 style={{ width: '80px', border: 'none', background: 'transparent', color: 'inherit' }}
-                                                aria-label="Semester"
+                                                aria-label={t('label.semester')}
                                             />
                                         </td>
                                     </tr>
