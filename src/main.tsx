@@ -6,6 +6,8 @@ import App from './app/App';
 import { I18nProvider } from './app/i18n/useTranslation';
 import { ThemeProvider } from './app/providers/ThemeProvider';
 
+import { PwaProvider } from './app/providers/PwaProvider';
+
 // Fast Gate: Apply stored preferences before React mount to prevent flicker
 (function () {
   try {
@@ -35,7 +37,9 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <I18nProvider>
       <ThemeProvider>
-        <App />
+        <PwaProvider>
+          <App />
+        </PwaProvider>
       </ThemeProvider>
     </I18nProvider>
   </StrictMode>,

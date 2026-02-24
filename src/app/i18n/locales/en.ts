@@ -173,4 +173,9 @@ export const en = {
     'legal.terms.sections.modifications.title': 'Modifications',
     'legal.terms.sections.modifications.body': 'The application and its terms may be updated or modified at any time without prior notice.',
     'common.back': 'Back',
+    // PWA Onboarding
+    'onboarding.install_title': 'Install AcademPazam',
+    'onboarding.install_desc': 'Install AcademPazam on your device for a native-like experience, offline access, and faster loading.',
+    'onboarding.install_button': 'Install Now',
+    'onboarding.skip_button': 'Maybe Later',
 };

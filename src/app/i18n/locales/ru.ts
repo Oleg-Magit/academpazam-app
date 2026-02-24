@@ -174,4 +174,9 @@ export const ru = {
     'legal.terms.sections.modifications.title': 'Изменения',
     'legal.terms.sections.modifications.body': 'Приложение и его условия могут быть обновлены или изменены в любое время без предварительного уведомления.',
     'common.back': 'Назад',
+    // PWA Onboarding
+    'onboarding.install_title': 'Установить AcademPazam',
+    'onboarding.install_desc': 'Установите AcademPazam на свое устройство для работы в режиме приложения, оффлайн-доступа и быстрой загрузки.',
+    'onboarding.install_button': 'Установить сейчас',
+    'onboarding.skip_button': 'Может позже',
 };

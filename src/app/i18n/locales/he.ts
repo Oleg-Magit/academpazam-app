@@ -173,4 +173,9 @@ export const he = {
     'legal.terms.sections.modifications.title': 'שינויים',
     'legal.terms.sections.modifications.body': 'האפליקציה ותנאיה עשויים להתעדכן או להשתנות בכל עת ללא הודעה מוקדמת.',
     'common.back': 'חזרה',
+    // PWA Onboarding
+    'onboarding.install_title': 'התקן את אקדמפז"ם',
+    'onboarding.install_desc': 'התקן את אקדמפז"ם במכשיר שלך לחוויה דמוית אפליקציה מקומית, גישה לא מקוונת וטעינה מהירה יותר.',
+    'onboarding.install_button': 'התקן כעת',
+    'onboarding.skip_button': 'אולי מאוחר יותר',
 };
