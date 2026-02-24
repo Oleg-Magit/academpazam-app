@@ -8,8 +8,8 @@ import path from 'path'
 // https://oleg-magit.github.io/academpazam-app/
 // Therefore base MUST match the repository name.
 
-export default defineConfig({
-  base: '/academpazam-app/',
+export default defineConfig(({ mode }) => ({
+  base: mode === 'production' ? '/academpazam-app/' : '/',
 
   define: {
     __APP_VERSION__: JSON.stringify(process.env.npm_package_version),
@@ -86,4 +86,4 @@ export default defineConfig({
       },
     },
   },
-})
+}));
