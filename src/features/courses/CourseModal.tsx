@@ -163,9 +163,15 @@ export const CourseModal: React.FC<CourseModalProps> = ({
                     onChange={e => setNotes(e.target.value)}
                 />
 
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-md)', marginTop: 'var(--space-lg)' }}>
-                    <Button type="button" variant="ghost" onClick={onClose}>{t('action.cancel')}</Button>
-                    <Button type="submit">{t('action.save')}</Button>
+                <div style={{
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                    gap: 'var(--space-md)',
+                    marginTop: 'var(--space-lg)',
+                    flexWrap: 'wrap-reverse'
+                }}>
+                    <Button type="button" variant="ghost" onClick={onClose} style={{ flex: '1 1 100px' }}>{t('action.cancel')}</Button>
+                    <Button type="submit" style={{ flex: '1 1 100px' }}>{t('action.save')}</Button>
                 </div>
             </form>
         </Modal>

@@ -47,7 +47,7 @@ export const SemesterRoadmap: React.FC<SemesterRoadmapProps> = ({
             display: 'flex',
             gap: '16px',
             overflowX: 'auto',
-            padding: '16px 4px',
+            padding: '16px var(--space-md)',
             scrollBehavior: 'smooth',
             alignItems: 'center',
             // Hide scrollbar but allow scroll

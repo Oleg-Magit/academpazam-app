@@ -256,35 +256,62 @@ export const Settings: React.FC = () => {
 
                 {/* Data Management */}
                 <Card style={{ padding: '16px' }}>
-                    <h2 style={{ fontSize: '1rem', marginBottom: '16px' }}>Data Management</h2>
-                    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                        <Button variant="secondary" onClick={handleExportJSON}>
-                            <Download size={16} style={{ marginRight: '8px' }} />
-                            Backup
-                        </Button>
+                    <h2 style={{ fontSize: '1rem', marginBottom: '20px' }}>Data Management</h2>
 
-                        <Button variant="primary" onClick={handleExportPDF}>
-                            <FileDown size={16} style={{ marginRight: '8px' }} />
-                            Export PDF
-                        </Button>
+                    <div style={{ display: 'grid', gap: '24px' }}>
+                        {/* Export Group */}
+                        <div>
+                            <h3 style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                                Export & Backup
+                            </h3>
+                            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                                <Button variant="primary" onClick={handleExportPDF} style={{ flex: '1 1 160px' }}>
+                                    <FileDown size={16} style={{ marginRight: '8px' }} />
+                                    Export PDF
+                                </Button>
+                                <Button variant="secondary" onClick={handleExportJSON} style={{ flex: '1 1 160px' }}>
+                                    <Download size={16} style={{ marginRight: '8px' }} />
+                                    Backup JSON
+                                </Button>
+                            </div>
+                        </div>
 
-                        <div style={{ width: '1px', backgroundColor: 'var(--color-border)', height: '36px', margin: '0 8px' }} />
+                        {/* Import Group */}
+                        <div>
+                            <h3 style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                                Restore Data
+                            </h3>
+                            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                                <Button variant="secondary" onClick={() => mergeInputRef.current?.click()} disabled={importing} style={{ flex: '1 1 160px' }}>
+                                    <Upload size={16} style={{ marginRight: '8px' }} />
+                                    Restore (Merge)
+                                </Button>
+                                <Button variant="secondary" onClick={() => replaceInputRef.current?.click()} disabled={importing} style={{ flex: '1 1 160px' }}>
+                                    <Upload size={16} style={{ marginRight: '8px' }} />
+                                    Restore (Replace)
+                                </Button>
+                                <input id="restore-merge-input" ref={mergeInputRef} type="file" accept=".json" style={{ display: 'none' }} onChange={e => handleImportJSON(e, 'merge')} />
+                                <input id="restore-replace-input" ref={replaceInputRef} type="file" accept=".json" style={{ display: 'none' }} onChange={e => handleImportJSON(e, 'replace')} />
+                            </div>
+                        </div>
 
-                        <Button variant="secondary" onClick={() => mergeInputRef.current?.click()} disabled={importing}>
-                            <Upload size={16} style={{ marginRight: '8px' }} />
-                            Restore (Merge)
-                        </Button>
-                        <input id="restore-merge-input" ref={mergeInputRef} type="file" accept=".json" style={{ display: 'none' }} onChange={e => handleImportJSON(e, 'merge')} />
-
-                        <Button variant="danger" onClick={handleReset} style={{ marginLeft: 'auto' }}>
-                            <Trash2 size={16} style={{ marginRight: '8px' }} />
-                            Reset All
-                        </Button>
-                        <Button variant="secondary" onClick={() => replaceInputRef.current?.click()} disabled={importing}>
-                            <Upload size={16} style={{ marginRight: '8px' }} />
-                            Restore (Replace)
-                        </Button>
-                        <input id="restore-replace-input" ref={replaceInputRef} type="file" accept=".json" style={{ display: 'none' }} onChange={e => handleImportJSON(e, 'replace')} />
+                        {/* Danger Zone */}
+                        <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: '20px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+                                <div>
+                                    <h3 style={{ fontSize: '0.85rem', color: 'var(--color-danger)', fontWeight: 600, margin: 0 }}>
+                                        Danger Zone
+                                    </h3>
+                                    <p style={{ margin: '4px 0 0', fontSize: '0.8rem', color: 'var(--color-text-secondary)' }}>
+                                        Irreversible actions. Be careful.
+                                    </p>
+                                </div>
+                                <Button variant="danger" onClick={handleReset}>
+                                    <Trash2 size={16} style={{ marginRight: '8px' }} />
+                                    Reset All Data
+                                </Button>
+                            </div>
+                        </div>
                     </div>
                 </Card>
 
