@@ -7,17 +7,20 @@ import { Select } from '@/ui/Select';
 import { exportDataToJSON, importDataFromJSON } from '@/core/services/importExport';
 import { usePlans } from '@/core/hooks/useData';
 import { clearAllData, savePlan } from '@/core/db/db';
-import { Download, Upload, Trash2, Edit2, Save, X, Moon, Sun } from 'lucide-react';
+import { Download, Upload, Trash2, Edit2, Save, X, Moon, Sun, FileDown } from 'lucide-react';
 import { useTranslation } from '@/app/i18n/useTranslation';
 import { useTheme } from '@/app/providers/ThemeProvider';
 import { LANGUAGES } from '../../app/i18n';
 import type { Language } from '../../app/i18n';
+import { useCourses } from '@/core/hooks/useData';
+import { generateDegreePDF } from '@/core/services/pdfGenerator';
 
 export const Settings: React.FC = () => {
     const { t, language, setLanguage, direction, setDirection } = useTranslation();
     const { theme, toggleTheme } = useTheme();
     const { plans, refresh: refreshPlans } = usePlans();
     const currentPlan = plans[0];
+    const { courses } = useCourses(currentPlan?.id || null);
     const [importing, setImporting] = useState(false);
     const [message, setMessage] = useState('');
 
@@ -50,6 +53,25 @@ export const Settings: React.FC = () => {
         setIsEditingPlan(false);
         setMessage(t('msg.saved_success'));
         setTimeout(() => setMessage(''), 3000);
+    };
+
+    const handleExportPDF = async () => {
+        if (!currentPlan || !courses) return;
+        try {
+            const pdfBytes = await generateDegreePDF(currentPlan.name, courses, language);
+            const blob = new Blob([pdfBytes as any], { type: 'application/pdf' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${currentPlan.name}-Progress.pdf`;
+            a.click();
+            URL.revokeObjectURL(url);
+            setMessage(t('msg.saved_success'));
+            setTimeout(() => setMessage(''), 3000);
+        } catch (e) {
+            console.error(e);
+            setMessage('PDF Export failed.');
+        }
     };
 
     const handleExportJSON = async () => {
@@ -239,6 +261,11 @@ export const Settings: React.FC = () => {
                         <Button variant="secondary" onClick={handleExportJSON}>
                             <Download size={16} style={{ marginRight: '8px' }} />
                             Backup
+                        </Button>
+
+                        <Button variant="primary" onClick={handleExportPDF}>
+                            <FileDown size={16} style={{ marginRight: '8px' }} />
+                            Export PDF
                         </Button>
 
                         <div style={{ width: '1px', backgroundColor: 'var(--color-border)', height: '36px', margin: '0 8px' }} />
