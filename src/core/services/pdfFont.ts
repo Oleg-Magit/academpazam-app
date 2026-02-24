@@ -13,7 +13,7 @@ export const loadCustomFont = async (pdfDoc: PDFDocument, lang: SupportedLang): 
     // he -> Hebrew font
     // ru, en, others -> NotoSans-Regular (supports Cyrillic and Latin)
     const fontName = lang === 'he' ? 'NotoSansHebrew-Regular.ttf' : 'NotoSans-Regular.ttf';
-    const fontUrl = `/fonts/${fontName}`;
+    const fontUrl = `${import.meta.env.BASE_URL}fonts/${fontName}`;
 
     try {
         const response = await fetch(fontUrl);
