@@ -8,11 +8,12 @@ cleanupOutdatedCaches();
 
 precacheAndRoute(self.__WB_MANIFEST);
 
-// Fallback to index.html for navigation (SPA support)
-const handler = createHandlerBoundToURL('/index.html');
+const handler = createHandlerBoundToURL('/academpazam-app/index.html');
 const navigationRoute = new NavigationRoute(handler, {
-    allowlist: [],
-    denylist: [/^\/.*\.[a-zA-Z0-9]+$/],
+    // Match any navigation to the subpath
+    allowlist: [new RegExp('^/academpazam-app/')],
+    // Deny files with extensions (assets) to let them fall through to precache/network
+    denylist: [/^\/academpazam-app\/.*\.[a-zA-Z0-9]+$/],
 });
 registerRoute(navigationRoute);
 
