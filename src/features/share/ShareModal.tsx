@@ -29,8 +29,8 @@ export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose }) => {
     // Detect Web Share API support
     const canNativeShare = typeof navigator !== 'undefined' && !!navigator.share;
 
-    // Use deployed URL from environment if available, otherwise window location
-    const shareUrl = import.meta.env.VITE_APP_URL || window.location.origin;
+    // Use deployed URL from environment or window location with base path
+    const shareUrl = import.meta.env.VITE_APP_URL || (window.location.origin + import.meta.env.BASE_URL);
     const shareText = t('share.subtitle');
     const fullMessage = `${shareText} ${shareUrl}`;
 
