@@ -1,0 +1,268 @@
+
+import React, { useState, useRef, useEffect } from 'react';
+import { Button } from '@/ui/Button';
+import { Card } from '@/ui/Card';
+import { Input } from '@/ui/Input';
+import { Select } from '@/ui/Select';
+import { exportDataToJSON, importDataFromJSON } from '@/core/services/importExport';
+import { usePlans } from '@/core/hooks/useData';
+import { clearAllData, savePlan } from '@/core/db/db';
+import { Download, Upload, Trash2, Edit2, Save, X, Moon, Sun } from 'lucide-react';
+import { useTranslation } from '@/app/i18n/useTranslation';
+import { useTheme } from '@/app/providers/ThemeProvider';
+import { LANGUAGES } from '../../app/i18n';
+import type { Language } from '../../app/i18n';
+
+export const Settings: React.FC = () => {
+    const { t, language, setLanguage, direction, setDirection } = useTranslation();
+    const { theme, toggleTheme } = useTheme();
+    const { plans, refresh: refreshPlans } = usePlans();
+    const currentPlan = plans[0];
+    const [importing, setImporting] = useState(false);
+    const [message, setMessage] = useState('');
+
+    // Plan editing
+    const [isEditingPlan, setIsEditingPlan] = useState(false);
+    const [planName, setPlanName] = useState('');
+    const [planThreshold, setPlanThreshold] = useState(56);
+
+    const mergeInputRef = useRef<HTMLInputElement>(null);
+    const replaceInputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        if (currentPlan) {
+            setPlanName(currentPlan.name);
+            setPlanThreshold(currentPlan.passing_exam_threshold);
+        }
+        console.debug("LANG", language, "DIR", document.documentElement.dir);
+    }, [currentPlan, language]);
+
+    const handleSavePlan = async () => {
+        if (!currentPlan) return;
+
+        await savePlan({
+            ...currentPlan,
+            name: planName,
+            passing_exam_threshold: planThreshold,
+            updatedAt: Date.now()
+        });
+        refreshPlans();
+        setIsEditingPlan(false);
+        setMessage(t('msg.saved_success'));
+        setTimeout(() => setMessage(''), 3000);
+    };
+
+    const handleExportJSON = async () => {
+        try {
+            const blob = await exportDataToJSON();
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `academ-pazam-backup-${new Date().toISOString().slice(0, 10)}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            setMessage('Export successful!');
+            setTimeout(() => setMessage(''), 3000);
+        } catch (e) {
+            console.error(e);
+            setMessage('Export failed.');
+        }
+    };
+
+    const handleImportJSON = async (e: React.ChangeEvent<HTMLInputElement>, mode: 'replace' | 'merge') => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (mode === 'replace' && !confirm('This will wipe all current data. Continue?')) {
+            return;
+        }
+
+        setImporting(true);
+        const text = await file.text();
+        const result = await importDataFromJSON(text, mode);
+        setImporting(false);
+        setMessage(result.message);
+        if (result.success) {
+            refreshPlans();
+            setTimeout(() => window.location.reload(), 1000);
+        }
+        e.target.value = '';
+    };
+
+
+    const handleReset = async () => {
+        const confirmation = prompt(t('msg.reset_confirm') + ' Type "DELETE" to confirm.');
+        if (confirmation === 'DELETE') {
+            await clearAllData();
+            window.location.reload();
+        }
+    };
+
+    return (
+        <div style={{ maxWidth: '800px', margin: '0 auto', paddingBottom: '80px' }}>
+            <h1 style={{ marginBottom: '24px', fontSize: '1.75rem' }}>{t('settings.title')}</h1>
+
+            {message && (
+                <div style={{
+                    padding: '12px 16px',
+                    backgroundColor: 'var(--color-bg-secondary)',
+                    borderLeft: '4px solid var(--color-accent)',
+                    borderRadius: '4px',
+                    marginBottom: '24px',
+                    fontWeight: 500
+                }}>
+                    {message}
+                </div>
+            )}
+
+            <div style={{ display: 'grid', gap: '16px' }}>
+                {/* Language */}
+                <Card style={{ padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div>
+                        <h2 style={{ fontSize: '1rem', margin: 0 }}>{t('settings.language')}</h2>
+                        <p style={{ margin: '4px 0 0', fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
+                            {language === 'he' ? 'RTL Mode' : 'LTR Mode'}
+                        </p>
+                    </div>
+                    <div style={{ width: '150px' }}>
+                        <Select
+                            id="language-select"
+                            name="language"
+                            value={language}
+                            onChange={(e) => setLanguage(e.target.value as Language)}
+                            options={LANGUAGES.map(l => ({ value: l.code, label: l.label }))}
+                        />
+                    </div>
+                </Card>
+
+                {/* Theme */}
+                <Card style={{ padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div>
+                        <h2 style={{ fontSize: '1rem', margin: 0 }}>{t('settings.theme')}</h2>
+                        <p style={{ margin: '4px 0 0', fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
+                            {theme === 'dark' ? 'Dark Mode' : 'Light Mode'}
+                        </p>
+                    </div>
+                    <Button variant="secondary" onClick={toggleTheme} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        {theme === 'dark' ? <Moon size={18} /> : <Sun size={18} />}
+                        {theme === 'dark' ? 'Switch to Light' : 'Switch to Dark'}
+                    </Button>
+                </Card>
+
+                {/* Direction */}
+                <Card style={{ padding: '16px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                            <h2 style={{ fontSize: '1rem', margin: 0 }}>Direction</h2>
+                            <p style={{ margin: '4px 0 0', fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
+                                {direction === 'auto' ? 'Automatic (Based on language)' :
+                                    direction === 'rtl' ? 'Forced RTL' : 'Forced LTR'}
+                            </p>
+                        </div>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                            <Button
+                                variant={direction === 'auto' ? 'primary' : 'secondary'}
+                                onClick={() => setDirection('auto')}
+                                size="sm"
+                            >
+                                Auto
+                            </Button>
+                            <Button
+                                variant={direction === 'rtl' ? 'primary' : 'secondary'}
+                                onClick={() => setDirection('rtl')}
+                                size="sm"
+                            >
+                                RTL
+                            </Button>
+                            <Button
+                                variant={direction === 'ltr' ? 'primary' : 'secondary'}
+                                onClick={() => setDirection('ltr')}
+                                size="sm"
+                            >
+                                LTR
+                            </Button>
+                        </div>
+                    </div>
+                </Card>
+
+                {/* Degree Settings */}
+                <Card style={{ padding: '16px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isEditingPlan ? '16px' : '0' }}>
+                        <div>
+                            <h2 style={{ fontSize: '1rem', margin: 0 }}>{t('settings.degree_name')}</h2>
+                            {!isEditingPlan && (
+                                <p style={{ margin: '4px 0 0', fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
+                                    {currentPlan?.name} (Pass &gt; {currentPlan?.passing_exam_threshold})
+                                </p>
+                            )}
+                        </div>
+                        {!isEditingPlan && (
+                            <Button variant="ghost" size="sm" onClick={() => setIsEditingPlan(true)}>
+                                <Edit2 size={16} />
+                            </Button>
+                        )}
+                    </div>
+
+                    {isEditingPlan && (
+                        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr auto', gap: '12px', alignItems: 'end' }}>
+                            <Input
+                                id="plan-name"
+                                name="planName"
+                                label={t('settings.degree_name')}
+                                value={planName}
+                                onChange={e => setPlanName(e.target.value)}
+                            />
+                            <Input
+                                id="plan-threshold"
+                                name="planThreshold"
+                                label={t('settings.passing_grade')}
+                                type="number"
+                                value={planThreshold}
+                                onChange={e => setPlanThreshold(Number(e.target.value))}
+                            />
+                            <div style={{ display: 'flex', gap: '8px', paddingBottom: '2px' }}>
+                                <Button variant="ghost" onClick={() => setIsEditingPlan(false)} title="Cancel">
+                                    <X size={20} />
+                                </Button>
+                                <Button onClick={handleSavePlan} title="Save">
+                                    <Save size={20} />
+                                </Button>
+                            </div>
+                        </div>
+                    )}
+                </Card>
+
+                {/* Data Management */}
+                <Card style={{ padding: '16px' }}>
+                    <h2 style={{ fontSize: '1rem', marginBottom: '16px' }}>Data Management</h2>
+                    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                        <Button variant="secondary" onClick={handleExportJSON}>
+                            <Download size={16} style={{ marginRight: '8px' }} />
+                            Backup
+                        </Button>
+
+                        <div style={{ width: '1px', backgroundColor: 'var(--color-border)', height: '36px', margin: '0 8px' }} />
+
+                        <Button variant="secondary" onClick={() => mergeInputRef.current?.click()} disabled={importing}>
+                            <Upload size={16} style={{ marginRight: '8px' }} />
+                            Restore (Merge)
+                        </Button>
+                        <input id="restore-merge-input" ref={mergeInputRef} type="file" accept=".json" style={{ display: 'none' }} onChange={e => handleImportJSON(e, 'merge')} />
+
+                        <Button variant="danger" onClick={handleReset} style={{ marginLeft: 'auto' }}>
+                            <Trash2 size={16} style={{ marginRight: '8px' }} />
+                            Reset All
+                        </Button>
+                        <Button variant="secondary" onClick={() => replaceInputRef.current?.click()} disabled={importing}>
+                            <Upload size={16} style={{ marginRight: '8px' }} />
+                            Restore (Replace)
+                        </Button>
+                        <input id="restore-replace-input" ref={replaceInputRef} type="file" accept=".json" style={{ display: 'none' }} onChange={e => handleImportJSON(e, 'replace')} />
+                    </div>
+                </Card>
+
+                {/* PDF Export */}
+            </div>
+        </div>
+    );
+};
