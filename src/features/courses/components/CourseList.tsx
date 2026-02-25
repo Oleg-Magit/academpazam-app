@@ -92,6 +92,7 @@ export const CourseList: React.FC<CourseListProps> = ({
                                     e.stopPropagation();
                                     onEdit(course);
                                 }}
+                                aria-label={t('action.edit')}
                             >
                                 <Edit2 size={16} />
                             </Button>
@@ -103,6 +104,7 @@ export const CourseList: React.FC<CourseListProps> = ({
                                     e.stopPropagation();
                                     onDelete(course);
                                 }}
+                                aria-label={t('action.delete')}
                             >
                                 <Trash2 size={16} />
                             </Button>

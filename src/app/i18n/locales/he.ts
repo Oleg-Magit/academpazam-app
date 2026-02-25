@@ -68,6 +68,7 @@ export const he = {
     'label.no_courses_found': 'לא נמצאו קורסים.',
     'label.add_some': 'הוסף!',
     'label.pts': 'נק׳',
+    'label.more_options': 'אפשרויות נוספות',
     'label.more': 'עוד',
     'label.total_credits': 'סה״כ נקודות',
     'label.completed': 'הושלמו',

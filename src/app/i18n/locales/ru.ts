@@ -67,6 +67,7 @@ export const ru = {
     'label.overview_by_semester': 'Обзор по семестрам',
     'label.no_courses_found': 'Курсы не найдены.',
     'label.add_some': 'Добавить!',
+    'label.more_options': 'Дополнительные действия',
 
     'label.pts': 'балл.',
     'label.more': 'еще',

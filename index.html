@@ -3,8 +3,12 @@
 
 <head>
   <meta charset="UTF-8" />
-  <link rel="icon" type="image/png" href="/academpazam-app/pwa-192x192.png" />
+  <link rel="icon" type="image/png" href="/pwa-192x192.png" />
+  <link rel="manifest" href="/manifest.json" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#1a1a1a" />
+  <meta name="description"
+    content="AcademPazam - Track your degree progress, manage courses, and visualize your academic journey. Privacy-focused, local-first." />
   <title>AcademPazam — Degree Progress Tracker</title>
 
   <!-- Social Preview Metadata (Open Graph) -->
@@ -23,6 +27,18 @@
   <meta name="twitter:description"
     content="A privacy-focused, local-first PWA to track your degree progress. Works offline. Data stays on your device." />
   <meta name="twitter:image" content="https://oleg-magit.github.io/academpazam-app/og/academpazam-share.png" />
+  <style>
+    :root {
+      color-scheme: dark;
+    }
+
+    body {
+      background-color: #0f172a;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+  </style>
 </head>
 
 <body>

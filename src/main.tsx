@@ -24,11 +24,9 @@ import { PwaProvider } from './app/providers/PwaProvider';
     }
 
     document.documentElement.dir = dir;
-    console.debug("[BOOT_GATE]", {
-      i18nextLng: localStorage.getItem("i18nextLng"),
-      dir: document.documentElement.dir
-    });
+    document.documentElement.dir = dir;
   } catch (e) {
+    // Initial session log removed for best practices
     console.error('Fast-gate preference application failed', e);
   }
 })();

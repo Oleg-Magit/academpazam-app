@@ -42,3 +42,7 @@ coverage/
 # Vite timestamp files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# Lighthouse reports
+lighthouse-*.json
+lighthouse-*.html

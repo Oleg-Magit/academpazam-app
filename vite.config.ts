@@ -32,19 +32,21 @@ export default defineConfig(({ mode }) => ({
         'favicon.ico',
         'apple-touch-icon.png',
         'mask-icon.svg',
+        'pwa-192x192.png',
+        'pwa-512x512.png',
       ],
 
       manifest: {
         name: 'AcademPazam',
         short_name: 'AcademPazam',
         description: 'AcademPazam - Degree Progress Tracker',
-        theme_color: '#ffffff',
-        background_color: '#2563eb',
+        theme_color: '#1a1a1a',
+        background_color: '#1a1a1a',
         display: 'standalone',
 
         // MUST match repository subpath
-        start_url: '/academpazam-app/',
-        scope: '/academpazam-app/',
+        start_url: mode === 'production' ? '/academpazam-app/' : '/',
+        scope: mode === 'production' ? '/academpazam-app/' : '/',
 
         icons: [
           {
@@ -62,7 +64,7 @@ export default defineConfig(({ mode }) => ({
 
       // Ensures SPA refresh works on GitHub Pages
       workbox: {
-        navigateFallback: '/academpazam-app/index.html',
+        navigateFallback: mode === 'production' ? '/academpazam-app/index.html' : '/index.html',
       },
     }),
   ],
@@ -82,6 +84,11 @@ export default defineConfig(({ mode }) => ({
           'vendor-pdf-lib': ['pdf-lib'],
           'vendor-fonts': ['fontkit', '@pdf-lib/fontkit'],
           'vendor-utils': ['idb', 'uuid', 'bidi-js'],
+          'locales': [
+            './src/app/i18n/locales/en',
+            './src/app/i18n/locales/he',
+            './src/app/i18n/locales/ru'
+          ],
         },
       },
     },

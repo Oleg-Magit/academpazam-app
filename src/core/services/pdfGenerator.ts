@@ -168,6 +168,24 @@ export const generateDegreePDF = async (degreeName: string, courses: CourseWithT
                 currentY = newPage.getSize().height - 50;
             }
 
+            // Draw Course Code
+            drawCellText(page, customFont, txt(course.code || ''), {
+                x: cols.code.x, y: currentY, width: cols.code.width, size: 10, color: black,
+                align: lang === 'he' ? 'right' : 'left'
+            });
+
+            // Draw Course Name
+            drawCellText(page, customFont, txt(course.name), {
+                x: cols.name.x, y: currentY, width: cols.name.width, size: 10, color: black,
+                align: lang === 'he' ? 'right' : 'left'
+            });
+
+            // Draw Credits
+            drawCellText(page, customFont, txt(course.credits.toString()), {
+                x: cols.credits.x, y: currentY, width: cols.credits.width, size: 10, color: black,
+                align: lang === 'he' ? 'right' : 'left'
+            });
+
             const statusKey = `status.${course.effectiveStatus}` as TranslationKey;
             drawCellText(page, customFont, t(statusKey) || txt(course.effectiveStatus), {
                 x: cols.status.x, y: currentY, width: cols.status.width, size: 10, color: black,

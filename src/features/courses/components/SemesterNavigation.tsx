@@ -109,6 +109,7 @@ export const SemesterNavigation: React.FC<SemesterNavigationProps> = ({
                                                 e.stopPropagation();
                                                 onStartRenaming(sem.semester, sem.label || `${t('label.semester')} ${sem.semester}`);
                                             }}
+                                            aria-label={t('action.edit')}
                                         >
                                             <Edit2 size={12} style={{ opacity: 0.7 }} />
                                         </Button>
@@ -122,6 +123,7 @@ export const SemesterNavigation: React.FC<SemesterNavigationProps> = ({
                                                     e.stopPropagation();
                                                     onPromptDelete(sem.semester, sem.label || `${t('label.semester')} ${sem.semester}`);
                                                 }}
+                                                aria-label={t('action.delete')}
                                             >
                                                 <Trash2 size={12} style={{ opacity: 0.7 }} />
                                             </Button>
@@ -145,6 +147,6 @@ export const SemesterNavigation: React.FC<SemesterNavigationProps> = ({
                 <Plus size={16} style={{ marginRight: '8px' }} />
                 {t('action.add_semester')}
             </Button>
-        </div>
+        </div >
     );
 };

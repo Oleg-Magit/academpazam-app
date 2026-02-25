@@ -25,15 +25,15 @@ export const Layout: React.FC = () => {
                     <span className={styles.title}>{t('app.title')}</span>
                 </div>
                 <nav className={styles.nav}>
-                    <NavLink to="/" className={({ isActive }) => `${styles.link} ${isActive ? styles.active : ''}`}>
+                    <NavLink to="/" className={({ isActive }) => `${styles.link} ${isActive ? styles.active : ''}`} aria-label={t('nav.dashboard')}>
                         <Home size={20} />
                         <span className={styles.linkText}>{t('nav.dashboard')}</span>
                     </NavLink>
-                    <NavLink to="/courses" className={({ isActive }) => `${styles.link} ${isActive ? styles.active : ''}`}>
+                    <NavLink to="/courses" className={({ isActive }) => `${styles.link} ${isActive ? styles.active : ''}`} aria-label={t('nav.courses')}>
                         <BookOpen size={20} />
                         <span className={styles.linkText}>{t('nav.courses')}</span>
                     </NavLink>
-                    <NavLink to="/settings" className={({ isActive }) => `${styles.link} ${isActive ? styles.active : ''}`}>
+                    <NavLink to="/settings" className={({ isActive }) => `${styles.link} ${isActive ? styles.active : ''}`} aria-label={t('nav.settings')}>
                         <Settings size={20} />
                         <span className={styles.linkText}>{t('nav.settings')}</span>
                     </NavLink>

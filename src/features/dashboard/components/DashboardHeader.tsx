@@ -98,6 +98,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                         variant="secondary"
                         onClick={() => setShowActions(!showActions)}
                         style={{ padding: '0 8px' }}
+                        aria-label={t('label.more_options')}
                     >
                         <MoreHorizontal size={18} />
                     </Button>

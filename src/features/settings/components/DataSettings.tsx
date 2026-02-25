@@ -5,7 +5,7 @@ import { Download, Upload, Trash2, FileDown } from 'lucide-react';
 import { useTranslation } from '@/app/i18n/useTranslation';
 import { exportDataToJSON, importDataFromJSON } from '@/core/services/importExport';
 import { clearAllData } from '@/core/db/db';
-import { generateDegreePDF } from '@/core/services/pdfGenerator';
+// Removed static import for performance: import { generateDegreePDF } from '@/core/services/pdfGenerator';
 import { ConfirmationModal } from '@/ui/ConfirmationModal';
 import type { Plan, CourseWithTopics } from '@/core/models/types';
 import type { Language } from '@/app/i18n';
@@ -28,19 +28,42 @@ export const DataSettings: React.FC<DataSettingsProps> = ({ plan, courses, onRef
     const replaceInputRef = useRef<HTMLInputElement>(null);
 
     const handleExportPDF = async () => {
-        if (!plan || !courses) return;
+        if (!plan) {
+            onMessage(t('msg.no_plan_found'));
+            return;
+        }
+        if (!courses || courses.length === 0) {
+            onMessage(t('dashboard.no_courses'));
+            return;
+        }
+
         try {
+            const { generateDegreePDF } = await import('@/core/services/pdfGenerator');
             const pdfBytes = await generateDegreePDF(plan.name, courses, language);
+
+            const header = String.fromCharCode(...pdfBytes.slice(0, 5));
+            if (!header.startsWith('%PDF-')) {
+                throw new Error('Invalid PDF generation - header missing');
+            }
+
             const blob = new Blob([pdfBytes as any], { type: 'application/pdf' });
             const url = URL.createObjectURL(blob);
+
             const a = document.createElement('a');
             a.href = url;
             a.download = `${plan.name}-Progress.pdf`;
+            document.body.appendChild(a);
             a.click();
-            URL.revokeObjectURL(url);
+
+            // Delayed revocation for better browser compatibility
+            setTimeout(() => {
+                URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            }, 2000);
+
             onMessage(t('msg.saved_success'));
         } catch (e) {
-            console.error(e);
+            console.error('[PDF Export - Settings] Failed:', e);
             onMessage(t('msg.pdf_export_failed'));
         }
     };

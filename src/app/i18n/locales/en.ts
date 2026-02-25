@@ -68,6 +68,7 @@ export const en = {
     'label.no_courses_found': 'No courses found.',
     'label.add_some': 'Add some!',
     'label.search_results': 'Search Results',
+    'label.more_options': 'More Options',
 
     'label.pts': 'pts',
     'label.more': 'more',

@@ -74,16 +74,7 @@ export const I18nProvider: React.FC<{ children: React.ReactNode }> = ({ children
         loadSettings();
     }, []);
 
-    // Initial session log
-    useEffect(() => {
-        if (isLoaded) {
-            console.debug("[BOOT]", {
-                i18nextLng: localStorage.getItem(STORAGE_KEY),
-                dir: document.documentElement.dir,
-                i18n: language
-            });
-        }
-    }, [isLoaded, language]);
+    // Initial session log removed for best practices
 
     useEffect(() => {
         const langConfig = LANGUAGES.find(l => l.code === language);

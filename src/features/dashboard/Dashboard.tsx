@@ -3,6 +3,7 @@ import { usePlans, useCourses } from '@/core/hooks/useData';
 import type { Course } from '@/core/models/types';
 import { savePlan, getSemesterConfig } from '@/core/db/db';
 import { v4 as uuidv4 } from 'uuid';
+import { exportDataToJSON, importDataFromJSON } from '@/core/services/importExport';
 import { useTranslation } from '@/app/i18n/useTranslation';
 import { DegreeSnapshot } from './components/DegreeSnapshot';
 import { SemesterRoadmap } from './components/SemesterRoadmap';
@@ -10,11 +11,10 @@ import { SemesterDrawer } from './components/SemesterDrawer';
 import { CourseModal } from '@/features/courses/CourseModal';
 import { DashboardHeader } from './components/DashboardHeader';
 import { useDashboardData } from './hooks/useDashboardData';
+import { DashboardSkeleton } from './components/DashboardSkeleton';
 import { Button } from '@/ui/Button';
 import { Card } from '@/ui/Card';
 import { GraduationCap, Info } from 'lucide-react';
-import { generateDegreePDF } from '@/core/services/pdfGenerator';
-import { importDataFromJSON, exportDataToJSON } from '@/core/services/importExport';
 
 export const Dashboard: React.FC = () => {
     const { t, language } = useTranslation();
@@ -26,6 +26,7 @@ export const Dashboard: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [initialModalData, setInitialModalData] = useState<Partial<Course>>({ semester: '1' });
     const [showExportSuccess, setShowExportSuccess] = useState(false);
+    const [exportError, setExportError] = useState<string | null>(null);
     const actionsRef = useRef<HTMLDivElement>(null);
     const importInputRef = useRef<HTMLInputElement>(null);
 
@@ -59,22 +60,47 @@ export const Dashboard: React.FC = () => {
     };
 
     const handleExportPDF = async () => {
-        if (!currentPlan || !courses) return;
+        setExportError(null);
+        if (!currentPlan) {
+            setExportError(t('msg.no_plan_found'));
+            return;
+        }
+        if (coursesLoading || !courses || courses.length === 0) {
+            setExportError(t('dashboard.no_courses'));
+            return;
+        }
+
         setShowActions(false);
         try {
+            const { generateDegreePDF } = await import('@/core/services/pdfGenerator');
             const pdfBytes = await generateDegreePDF(currentPlan.name, courses, language);
+
+            // Minimal header check
+            const header = String.fromCharCode(...pdfBytes.slice(0, 5));
+            if (!header.startsWith('%PDF-')) {
+                throw new Error('Invalid PDF generation - header missing');
+            }
+
             const blob = new Blob([pdfBytes as any], { type: 'application/pdf' });
             const url = URL.createObjectURL(blob);
+
             const a = document.createElement('a');
             a.href = url;
             a.download = `${currentPlan.name}-Progress.pdf`;
+            document.body.appendChild(a);
             a.click();
-            URL.revokeObjectURL(url);
+
+            // Delayed revocation for better browser compatibility (Chrome/Edge)
+            setTimeout(() => {
+                URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            }, 2000);
 
             setShowExportSuccess(true);
             setTimeout(() => setShowExportSuccess(false), 3000);
         } catch (e) {
-            console.error(e);
+            console.error('[PDF Export] Failed:', e);
+            setExportError(t('msg.pdf_export_failed'));
         }
     };
 
@@ -115,7 +141,7 @@ export const Dashboard: React.FC = () => {
     };
 
     if (plansLoading) {
-        return <div style={{ padding: '40px', textAlign: 'center', color: 'var(--color-text-secondary)' }}>{t('label.loading')}</div>;
+        return <DashboardSkeleton />;
     }
 
     // EMPTY STATE: No plan exists
@@ -214,6 +240,24 @@ export const Dashboard: React.FC = () => {
                     initialData={initialModalData}
                     semesterConfig={semesterConfig || { count: 8, labels: [] }}
                 />
+            )}
+
+            {exportError && (
+                <div style={{
+                    position: 'fixed',
+                    bottom: '24px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    backgroundColor: 'var(--color-danger)',
+                    color: 'white',
+                    padding: '12px 24px',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+                    zIndex: 1000,
+                    cursor: 'pointer'
+                }} onClick={() => setExportError(null)}>
+                    {exportError}
+                </div>
             )}
         </div>
     );

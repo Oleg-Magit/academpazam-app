@@ -30,6 +30,7 @@ export const CoursesToolbar: React.FC<CoursesToolbarProps> = ({
                     <input
                         type="text"
                         placeholder={t('label.search_placeholder')}
+                        aria-label={t('label.search_placeholder')}
                         value={searchTerm}
                         onChange={e => onSearchChange(e.target.value)}
                         style={{
@@ -45,6 +46,7 @@ export const CoursesToolbar: React.FC<CoursesToolbarProps> = ({
                 <select
                     value={statusFilter}
                     onChange={e => onStatusFilterChange(e.target.value)}
+                    aria-label={t('label.filter_status')}
                     style={{
                         padding: '10px 12px',
                         borderRadius: '8px',

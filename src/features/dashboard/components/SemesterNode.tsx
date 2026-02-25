@@ -50,6 +50,8 @@ export const SemesterNode: React.FC<SemesterNodeProps> = memo(({
     return (
         <div
             onClick={onClick}
+            role="button"
+            aria-label={`${label || t('label.semester') + ' ' + semester} - ${progress.toFixed(0)}%`}
             style={{
                 flex: '0 0 auto',
                 width: '180px',
