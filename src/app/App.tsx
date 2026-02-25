@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { HashRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { Layout } from '../ui/Layout';
 import { ErrorBoundary } from '../ui/ErrorBoundary';
@@ -41,10 +41,10 @@ const AppContent = () => {
 function App() {
     return (
         <ErrorBoundary>
-            <BrowserRouter basename={import.meta.env.BASE_URL}>
+            <HashRouter>
                 <UpgradeGuard />
                 <AppContent />
-            </BrowserRouter>
+            </HashRouter>
         </ErrorBoundary>
     );
 }

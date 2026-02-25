@@ -132,12 +132,11 @@ export const Dashboard: React.FC = () => {
         if (!file) return;
         const text = await file.text();
         await importDataFromJSON(text, 'merge');
-        window.location.reload();
+        refreshPlans();
     };
 
     const handleSaveCourse = () => {
         refreshPlans();
-        window.location.reload();
     };
 
     if (plansLoading) {

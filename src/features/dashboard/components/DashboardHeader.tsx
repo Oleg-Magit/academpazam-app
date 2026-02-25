@@ -2,6 +2,7 @@ import React from 'react';
 import { Button } from '@/ui/Button';
 import { Plus, MoreHorizontal, FileDown, Database, Upload, List } from 'lucide-react';
 import { useTranslation } from '@/app/i18n/useTranslation';
+import { Link } from 'react-router-dom';
 
 interface DashboardHeaderProps {
     title: string;
@@ -31,7 +32,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
     const { t } = useTranslation();
 
     const MenuLink = ({ to, icon, label }: { to: string, icon: React.ReactNode, label: string }) => (
-        <a href={to} style={{
+        <Link to={to} style={{
             display: 'flex',
             alignItems: 'center',
             gap: '12px',
@@ -44,7 +45,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
             onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}>
             {icon}
             {label}
-        </a>
+        </Link>
     );
 
     const MenuButton = ({ onClick, icon, label }: { onClick: () => void, icon: React.ReactNode, label: string }) => (
