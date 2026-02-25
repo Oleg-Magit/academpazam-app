@@ -75,7 +75,7 @@ export const CourseList: React.FC<CourseListProps> = ({
                             </h3>
                             {showSemesterLabel && (
                                 <div style={{ fontSize: '0.75rem', color: 'var(--color-accent)', marginTop: '2px', fontWeight: 500 }}>
-                                    {semesterLabels?.[course.semesterId] || `${t('label.semester')} ${course.semesterId}`}
+                                    {semesterLabels?.[course.semesterId] || t('label.semester')}
                                 </div>
                             )}
                         </div>

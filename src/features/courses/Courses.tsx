@@ -271,7 +271,7 @@ export const Courses: React.FC = () => {
                     padding: '12px 24px',
                     borderRadius: '8px',
                     boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
-                    zIndex: 1000
+                    zIndex: 2000
                 }}>
                     {errorMsg}
                 </div>

@@ -162,16 +162,29 @@ export const BulkAddCourseModal: React.FC<BulkAddCourseModalProps> = ({ isOpen, 
                         name="bulkCoursesText"
                         value={text}
                         onChange={e => setText(e.target.value)}
-                        style={{ width: '100%', height: '300px', padding: 'var(--space-sm)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-primary)', color: 'var(--color-text-primary)' }}
+                        style={{ width: '100%', minHeight: '200px', height: '30vh', padding: 'var(--space-sm)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-primary)', color: 'var(--color-text-primary)' }}
                         placeholder={t('modal.paste_courses.placeholder')}
                     />
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 'var(--space-md)' }}>
+                    <div style={{
+                        display: 'flex',
+                        justifyContent: 'flex-end',
+                        marginTop: 'var(--space-lg)',
+                        position: 'sticky',
+                        bottom: 0,
+                        backgroundColor: 'var(--color-bg-primary)',
+                        paddingTop: 'var(--space-md)',
+                        borderTop: '1px solid var(--color-border)',
+                        zIndex: 10,
+                        marginInline: 'calc(var(--space-lg) * -1)',
+                        paddingInline: 'var(--space-lg)',
+                        paddingBottom: 'var(--space-xs)'
+                    }}>
                         <Button onClick={handlePreview}>{t('action.preview')}</Button>
                     </div>
                 </div>
             ) : (
                 <div>
-                    <div style={{ maxHeight: '400px', overflowY: 'auto', marginBottom: 'var(--space-md)' }}>
+                    <div style={{ maxHeight: '50vh', overflowY: 'auto', marginBottom: 'var(--space-md)', marginInline: 'calc(var(--space-lg) * -1)', paddingInline: 'var(--space-lg)' }}>
                         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
                             <thead>
                                 <tr style={{ borderBottom: '1px solid var(--color-border)', textAlign: 'left' }}>
@@ -235,7 +248,19 @@ export const BulkAddCourseModal: React.FC<BulkAddCourseModalProps> = ({ isOpen, 
                             </tbody>
                         </table>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        position: 'sticky',
+                        bottom: 0,
+                        backgroundColor: 'var(--color-bg-primary)',
+                        paddingTop: 'var(--space-md)',
+                        borderTop: '1px solid var(--color-border)',
+                        zIndex: 10,
+                        marginInline: 'calc(var(--space-lg) * -1)',
+                        paddingInline: 'var(--space-lg)',
+                        paddingBottom: 'var(--space-xs)'
+                    }}>
                         <Button variant="ghost" onClick={() => setStep('input')}>{t('action.back')}</Button>
                         <Button onClick={handleSave}>{t('action.save_courses')} ({preview.length})</Button>
                     </div>

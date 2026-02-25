@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useTopics } from '@/core/hooks/useData';
+import { useTopics, useSemesters } from '@/core/hooks/useData';
 import { Button } from '@/ui/Button';
 import { Card } from '@/ui/Card';
 import { Badge } from '@/ui/Badge';
@@ -20,6 +20,7 @@ export const CourseDetails: React.FC = () => {
     const navigate = useNavigate();
     const [course, setCourse] = useState<Course | null>(null);
     const { topics, refresh: refreshTopics } = useTopics(id || null);
+    const { semesters } = useSemesters();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
     const [editingTopic, setEditingTopic] = useState<Topic | null>(null);
@@ -121,7 +122,7 @@ export const CourseDetails: React.FC = () => {
                             {course.code && <Badge>{course.code}</Badge>}
                         </div>
                         <div style={{ color: 'var(--color-text-secondary)' }}>
-                            {t('label.semester')} {course.semesterId} • {course.credits} {t('label.credits')}
+                            {semesters.find(s => s.id === course.semesterId)?.name || t('label.semester')} • {course.credits} {t('label.credits')}
                         </div>
                         {course.notes && (
                             <div style={{ marginTop: 'var(--space-md)', fontSize: '0.875rem', color: 'var(--color-text-secondary)', fontStyle: 'italic' }}>

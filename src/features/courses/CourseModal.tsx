@@ -184,10 +184,19 @@ export const CourseModal: React.FC<CourseModalProps> = ({
                     display: 'flex',
                     justifyContent: 'flex-end',
                     gap: 'var(--space-md)',
-                    marginTop: 'var(--space-lg)',
+                    marginTop: 'calc(var(--space-lg) * 2)',
+                    position: 'sticky',
+                    bottom: 0,
+                    backgroundColor: 'var(--color-bg-primary)',
+                    paddingTop: 'var(--space-md)',
+                    borderTop: '1px solid var(--color-border)',
+                    zIndex: 10,
+                    marginInline: 'calc(var(--space-lg) * -1)',
+                    paddingInline: 'var(--space-lg)',
+                    paddingBottom: 'var(--space-xs)',
                     flexWrap: 'wrap-reverse'
                 }}>
-                    {errors.submit && <div style={{ color: 'var(--color-danger)', fontSize: '0.875rem', width: '100%' }}>{errors.submit}</div>}
+                    {errors.submit && <div style={{ color: 'var(--color-danger)', fontSize: '0.875rem', width: '100%', marginBottom: 'var(--space-sm)' }}>{errors.submit}</div>}
                     <Button type="button" variant="ghost" onClick={onClose} style={{ flex: '1 1 100px' }}>{t('action.cancel')}</Button>
                     <Button type="submit" style={{ flex: '1 1 100px' }}>{t('action.save')}</Button>
                 </div>

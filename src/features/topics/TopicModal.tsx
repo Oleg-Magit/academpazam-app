@@ -112,7 +112,21 @@ export const TopicModal: React.FC<TopicModalProps> = ({
                     options={STATUS_OPTIONS}
                 />
 
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-md)', marginTop: 'var(--space-lg)' }}>
+                <div style={{
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                    gap: 'var(--space-md)',
+                    marginTop: 'calc(var(--space-lg) * 2)',
+                    position: 'sticky',
+                    bottom: 0,
+                    backgroundColor: 'var(--color-bg-primary)',
+                    paddingTop: 'var(--space-md)',
+                    borderTop: '1px solid var(--color-border)',
+                    zIndex: 10,
+                    marginInline: 'calc(var(--space-lg) * -1)',
+                    paddingInline: 'var(--space-lg)',
+                    paddingBottom: 'var(--space-xs)'
+                }}>
                     <Button type="button" variant="ghost" onClick={onClose}>{t('action.cancel')}</Button>
                     {!topicToEdit && (
                         <Button type="button" variant="secondary" onClick={(e) => {

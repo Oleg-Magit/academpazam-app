@@ -129,7 +129,9 @@ export const SemesterDrawer: React.FC<SemesterDrawerProps> = ({
                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                             <div style={{ flex: 1 }}>
                                                 <div style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--color-text-primary)' }}>{course.name}</div>
-                                                <div style={{ fontSize: '0.8rem', color: 'var(--color-text-secondary)', marginTop: '2px' }}>{course.code || '-'}</div>
+                                                <div style={{ fontSize: '0.8rem', color: 'var(--color-text-secondary)', marginTop: '2px' }}>
+                                                    {course.code && !course.code.includes('-') && course.code.length < 20 ? course.code : ''}
+                                                </div>
                                             </div>
                                             <Badge variant={
                                                 course.effectiveStatus === 'completed' ? 'success' :
