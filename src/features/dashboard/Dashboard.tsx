@@ -212,6 +212,7 @@ export const Dashboard: React.FC = () => {
                     onSave={handleSaveCourse}
                     planId={currentPlan.id}
                     initialData={initialModalData}
+                    semesterConfig={semesterConfig || { count: 8, labels: [] }}
                 />
             )}
         </div>

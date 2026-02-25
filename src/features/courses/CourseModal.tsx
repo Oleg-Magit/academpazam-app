@@ -15,10 +15,11 @@ interface CourseModalProps {
     planId: string;
     courseToEdit?: Course | null;
     initialData?: Partial<Course>;
+    semesterConfig: { count: number, labels: string[] };
 }
 
 export const CourseModal: React.FC<CourseModalProps> = ({
-    isOpen, onClose, onSave, planId, courseToEdit, initialData
+    isOpen, onClose, onSave, planId, courseToEdit, initialData, semesterConfig
 }) => {
     const { t } = useTranslation();
     const [name, setName] = useState('');
@@ -83,10 +84,16 @@ export const CourseModal: React.FC<CourseModalProps> = ({
         }
     };
 
-    const SEMESTER_OPTIONS = React.useMemo(() => [
-        ...Array.from({ length: 8 }, (_, i) => ({ value: (i + 1).toString(), label: `${t('label.semester')} ${i + 1}` })),
-        { value: 'Summer', label: 'Summer' }
-    ], [t]);
+    const SEMESTER_OPTIONS = React.useMemo(() => {
+        return Array.from({ length: semesterConfig.count }, (_, i) => {
+            const id = (i + 1).toString();
+            const label = (semesterConfig.labels[i] || '').trim();
+            return {
+                value: id,
+                label: label || `${t('label.semester')} ${id}`
+            };
+        });
+    }, [semesterConfig, t]);
 
     const STATUS_OPTIONS: { value: CourseStatus; label: string }[] = React.useMemo(() => [
         { value: 'not_started', label: t('status.not_started') },

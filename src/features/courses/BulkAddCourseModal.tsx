@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Modal } from '@/ui/Modal';
 import { Button } from '@/ui/Button';
+import { Select } from '@/ui/Select';
 import { saveCourse } from '@/core/db/db';
 import { v4 as uuidv4 } from 'uuid';
 import type { Course } from '@/core/models/types';
@@ -11,6 +12,7 @@ interface BulkAddCourseModalProps {
     onClose: () => void;
     onSave: () => void;
     planId: string;
+    semesterConfig: { count: number, labels: string[] };
 }
 
 interface ParsedCourse {
@@ -21,11 +23,22 @@ interface ParsedCourse {
     error?: string;
 }
 
-export const BulkAddCourseModal: React.FC<BulkAddCourseModalProps> = ({ isOpen, onClose, onSave, planId }) => {
+export const BulkAddCourseModal: React.FC<BulkAddCourseModalProps> = ({ isOpen, onClose, onSave, planId, semesterConfig }) => {
     const { t } = useTranslation();
     const [text, setText] = useState('');
     const [preview, setPreview] = useState<ParsedCourse[]>([]);
     const [step, setStep] = useState<'input' | 'preview'>('input');
+
+    const SEMESTER_OPTIONS = React.useMemo(() => {
+        return Array.from({ length: semesterConfig.count }, (_, i) => {
+            const id = (i + 1).toString();
+            const label = (semesterConfig.labels[i] || '').trim();
+            return {
+                value: id,
+                label: label || `${t('label.semester')} ${id}`
+            };
+        });
+    }, [semesterConfig, t]);
 
     const parseLine = (line: string): { name: string, credits: number, semester: string } | null => {
         line = line.trim();
@@ -178,7 +191,7 @@ export const BulkAddCourseModal: React.FC<BulkAddCourseModalProps> = ({ isOpen, 
                                             />
                                         </td>
                                         <td style={{ padding: '8px' }}>
-                                            <input
+                                            <Select
                                                 id={`preview-sem-${idx}`}
                                                 name={`previewSem-${idx}`}
                                                 value={item.semester}
@@ -187,8 +200,7 @@ export const BulkAddCourseModal: React.FC<BulkAddCourseModalProps> = ({ isOpen, 
                                                     newPreview[idx].semester = e.target.value;
                                                     setPreview(newPreview);
                                                 }}
-                                                style={{ width: '80px', border: 'none', background: 'transparent', color: 'inherit' }}
-                                                aria-label={t('label.semester')}
+                                                options={SEMESTER_OPTIONS}
                                             />
                                         </td>
                                     </tr>

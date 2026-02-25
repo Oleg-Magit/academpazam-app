@@ -11,13 +11,17 @@ interface CourseListProps {
     onEdit: (course: CourseWithTopics) => void;
     onDelete: (course: CourseWithTopics) => void;
     onNavigate: (courseId: string) => void;
+    showSemesterLabel?: boolean;
+    semesterLabels?: Record<string, string>;
 }
 
 export const CourseList: React.FC<CourseListProps> = ({
     courses,
     onEdit,
     onDelete,
-    onNavigate
+    onNavigate,
+    showSemesterLabel,
+    semesterLabels
 }) => {
     const { t } = useTranslation();
 
@@ -59,6 +63,11 @@ export const CourseList: React.FC<CourseListProps> = ({
                             <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                 {course.name}
                             </h3>
+                            {showSemesterLabel && (
+                                <div style={{ fontSize: '0.75rem', color: 'var(--color-accent)', marginTop: '2px', fontWeight: 500 }}>
+                                    {semesterLabels?.[course.semester] || `${t('label.semester')} ${course.semester}`}
+                                </div>
+                            )}
                         </div>
                         <Badge variant={course.effectiveStatus === 'completed' ? 'success' : course.effectiveStatus === 'in_progress' ? 'warning' : 'neutral'}>
                             {t(`status.${course.effectiveStatus}`)}

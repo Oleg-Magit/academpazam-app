@@ -67,6 +67,7 @@ export const en = {
     'label.overview_by_semester': 'Overview by Semester',
     'label.no_courses_found': 'No courses found.',
     'label.add_some': 'Add some!',
+    'label.search_results': 'Search Results',
 
     'label.pts': 'pts',
     'label.more': 'more',

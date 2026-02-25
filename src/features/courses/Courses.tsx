@@ -50,18 +50,36 @@ export const Courses: React.FC = () => {
         confirmDeleteSemester
     } = useSemesterManagement(courses, refresh);
 
+    const isSearching = searchTerm.trim() !== '' || statusFilter !== 'all';
+
     const displayedCourses = useMemo(() => {
-        const group = bySemester.find(g => g.semester === selectedSemester);
-        if (!group) return [];
-        return group.courses.filter(c => {
+        const filterFn = (c: CourseWithTopics) => {
             const matchesSearch = c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 (c.code && c.code.toLowerCase().includes(searchTerm.toLowerCase())) ||
                 (c.topics && c.topics.some(t => t.title.toLowerCase().includes(searchTerm.toLowerCase())));
 
             const matchesStatus = statusFilter === 'all' || c.effectiveStatus === statusFilter;
             return matchesSearch && matchesStatus;
+        };
+
+        if (isSearching) {
+            return courses.filter(filterFn);
+        } else {
+            const group = bySemester.find(g => g.semester === selectedSemester);
+            if (!group) return [];
+            return group.courses.filter(filterFn);
+        }
+    }, [bySemester, courses, selectedSemester, searchTerm, statusFilter, isSearching]);
+
+    const semesterLabels = useMemo(() => {
+        const labels: Record<string, string> = {};
+        bySemester.forEach(g => {
+            if (g.semester) {
+                (labels as any)[g.semester] = g.label;
+            }
         });
-    }, [bySemester, selectedSemester, searchTerm, statusFilter]);
+        return labels;
+    }, [bySemester]);
 
     const handleEdit = (course: CourseWithTopics) => {
         setEditingCourse(course);
@@ -120,7 +138,8 @@ export const Courses: React.FC = () => {
                 <div style={{ overflowY: 'auto', paddingRight: '4px', paddingBottom: '32px' }}>
                     <div style={{ marginBottom: '16px' }}>
                         <h1 style={{ fontSize: '1.5rem', margin: 0 }}>
-                            {bySemester.find(s => s.semester === selectedSemester)?.label || `${t('label.semester')} ${selectedSemester}`}
+                            {isSearching ? t('label.search_results') :
+                                (bySemester.find(s => s.semester === selectedSemester)?.label || `${t('label.semester')} ${selectedSemester}`)}
                         </h1>
                         <span style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)' }}>
                             {displayedCourses.length} {t('label.courses_found')}
@@ -132,6 +151,8 @@ export const Courses: React.FC = () => {
                         onEdit={handleEdit}
                         onDelete={handleDelete}
                         onNavigate={(id) => navigate(`/courses/${id}`)}
+                        showSemesterLabel={isSearching}
+                        semesterLabels={semesterLabels}
                     />
                 </div>
             </div>
@@ -146,6 +167,7 @@ export const Courses: React.FC = () => {
                 planId={currentPlan.id}
                 courseToEdit={editingCourse}
                 initialData={!editingCourse ? { semester: selectedSemester, name: '', credits: 3 } : undefined}
+                semesterConfig={semesterConfig}
             />
 
             <BulkAddCourseModal
@@ -153,6 +175,7 @@ export const Courses: React.FC = () => {
                 onClose={() => setIsBulkModalOpen(false)}
                 onSave={handleSave}
                 planId={currentPlan.id}
+                semesterConfig={semesterConfig}
             />
 
             {semesterToDelete && (
