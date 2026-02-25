@@ -8,6 +8,7 @@ import { CourseDetails } from '../features/courses/CourseDetails';
 import { Settings } from '../features/settings/Settings';
 import { LanguageSetup } from '../features/onboarding/LanguageSetup';
 import { useTranslation } from './i18n/useTranslation';
+import { UpgradeGuard } from '../ui/UpgradeGuard/UpgradeGuard';
 
 const AppContent = () => {
     const { isInitialized, isLoaded } = useTranslation();
@@ -41,6 +42,7 @@ function App() {
     return (
         <ErrorBoundary>
             <BrowserRouter basename={import.meta.env.BASE_URL}>
+                <UpgradeGuard />
                 <AppContent />
             </BrowserRouter>
         </ErrorBoundary>

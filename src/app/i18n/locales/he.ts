@@ -239,4 +239,13 @@ export const he = {
     'modal.paste_courses.format_1': 'שם הקורס | 3.0 | סמסטר 1',
     'modal.paste_courses.format_2': 'שם הקורס - 3.0 - סמסטר 1',
     'modal.paste_courses.format_3': 'אלגוריתמים (4.5) סמסטר א',
+
+    // Upgrade Guard
+    'upgrade.title': 'נדרש עדכון נתונים',
+    'upgrade.description': 'עדכון אפליקציה זה דורש איפוס נתונים מקומיים. הנתונים שלך מאוחסנים מקומית בדפדפן וצריכים להימחק כדי להמשיך להשתמש בגרסה החדשה.',
+    'upgrade.backup_note': 'מומלץ לייצא גיבוי JSON של הנתונים הנוכחיים שלך לפני האיפוס.',
+    'upgrade.action.export': 'ייצוא גיבוי',
+    'upgrade.action.reset': 'המשך ואיפוס',
+    'upgrade.action.not_now': 'לא עכשיו',
+    'upgrade.reminder': 'תזכורת: נדרש עדכון נתונים לחוויה מלאה. לחץ כאן לבדיקה.',
 };

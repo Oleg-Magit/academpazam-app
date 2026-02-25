@@ -78,6 +78,15 @@ export const en = {
 
     'action.back': 'Back',
     'action.preview': 'Preview',
+
+    // Upgrade Guard
+    'upgrade.title': 'Data Update Required',
+    'upgrade.description': 'This application update requires a local data reset. Your data is stored locally in your browser and needs to be cleared to continue using the new version.',
+    'upgrade.backup_note': 'You should export a JSON backup of your current data before resetting.',
+    'upgrade.action.export': 'Export Backup',
+    'upgrade.action.reset': 'Continue and Reset',
+    'upgrade.action.not_now': 'Not Now',
+    'upgrade.reminder': 'Reminder: A data update is required for the full experience. Click here to review.',
     'action.save_courses': 'Save Courses',
     'action.save_topic': 'Save Topic',
     'action.save_topics': 'Save Topics',
