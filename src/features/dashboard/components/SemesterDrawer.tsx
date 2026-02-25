@@ -130,7 +130,7 @@ export const SemesterDrawer: React.FC<SemesterDrawerProps> = ({
                                             <div style={{ flex: 1 }}>
                                                 <div style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--color-text-primary)' }}>{course.name}</div>
                                                 <div style={{ fontSize: '0.8rem', color: 'var(--color-text-secondary)', marginTop: '2px' }}>
-                                                    {course.code && !course.code.includes('-') && course.code.length < 20 ? course.code : ''}
+                                                    {course.code && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(course.code) && course.code.length < 20 ? course.code : ''}
                                                 </div>
                                             </div>
                                             <Badge variant={

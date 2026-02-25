@@ -61,7 +61,7 @@ export const CourseList: React.FC<CourseListProps> = ({
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <div style={{ flex: 1, overflow: 'hidden' }}>
                             <div style={{ fontSize: isMobile ? '0.85rem' : '0.75rem', color: 'var(--color-text-secondary)', marginBottom: '2px' }}>
-                                {course.code}
+                                {course.code && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(course.code) && course.code.length < 25 ? course.code : ''}
                             </div>
                             <h3 style={{
                                 margin: 0,

@@ -105,23 +105,25 @@ export const TopicModal: React.FC<TopicModalProps> = ({
             <form onSubmit={(e) => handleSubmit(e, true)}>
                 <Input
                     id="topic-title"
-                    name="topicTitle"
+                    name="topic-title"
                     label={t('label.topic_title')}
                     value={title}
                     onChange={e => setTitle(e.target.value)}
                     error={error}
                     required
+                    autoComplete="off"
                 />
                 <Input
                     id="topic-description"
-                    name="topicDescription"
+                    name="topic-description"
                     label={`${t('label.description')} (Optional)`}
                     value={description}
                     onChange={e => setDescription(e.target.value)}
+                    autoComplete="off"
                 />
                 <Select
                     id="topic-status"
-                    name="topicStatus"
+                    name="topic-status"
                     label={t('label.initial_status')}
                     value={status}
                     onChange={e => setStatus(e.target.value as TopicStatus)}

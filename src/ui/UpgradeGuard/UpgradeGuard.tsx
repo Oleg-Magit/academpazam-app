@@ -86,7 +86,7 @@ export const UpgradeGuard: React.FC = () => {
                     position: 'fixed',
                     bottom: '20px',
                     right: '20px',
-                    zIndex: 9999,
+                    zIndex: 900,
                     backgroundColor: 'var(--color-warning)',
                     color: 'var(--color-white)',
                     padding: '12px 20px',

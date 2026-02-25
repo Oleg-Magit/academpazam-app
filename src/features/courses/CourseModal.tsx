@@ -130,25 +130,27 @@ export const CourseModal: React.FC<CourseModalProps> = ({
             <form id="course-form" onSubmit={handleSubmit}>
                 <Input
                     id="course-code"
-                    name="courseCode"
+                    name="course-code"
                     label={`${t('label.course_code')} (Optional)`}
                     value={code}
                     onChange={e => setCode(e.target.value)}
                     placeholder="e.g. CS101"
+                    autoComplete="off"
                 />
                 <Input
                     id="course-name"
-                    name="courseName"
+                    name="course-name"
                     label={t('label.course_name')}
                     value={name}
                     onChange={e => setName(e.target.value)}
                     error={errors.name}
                     required
+                    autoComplete="off"
                 />
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-md)' }}>
                     <Input
                         id="course-credits"
-                        name="courseCredits"
+                        name="course-credits"
                         label={t('label.credits')}
                         type="number"
                         step="0.5"
@@ -159,7 +161,7 @@ export const CourseModal: React.FC<CourseModalProps> = ({
                     />
                     <Select
                         id="course-semester"
-                        name="courseSemester"
+                        name="course-semester"
                         label={t('label.semester')}
                         value={semesterId}
                         onChange={e => setSemesterId(e.target.value)}
@@ -172,7 +174,7 @@ export const CourseModal: React.FC<CourseModalProps> = ({
                     <div style={{ marginBottom: 'var(--space-md)' }}>
                         <Select
                             id="course-status"
-                            name="courseStatus"
+                            name="course-status"
                             label={t('label.initial_status')}
                             value={manualStatus}
                             onChange={e => setManualStatus(e.target.value as CourseStatus)}
@@ -186,10 +188,11 @@ export const CourseModal: React.FC<CourseModalProps> = ({
 
                 <Input
                     id="course-notes"
-                    name="courseNotes"
+                    name="course-notes"
                     label={t('label.notes')}
                     value={notes}
                     onChange={e => setNotes(e.target.value)}
+                    autoComplete="off"
                 />
             </form>
         </Modal>

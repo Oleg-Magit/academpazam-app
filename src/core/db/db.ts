@@ -191,17 +191,32 @@ export const savePlan = async (plan: Plan) => (await initDB()).put('plans', plan
  */
 export const deletePlan = async (id: string) => {
     const db = await initDB();
-    const courses = await getCoursesByPlan(id);
-    const tx = db.transaction(['plans', 'courses', 'topics'], 'readwrite');
 
-    for (const course of courses) {
-        const topics = await getTopicsByCourse(course.id);
-        for (const topic of topics) {
-            tx.objectStore('topics').delete(topic.id);
-        }
-        tx.objectStore('courses').delete(course.id);
+    // First, gather all course IDs to avoid awaiting during transaction
+    const courses = await db.getAllFromIndex('courses', 'by-plan', id);
+    const courseIds = courses.map(c => c.id);
+
+    const tx = db.transaction(['plans', 'courses', 'topics'], 'readwrite');
+    const plansStore = tx.objectStore('plans');
+    const coursesStore = tx.objectStore('courses');
+    const topicsStore = tx.objectStore('topics');
+
+    // Gather all topics to delete in one pass if possible, 
+    // but since we need to match courseId, we iterate
+    const allTopics = await topicsStore.getAll();
+    const topicIdsToDelete = allTopics
+        .filter(t => courseIds.includes(t.courseId))
+        .map(t => t.id);
+
+    // Perform all deletions in the same tick
+    for (const tId of topicIdsToDelete) {
+        topicsStore.delete(tId);
     }
-    tx.objectStore('plans').delete(id);
+    for (const cId of courseIds) {
+        coursesStore.delete(cId);
+    }
+    plansStore.delete(id);
+
     await tx.done;
 };
 
@@ -220,12 +235,20 @@ export const saveCourse = async (course: Course) => (await initDB()).put('course
  */
 export const deleteCourse = async (id: string) => {
     const db = await initDB();
-    const topics = await getTopicsByCourse(id);
+
+    // Gather topics before starting transaction
+    const topics = await db.getAllFromIndex('topics', 'by-course', id);
+    const topicIds = topics.map(t => t.id);
+
     const tx = db.transaction(['courses', 'topics'], 'readwrite');
-    await Promise.all([
-        ...topics.map(t => tx.objectStore('topics').delete(t.id)),
-        tx.objectStore('courses').delete(id),
-    ]);
+    const coursesStore = tx.objectStore('courses');
+    const topicsStore = tx.objectStore('topics');
+
+    for (const tId of topicIds) {
+        topicsStore.delete(tId);
+    }
+    coursesStore.delete(id);
+
     await tx.done;
 };
 
