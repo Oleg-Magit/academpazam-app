@@ -28,7 +28,7 @@ export const CourseModal: React.FC<CourseModalProps> = ({
     const [semesterId, setSemesterId] = useState('');
     const [notes, setNotes] = useState('');
     const [manualStatus, setManualStatus] = useState<CourseStatus>('not_started');
-    const [error, setError] = useState('');
+    const [errors, setErrors] = useState<Record<string, string>>({});
 
     useEffect(() => {
         if (courseToEdit) {
@@ -46,18 +46,30 @@ export const CourseModal: React.FC<CourseModalProps> = ({
             setNotes(initialData?.notes || '');
             setManualStatus(initialData?.manualStatus || 'not_started');
         }
-        setError('');
+        setErrors({});
     }, [courseToEdit, isOpen, initialData, semesters]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        const newErrors: Record<string, string> = {};
+
         if (!name.trim()) {
-            setError('Course name is required');
-            return;
+            newErrors.name = t('error.name_required');
         }
+
         const creditsNum = parseFloat(credits);
         if (isNaN(creditsNum) || creditsNum <= 0) {
-            setError('Credits must be a positive number');
+            newErrors.credits = t('error.credits_positive');
+        } else if (creditsNum > 30) {
+            newErrors.credits = t('error.credits_range', { min: 0.5, max: 30 });
+        }
+
+        if (!semesterId) {
+            newErrors.semesterId = t('error.semester_required');
+        }
+
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
             return;
         }
 
@@ -80,7 +92,7 @@ export const CourseModal: React.FC<CourseModalProps> = ({
             onClose();
         } catch (err) {
             console.error(err);
-            setError('Failed to save course');
+            setErrors({ submit: t('msg.saved_error') });
         }
     };
 
@@ -118,7 +130,7 @@ export const CourseModal: React.FC<CourseModalProps> = ({
                     label={t('label.course_name')}
                     value={name}
                     onChange={e => setName(e.target.value)}
-                    error={error}
+                    error={errors.name}
                     required
                 />
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-md)' }}>
@@ -130,6 +142,7 @@ export const CourseModal: React.FC<CourseModalProps> = ({
                         step="0.5"
                         value={credits}
                         onChange={e => setCredits(e.target.value)}
+                        error={errors.credits}
                         required
                     />
                     <Select
@@ -139,6 +152,7 @@ export const CourseModal: React.FC<CourseModalProps> = ({
                         value={semesterId}
                         onChange={e => setSemesterId(e.target.value)}
                         options={SEMESTER_OPTIONS}
+                        error={errors.semesterId}
                     />
                 </div>
 
@@ -173,6 +187,7 @@ export const CourseModal: React.FC<CourseModalProps> = ({
                     marginTop: 'var(--space-lg)',
                     flexWrap: 'wrap-reverse'
                 }}>
+                    {errors.submit && <div style={{ color: 'var(--color-danger)', fontSize: '0.875rem', width: '100%' }}>{errors.submit}</div>}
                     <Button type="button" variant="ghost" onClick={onClose} style={{ flex: '1 1 100px' }}>{t('action.cancel')}</Button>
                     <Button type="submit" style={{ flex: '1 1 100px' }}>{t('action.save')}</Button>
                 </div>

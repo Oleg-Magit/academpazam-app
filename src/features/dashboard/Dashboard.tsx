@@ -13,6 +13,7 @@ import { DashboardHeader } from './components/DashboardHeader';
 import { useDashboardData } from './hooks/useDashboardData';
 import { DashboardSkeleton } from './components/DashboardSkeleton';
 import { Button } from '@/ui/Button';
+import { ConfirmationModal } from '@/ui/ConfirmationModal';
 import { Card } from '@/ui/Card';
 import { GraduationCap, Info } from 'lucide-react';
 
@@ -26,6 +27,7 @@ export const Dashboard: React.FC = () => {
     const [initialModalData, setInitialModalData] = useState<Partial<Course>>({});
     const [showExportSuccess, setShowExportSuccess] = useState(false);
     const [exportError, setExportError] = useState<string | null>(null);
+    const [importModeModal, setImportModeModal] = useState<{ isOpen: boolean; file: File | null }>({ isOpen: false, file: null });
     const actionsRef = useRef<HTMLDivElement>(null);
     const importInputRef = useRef<HTMLInputElement>(null);
 
@@ -89,7 +91,8 @@ export const Dashboard: React.FC = () => {
 
             const a = document.createElement('a');
             a.href = url;
-            a.download = `${currentPlan.name}-Progress.pdf`;
+            const timestamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
+            a.download = `${currentPlan.name}-Progress-${timestamp}.pdf`;
             document.body.appendChild(a);
             a.click();
 
@@ -112,7 +115,8 @@ export const Dashboard: React.FC = () => {
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `academ-pazam-backup-${new Date().toISOString().slice(0, 10)}.json`;
+            const timestamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
+            a.download = `academ-pazam-backup-${timestamp}.json`;
             a.click();
             URL.revokeObjectURL(url);
 
@@ -129,12 +133,32 @@ export const Dashboard: React.FC = () => {
         setIsModalOpen(true);
     };
 
-    const handleImportJSON = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImportJSON = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
-        const text = await file.text();
-        await importDataFromJSON(text, 'merge');
-        refresh();
+        setImportModeModal({ isOpen: true, file });
+        // Reset input value so same file can be selected again
+        if (importInputRef.current) importInputRef.current.value = '';
+    };
+
+    const processImport = async (mode: 'replace' | 'merge') => {
+        if (!importModeModal.file) return;
+        try {
+            const text = await importModeModal.file.text();
+            const result = await importDataFromJSON(text, mode);
+            if (result.success) {
+                setShowExportSuccess(true);
+                setTimeout(() => setShowExportSuccess(false), 3000);
+                refresh();
+            } else {
+                setExportError(result.message);
+            }
+        } catch (e) {
+            console.error(e);
+            setExportError(t('msg.import_failed'));
+        } finally {
+            setImportModeModal({ isOpen: false, file: null });
+        }
     };
 
     const handleSaveCourse = () => {
@@ -259,6 +283,26 @@ export const Dashboard: React.FC = () => {
                     {exportError}
                 </div>
             )}
+
+            <ConfirmationModal
+                isOpen={importModeModal.isOpen}
+                onClose={() => setImportModeModal({ isOpen: false, file: null })}
+                onConfirm={() => processImport('replace')}
+                title={t('action.import_json')}
+                message={t('msg.replace_confirm')}
+                variant="danger"
+                confirmLabel={t('settings.replace')}
+                cancelLabel={t('action.cancel')}
+            >
+                <div style={{ marginTop: 'var(--space-md)', display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)' }}>
+                    <p style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
+                        {t('settings.merge_desc')}
+                    </p>
+                    <Button onClick={() => processImport('merge')} variant="secondary">
+                        {t('settings.merge')}
+                    </Button>
+                </div>
+            </ConfirmationModal>
         </div>
     );
 };

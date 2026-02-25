@@ -6,15 +6,23 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
     error?: string;
 }
 
-export const Input: React.FC<InputProps> = ({ label, error, className = '', ...props }) => {
+export const Input: React.FC<InputProps> = ({ label, error, className = '', required, ...props }) => {
     return (
         <div className={styles.container}>
-            {label && <label className={styles.label} htmlFor={props.id}>{label}</label>}
+            {label && (
+                <label className={styles.label} htmlFor={props.id}>
+                    {label}
+                    {required && <span style={{ color: 'var(--color-danger)', marginLeft: '4px' }}>*</span>}
+                </label>
+            )}
             <input
                 className={`${styles.input} ${error ? styles.errorInput : ''} ${className}`}
+                required={required}
+                aria-invalid={!!error}
+                aria-describedby={error ? `${props.id}-error` : undefined}
                 {...props}
             />
-            {error && <span className={styles.errorText}>{error}</span>}
+            {error && <span id={`${props.id}-error`} className={styles.errorText} role="alert">{error}</span>}
         </div>
     );
 };

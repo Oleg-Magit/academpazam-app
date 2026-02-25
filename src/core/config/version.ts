@@ -1,5 +1,5 @@
 export const APP_VERSION = '1.2.0';
-export const BREAKING_DATA_VERSION = 1;
+export const BREAKING_DATA_VERSION = 2;
 
 /**
  * Manually increment BREAKING_DATA_VERSION only when a destructive DB reset is required.

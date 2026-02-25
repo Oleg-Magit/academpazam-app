@@ -180,6 +180,7 @@ export const CourseDetails: React.FC = () => {
                     <Card key={topic.id} style={{ padding: 'var(--space-md)', display: 'flex', alignItems: 'center', gap: 'var(--space-md)' }}>
                         <button
                             onClick={() => handleToggleStatus(topic)}
+                            aria-label={`${t('action.edit')}: ${topic.title} - ${t(`status.${topic.status}` as any)}`}
                             style={{
                                 background: 'none', border: 'none', cursor: 'pointer', padding: 0,
                                 color: topic.status === 'done' ? 'var(--color-success)' :

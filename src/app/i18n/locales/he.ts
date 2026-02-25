@@ -18,9 +18,10 @@ export const he = {
     'welcome.create_plan': 'צור תוכנית תואר',
 
     // Course Status
-    'status.not_started': 'לא התחיל',
+    'status.not_started': 'טרם התחיל',
     'status.in_progress': 'בתהליך',
     'status.completed': 'הושלם',
+    'status.done': 'הושלם',
     'status.passed': 'עבר',
     'status.failed': 'נכשל',
     'status.manual': 'ידני',
@@ -99,6 +100,11 @@ export const he = {
     'msg.saved_error': 'שגיאה בשמירה',
     'msg.import_success': 'הנתונים יובאו בהצלחה',
     'msg.reset_confirm': 'האם אתה בטוח שברצונך למחוק את כל הנתונים?',
+    'error.name_required': 'שם הקורס הוא שדה חובה',
+    'error.credits_positive': 'נקודות זכות חייבות להיות מספר חיובי',
+    'error.credits_range': 'נקודות זכות חייבות להיות בין {{min}} ל-{{max}}',
+    'error.semester_required': 'יש לבחור סמסטר',
+    'error.invalid_format': 'פורמט לא תקין',
 
     // Grades & GPA
     'label.degree_average': 'ממוצע תואר',
@@ -231,7 +237,9 @@ export const he = {
     'msg.pdf_export_failed': 'ייצוא PDF נכשל.',
     'msg.export_success': 'הייצוא בוצע בהצלחה!',
     'msg.export_failed': 'הייצוא נכשל.',
+    'msg.import_failed': 'הייבוא נכשל.',
     'msg.replace_confirm': 'פעולה זו תמחק את כל הנתונים הנוכחיים. להמשיך?',
+    'settings.merge_desc': 'הוסף קורסים לנתונים הקיימים ללא מחיקה.',
     'msg.reset_confirm_suffix': 'הקלד "DELETE" לאישור.',
     'msg.no_topics_yet': 'אין נושאים עדיין.',
     'msg.delete_course_prompt': 'האם אתה בטוח שברצונך למחוק את הקורס "{{name}}"?',

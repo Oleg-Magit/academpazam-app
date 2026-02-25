@@ -40,8 +40,10 @@ export const TopicModal: React.FC<TopicModalProps> = ({
 
     const handleSubmit = async (e: React.FormEvent | React.MouseEvent, closeModal = true) => {
         e.preventDefault();
+        setError('');
+
         if (!title.trim()) {
-            setError(t('msg.saved_error') || 'Topic title is required');
+            setError(t('error.name_required'));
             return;
         }
 

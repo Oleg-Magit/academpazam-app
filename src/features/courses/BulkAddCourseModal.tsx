@@ -97,6 +97,28 @@ export const BulkAddCourseModal: React.FC<BulkAddCourseModalProps> = ({ isOpen, 
     };
 
     const handleSave = async () => {
+        const newPreview = [...preview];
+        let hasErrors = false;
+
+        for (const item of newPreview) {
+            item.error = '';
+            if (!item.name.trim()) {
+                item.error = t('error.name_required');
+                hasErrors = true;
+            } else if (item.credits <= 0 || item.credits > 30) {
+                item.error = t('error.credits_range', { min: 0.5, max: 30 });
+                hasErrors = true;
+            } else if (!item.semesterId) {
+                item.error = t('error.semester_required');
+                hasErrors = true;
+            }
+        }
+
+        if (hasErrors) {
+            setPreview(newPreview);
+            return;
+        }
+
         for (const item of preview) {
             const course: Course = {
                 id: item.id,
@@ -162,31 +184,35 @@ export const BulkAddCourseModal: React.FC<BulkAddCourseModalProps> = ({ isOpen, 
                                 {preview.map((item, idx) => (
                                     <tr key={item.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
                                         <td style={{ padding: '8px' }}>
-                                            <input
-                                                id={`preview-name-${idx}`}
-                                                name={`previewName-${idx}`}
-                                                value={item.name}
-                                                onChange={e => {
-                                                    const newPreview = [...preview];
-                                                    newPreview[idx].name = e.target.value;
-                                                    setPreview(newPreview);
-                                                }}
-                                                style={{ width: '100%', border: 'none', background: 'transparent', color: 'inherit' }}
-                                                aria-label={t('label.course_name')}
-                                            />
+                                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                <input
+                                                    id={`preview-name-${idx}`}
+                                                    name={`previewName-${idx}`}
+                                                    value={item.name}
+                                                    onChange={e => {
+                                                        const newPreview = [...preview];
+                                                        newPreview[idx].name = e.target.value;
+                                                        setPreview(newPreview);
+                                                    }}
+                                                    style={{ width: '100%', border: 'none', background: 'transparent', color: 'inherit', fontWeight: 500 }}
+                                                    aria-label={t('label.course_name')}
+                                                />
+                                                {item.error && <span style={{ fontSize: '0.7rem', color: 'var(--color-danger)' }}>{item.error}</span>}
+                                            </div>
                                         </td>
                                         <td style={{ padding: '8px' }}>
                                             <input
                                                 id={`preview-credits-${idx}`}
                                                 name={`previewCredits-${idx}`}
                                                 type="number"
+                                                step="0.5"
                                                 value={item.credits}
                                                 onChange={e => {
                                                     const newPreview = [...preview];
                                                     newPreview[idx].credits = parseFloat(e.target.value) || 0;
                                                     setPreview(newPreview);
                                                 }}
-                                                style={{ width: '50px', border: 'none', background: 'transparent', color: 'inherit' }}
+                                                style={{ width: '60px', border: 'none', background: 'transparent', color: 'inherit' }}
                                                 aria-label={t('label.credits')}
                                             />
                                         </td>
@@ -201,6 +227,7 @@ export const BulkAddCourseModal: React.FC<BulkAddCourseModalProps> = ({ isOpen, 
                                                     setPreview(newPreview);
                                                 }}
                                                 options={SEMESTER_OPTIONS}
+                                                required
                                             />
                                         </td>
                                     </tr>

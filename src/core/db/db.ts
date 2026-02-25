@@ -29,34 +29,64 @@ interface AcademPazamDB extends DBSchema {
     };
 }
 
+export const STORES = {
+    PLANS: 'plans',
+    COURSES: 'courses',
+    TOPICS: 'topics',
+    META: 'meta',
+    SEMESTERS: 'semesters'
+} as const;
+
 const DB_NAME = 'academ-pazam-db';
-const DB_VERSION = 1;
+const DB_VERSION = 2; // Bumped to ensure missing stores (semesters) are created for existing users
 
 let dbPromise: Promise<IDBPDatabase<AcademPazamDB>>;
+
+export const closeDB = async () => {
+    if (dbPromise) {
+        const db = await dbPromise;
+        db.close();
+        dbPromise = null as any;
+    }
+};
 
 export const initDB = () => {
     if (!dbPromise) {
         dbPromise = openDB<AcademPazamDB>(DB_NAME, DB_VERSION, {
-            upgrade(db) {
-                if (!db.objectStoreNames.contains('plans')) {
-                    db.createObjectStore('plans', { keyPath: 'id' });
+            upgrade(db, oldVersion) {
+                console.log(`[DB] Upgrading from version ${oldVersion} to ${DB_VERSION}...`);
+
+                if (!db.objectStoreNames.contains(STORES.PLANS)) {
+                    db.createObjectStore(STORES.PLANS, { keyPath: 'id' });
                 }
-                if (!db.objectStoreNames.contains('courses')) {
-                    const store = db.createObjectStore('courses', { keyPath: 'id' });
+                if (!db.objectStoreNames.contains(STORES.COURSES)) {
+                    const store = db.createObjectStore(STORES.COURSES, { keyPath: 'id' });
                     store.createIndex('by-plan', 'degreePlanId');
                 }
-                if (!db.objectStoreNames.contains('topics')) {
-                    const store = db.createObjectStore('topics', { keyPath: 'id' });
+                if (!db.objectStoreNames.contains(STORES.TOPICS)) {
+                    const store = db.createObjectStore(STORES.TOPICS, { keyPath: 'id' });
                     store.createIndex('by-course', 'courseId');
                 }
-                if (!db.objectStoreNames.contains('meta')) {
-                    db.createObjectStore('meta', { keyPath: 'key' });
+                if (!db.objectStoreNames.contains(STORES.META)) {
+                    db.createObjectStore(STORES.META, { keyPath: 'key' });
                 }
-                if (!db.objectStoreNames.contains('semesters')) {
-                    const store = db.createObjectStore('semesters', { keyPath: 'id' });
+                if (!db.objectStoreNames.contains(STORES.SEMESTERS)) {
+                    const store = db.createObjectStore(STORES.SEMESTERS, { keyPath: 'id' });
                     store.createIndex('by-order', 'orderIndex');
                 }
             },
+            blocked() {
+                console.warn('[DB] Connection blocked by older version. Please close other tabs.');
+            },
+            blocking() {
+                console.warn('[DB] Closing connection to allow upgrade in another tab/process.');
+                dbPromise.then(db => db.close());
+                dbPromise = null as any;
+            },
+            terminated() {
+                console.error('[DB] Connection terminated unexpectedly.');
+                dbPromise = null as any;
+            }
         });
 
         // Trigger migration if needed
@@ -284,13 +314,11 @@ export const getAllData = async () => {
 
 export const clearAllData = async () => {
     const db = await initDB();
-    const tx = db.transaction(['plans', 'courses', 'topics', 'meta', 'semesters'], 'readwrite');
-    await Promise.all([
-        tx.objectStore('plans').clear(),
-        tx.objectStore('courses').clear(),
-        tx.objectStore('topics').clear(),
-        tx.objectStore('meta').clear(),
-        tx.objectStore('semesters').clear(),
-    ]);
+    // Only transact on stores that actually exist to avoid NotFoundError
+    const existingStores = Object.values(STORES).filter(name => db.objectStoreNames.contains(name));
+    if (existingStores.length === 0) return;
+
+    const tx = db.transaction(existingStores as any, 'readwrite');
+    await Promise.all(existingStores.map(name => tx.objectStore(name as any).clear()));
     await tx.done;
 };

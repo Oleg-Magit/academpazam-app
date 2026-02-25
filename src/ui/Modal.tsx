@@ -13,27 +13,60 @@ interface ModalProps {
 export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
     const { t } = useTranslation();
     const modalRef = React.useRef<HTMLDivElement>(null);
+    const lastFocusedElement = React.useRef<HTMLElement | null>(null);
 
     useEffect(() => {
         const handleEsc = (e: KeyboardEvent) => {
             if (e.key === 'Escape') onClose();
         };
 
+        const handleTab = (e: KeyboardEvent) => {
+            if (!modalRef.current) return;
+            const focusable = modalRef.current.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+            if (focusable.length === 0) return;
+
+            const first = focusable[0] as HTMLElement;
+            const last = focusable[focusable.length - 1] as HTMLElement;
+
+            if (e.key === 'Tab') {
+                if (e.shiftKey) {
+                    if (document.activeElement === first) {
+                        e.preventDefault();
+                        last.focus();
+                    }
+                } else {
+                    if (document.activeElement === last) {
+                        e.preventDefault();
+                        first.focus();
+                    }
+                }
+            }
+        };
+
         if (isOpen) {
+            lastFocusedElement.current = document.activeElement as HTMLElement;
             document.body.style.overflow = 'hidden';
             window.addEventListener('keydown', handleEsc);
-            // Focus search: attempt to focus the first focusable element
+            window.addEventListener('keydown', handleTab);
+
+            // Initial focus
             const focusable = modalRef.current?.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
             if (focusable && focusable.length > 0) {
+                // Focus the second element if the first is the close button, 
+                // but for general modals first is fine.
                 (focusable[0] as HTMLElement).focus();
             }
         } else {
             document.body.style.overflow = 'unset';
+            if (lastFocusedElement.current) {
+                lastFocusedElement.current.focus();
+            }
         }
 
         return () => {
             document.body.style.overflow = 'unset';
             window.removeEventListener('keydown', handleEsc);
+            window.removeEventListener('keydown', handleTab);
         };
     }, [isOpen, onClose]);
 

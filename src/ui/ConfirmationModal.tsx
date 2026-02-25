@@ -12,6 +12,7 @@ interface ConfirmationModalProps {
     confirmLabel?: string;
     cancelLabel?: string;
     variant?: 'primary' | 'danger';
+    children?: React.ReactNode;
 }
 
 export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
@@ -22,7 +23,8 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
     message,
     confirmLabel,
     cancelLabel,
-    variant = 'primary'
+    variant = 'primary',
+    children
 }) => {
     const { t } = useTranslation();
 
@@ -30,6 +32,7 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
         <Modal isOpen={isOpen} onClose={onClose} title={title}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
                 <p style={{ margin: 0, lineHeight: 1.5 }}>{message}</p>
+                {children}
                 <div style={{
                     display: 'flex',
                     justifyContent: 'flex-end',

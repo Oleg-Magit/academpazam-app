@@ -94,7 +94,7 @@ export const SemesterNavigation: React.FC<SemesterNavigationProps> = ({
                                     if (e.key === 'Escape') setEditingSemesterId(null);
                                 }}
                             />
-                            <Button size={isMobile ? 'md' : 'sm'} variant="ghost" onClick={onSaveRename} style={{ padding: '4px' }}>
+                            <Button size={isMobile ? 'md' : 'sm'} variant="ghost" onClick={onSaveRename} style={{ padding: '4px' }} aria-label={t('action.save')}>
                                 <Save size={isMobile ? 20 : 14} />
                             </Button>
                         </div>
@@ -108,6 +108,7 @@ export const SemesterNavigation: React.FC<SemesterNavigationProps> = ({
                                         disabled={index === 0}
                                         style={{ padding: 0, height: '14px', visibility: selectedSemester === sem.semesterId ? 'visible' : 'hidden' }}
                                         onClick={(e) => { e.stopPropagation(); onReorder(sem.semesterId, 'up'); }}
+                                        aria-label="Move Up"
                                     >
                                         <ChevronUp size={12} />
                                     </Button>
@@ -117,6 +118,7 @@ export const SemesterNavigation: React.FC<SemesterNavigationProps> = ({
                                         disabled={index === semesters.length - 1}
                                         style={{ padding: 0, height: '14px', visibility: selectedSemester === sem.semesterId ? 'visible' : 'hidden' }}
                                         onClick={(e) => { e.stopPropagation(); onReorder(sem.semesterId, 'down'); }}
+                                        aria-label="Move Down"
                                     >
                                         <ChevronDown size={12} />
                                     </Button>
