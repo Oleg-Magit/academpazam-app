@@ -36,7 +36,16 @@ export const BulkAddTopicModal: React.FC<BulkAddTopicModalProps> = ({ isOpen, on
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title={t('modal.bulk_topic.title')}>
+        <Modal
+            isOpen={isOpen}
+            onClose={onClose}
+            title={t('modal.bulk_topic.title')}
+            footer={
+                <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
+                    <Button onClick={handleSave} disabled={!text.trim()}>{t('action.save_topics')}</Button>
+                </div>
+            }
+        >
             <div>
                 <p style={{ marginBottom: 'var(--space-md)', fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
                     {t('modal.bulk_topic.instruction')}
@@ -49,25 +58,9 @@ export const BulkAddTopicModal: React.FC<BulkAddTopicModalProps> = ({ isOpen, on
                     name="bulkTopicsText"
                     value={text}
                     onChange={e => setText(e.target.value)}
-                    style={{ width: '100%', minHeight: '200px', height: '30vh', padding: 'var(--space-sm)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-primary)', color: 'var(--color-text-primary)' }}
+                    style={{ width: '100%', minHeight: '150px', height: '25vh', padding: 'var(--space-sm)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-primary)', color: 'var(--color-text-primary)' }}
                     placeholder={t('modal.bulk_topic.placeholder')}
                 />
-                <div style={{
-                    display: 'flex',
-                    justifyContent: 'flex-end',
-                    marginTop: 'var(--space-lg)',
-                    position: 'sticky',
-                    bottom: 0,
-                    backgroundColor: 'var(--color-bg-primary)',
-                    paddingTop: 'var(--space-md)',
-                    borderTop: '1px solid var(--color-border)',
-                    zIndex: 10,
-                    marginInline: 'calc(var(--space-lg) * -1)',
-                    paddingInline: 'var(--space-lg)',
-                    paddingBottom: 'var(--space-xs)'
-                }}>
-                    <Button onClick={handleSave} disabled={!text.trim()}>{t('action.save_topics')}</Button>
-                </div>
             </div>
         </Modal>
     );

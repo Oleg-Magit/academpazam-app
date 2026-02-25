@@ -85,6 +85,22 @@ export const TopicModal: React.FC<TopicModalProps> = ({
             isOpen={isOpen}
             onClose={onClose}
             title={topicToEdit ? t('modal.edit_topic.title') : t('modal.add_topic.title')}
+            footer={
+                <div style={{
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                    gap: 'var(--space-md)',
+                    flexWrap: 'wrap-reverse'
+                }}>
+                    <Button type="button" variant="ghost" onClick={onClose} style={{ flex: '1 1 100px' }}>{t('action.cancel')}</Button>
+                    {!topicToEdit && (
+                        <Button type="button" variant="secondary" style={{ flex: '1 1 100px' }} onClick={(e) => {
+                            handleSubmit(e, false);
+                        }}>{t('action.save_and_add')}</Button>
+                    )}
+                    <Button type="button" style={{ flex: '1 1 100px' }} onClick={(e) => handleSubmit(e, true)}>{t('action.save_topic')}</Button>
+                </div>
+            }
         >
             <form onSubmit={(e) => handleSubmit(e, true)}>
                 <Input
@@ -111,30 +127,6 @@ export const TopicModal: React.FC<TopicModalProps> = ({
                     onChange={e => setStatus(e.target.value as TopicStatus)}
                     options={STATUS_OPTIONS}
                 />
-
-                <div style={{
-                    display: 'flex',
-                    justifyContent: 'flex-end',
-                    gap: 'var(--space-md)',
-                    marginTop: 'calc(var(--space-lg) * 2)',
-                    position: 'sticky',
-                    bottom: 0,
-                    backgroundColor: 'var(--color-bg-primary)',
-                    paddingTop: 'var(--space-md)',
-                    borderTop: '1px solid var(--color-border)',
-                    zIndex: 10,
-                    marginInline: 'calc(var(--space-lg) * -1)',
-                    paddingInline: 'var(--space-lg)',
-                    paddingBottom: 'var(--space-xs)'
-                }}>
-                    <Button type="button" variant="ghost" onClick={onClose}>{t('action.cancel')}</Button>
-                    {!topicToEdit && (
-                        <Button type="button" variant="secondary" onClick={(e) => {
-                            handleSubmit(e, false);
-                        }}>{t('action.save_and_add')}</Button>
-                    )}
-                    <Button type="submit">{t('action.save_topic')}</Button>
-                </div>
             </form>
         </Modal>
     );

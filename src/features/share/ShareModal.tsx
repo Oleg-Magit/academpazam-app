@@ -122,10 +122,19 @@ export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose }) => {
     const showPlatformOptions = !canNativeShare || isOptionsExpanded;
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title={t('share.title')}>
-            <div style={{ display: 'grid', gap: '24px' }}>
-                <div style={{ textAlign: 'center', padding: '0 8px' }}>
-                    <p style={{ color: 'var(--color-text-secondary)', fontSize: '1rem', margin: '0 0 16px 0' }}>
+        <Modal
+            isOpen={isOpen}
+            onClose={onClose}
+            title={t('share.title')}
+            footer={
+                <Button variant="ghost" onClick={onClose} style={{ width: '100%' }}>
+                    {t('share.close')}
+                </Button>
+            }
+        >
+            <div style={{ display: 'grid', gap: '20px' }}>
+                <div style={{ textAlign: 'center' }}>
+                    <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.95rem', margin: '0 0 16px 0' }}>
                         {t('share.subtitle')}
                     </p>
 
@@ -263,10 +272,6 @@ export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose }) => {
                         {t('share.donateSecondary')}
                     </a>
                 </div>
-
-                <Button variant="ghost" onClick={onClose} style={{ width: '100%' }}>
-                    {t('share.close')}
-                </Button>
             </div>
         </Modal>
     );

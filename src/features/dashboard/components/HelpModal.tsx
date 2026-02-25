@@ -1,5 +1,6 @@
 import React from 'react';
 import { Modal } from '@/ui/Modal';
+import { Button } from '@/ui/Button';
 import { useTranslation } from '@/app/i18n/useTranslation';
 import { Info, Plus, FileText, Database, ShieldCheck } from 'lucide-react';
 
@@ -45,8 +46,17 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
     ];
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title={t('footer.help') || 'Help & Getting Started'}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', padding: '12px 0' }}>
+        <Modal
+            isOpen={isOpen}
+            onClose={onClose}
+            title={t('footer.help') || 'Help & Getting Started'}
+            footer={
+                <Button variant="primary" onClick={onClose} style={{ width: '100%' }}>
+                    {t('share.close')}
+                </Button>
+            }
+        >
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.95rem', margin: 0 }}>
                     {t('help.welcome_desc') || 'Welcome to AcademPazam! Here is a quick guide to help you manage your academic journey.'}
                 </p>

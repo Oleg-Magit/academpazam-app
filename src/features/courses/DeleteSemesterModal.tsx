@@ -55,6 +55,16 @@ export const DeleteSemesterModal: React.FC<DeleteSemesterModalProps> = ({
             isOpen={isOpen}
             onClose={onClose}
             title={`${t('action.delete')} ${semesterName}`}
+            footer={
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-md)', width: '100%' }}>
+                    <Button variant="ghost" onClick={onClose} disabled={isDeleting} style={{ flex: '1 1 auto' }}>
+                        {t('action.cancel')}
+                    </Button>
+                    <Button variant="danger" onClick={handleDelete} disabled={isDeleting} style={{ flex: '1 1 auto' }}>
+                        {isDeleting ? t('label.loading') : t('action.delete')}
+                    </Button>
+                </div>
+            }
         >
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <p>
@@ -82,15 +92,6 @@ export const DeleteSemesterModal: React.FC<DeleteSemesterModalProps> = ({
                         {t('msg.semester_empty_safe') || "This semester is empty and can be safely deleted."}
                     </p>
                 )}
-
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '16px' }}>
-                    <Button variant="ghost" onClick={onClose} disabled={isDeleting}>
-                        {t('action.cancel')}
-                    </Button>
-                    <Button variant="danger" onClick={handleDelete} disabled={isDeleting}>
-                        {isDeleting ? t('label.loading') : t('action.delete')}
-                    </Button>
-                </div>
             </div>
         </Modal>
     );

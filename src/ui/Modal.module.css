@@ -9,7 +9,11 @@
     align-items: center;
     justify-content: center;
     z-index: 1100;
-    padding: var(--space-md);
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-top: env(safe-area-inset-top, 16px);
+    padding-bottom: env(safe-area-inset-bottom, 16px);
+    overflow: hidden;
     backdrop-filter: blur(2px);
 }
 
@@ -17,9 +21,17 @@
     background-color: var(--color-bg-primary);
     border-radius: var(--radius-lg);
     width: 100%;
-    max-width: 500px;
+    max-width: 28rem;
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+    /* Responsive height limits */
     max-height: 90vh;
+    /* Fallback */
+    max-height: 90svh;
+    /* Fallback */
+    max-height: 90dvh;
+    /* Dynamic */
+
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -57,25 +69,50 @@
     color: var(--color-text-primary);
 }
 
-.content {
+.body {
     padding: var(--space-lg);
     overflow-y: auto;
-    flex: 1;
+    flex: 1 1 auto;
     min-height: 0;
+    padding-bottom: 24px;
+}
+
+.footer {
+    padding: var(--space-lg);
+    border-top: 1px solid var(--color-border);
+    background-color: var(--color-bg-primary);
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    /* Allows error messages to stack */
 }
 
 @media (max-width: 480px) {
     .overlay {
-        padding: var(--space-sm);
+        padding-left: 12px;
+        padding-right: 12px;
+        /* Stay at the bottom for better reachability on mobile if requested, 
+           but 'center' is usually safer for keyboard overflow */
+        /* align-items: flex-end; */
     }
 
     .modal {
-        max-height: 95vh;
+        max-height: 85dvh;
+        /* Shorter on mobile to leave more room for keyboard */
         border-radius: var(--radius-md);
     }
 
-    .header,
-    .content {
+    .header {
         padding: var(--space-md);
+    }
+
+    .body {
+        padding: var(--space-md);
+        padding-bottom: 20px;
+    }
+
+    .footer {
+        padding: var(--space-md);
+        padding-bottom: calc(env(safe-area-inset-bottom) + 16px);
     }
 }

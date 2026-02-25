@@ -113,29 +113,8 @@ export const UpgradeGuard: React.FC = () => {
                 isOpen={showModal}
                 onClose={handleNotNow}
                 title={t('upgrade.title')}
-            >
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '10px 0', maxWidth: '500px' }}>
-                    <div style={{
-                        backgroundColor: 'var(--color-bg-secondary)',
-                        padding: '16px',
-                        borderRadius: '12px',
-                        display: 'flex',
-                        gap: '16px',
-                        alignItems: 'flex-start',
-                        border: '1px solid var(--color-border)'
-                    }}>
-                        <AlertTriangle size={32} style={{ color: 'var(--color-warning)', flexShrink: 0 }} />
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                            <p style={{ margin: 0, fontSize: '0.95rem', lineHeight: 1.5 }}>
-                                {t('upgrade.description')}
-                            </p>
-                            <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-text-secondary)', fontStyle: 'italic' }}>
-                                {t('upgrade.backup_note')}
-                            </p>
-                        </div>
-                    </div>
-
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                footer={
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%' }}>
                         <Button
                             onClick={handleExport}
                             variant="secondary"
@@ -163,6 +142,28 @@ export const UpgradeGuard: React.FC = () => {
                             <XCircle size={20} style={{ marginRight: '8px' }} />
                             {t('upgrade.action.not_now')}
                         </Button>
+                    </div>
+                }
+            >
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    <div style={{
+                        backgroundColor: 'var(--color-bg-secondary)',
+                        padding: '16px',
+                        borderRadius: '12px',
+                        display: 'flex',
+                        gap: '16px',
+                        alignItems: 'flex-start',
+                        border: '1px solid var(--color-border)'
+                    }}>
+                        <AlertTriangle size={32} style={{ color: 'var(--color-warning)', flexShrink: 0 }} />
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            <p style={{ margin: 0, fontSize: '0.95rem', lineHeight: 1.5 }}>
+                                {t('upgrade.description')}
+                            </p>
+                            <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-text-secondary)', fontStyle: 'italic' }}>
+                                {t('upgrade.backup_note')}
+                            </p>
+                        </div>
                     </div>
                 </div>
             </Modal>

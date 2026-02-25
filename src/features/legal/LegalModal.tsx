@@ -1,6 +1,7 @@
 import React from 'react';
 import { Modal } from '@/ui/Modal';
 import { useTranslation } from '@/app/i18n/useTranslation';
+import { Button } from '@/ui/Button';
 
 export type LegalPageType = 'about' | 'privacy' | 'terms';
 
@@ -101,10 +102,17 @@ export const LegalModal: React.FC<LegalModalProps> = ({ isOpen, onClose, type })
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title={getTitle()}>
-            <div style={{ maxHeight: '70vh', overflowY: 'auto', paddingRight: '8px' }}>
-                {renderContent()}
-            </div>
+        <Modal
+            isOpen={isOpen}
+            onClose={onClose}
+            title={getTitle()}
+            footer={
+                <Button variant="primary" onClick={onClose} style={{ width: '100%' }}>
+                    {t('share.close')}
+                </Button>
+            }
+        >
+            {renderContent()}
         </Modal>
     );
 };

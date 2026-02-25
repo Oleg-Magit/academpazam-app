@@ -29,26 +29,32 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
     const { t } = useTranslation();
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title={title}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
-                <p style={{ margin: 0, lineHeight: 1.5 }}>{message}</p>
-                {children}
+        <Modal
+            isOpen={isOpen}
+            onClose={onClose}
+            title={title}
+            footer={
                 <div style={{
                     display: 'flex',
                     justifyContent: 'flex-end',
                     gap: 'var(--space-md)',
-                    marginTop: 'var(--space-md)'
+                    width: '100%'
                 }}>
-                    <Button variant="ghost" onClick={onClose}>
+                    <Button variant="ghost" onClick={onClose} style={{ flex: '1 1 auto' }}>
                         {cancelLabel || t('action.cancel')}
                     </Button>
-                    <Button variant={variant === 'danger' ? 'danger' : 'primary'} onClick={() => {
+                    <Button variant={variant === 'danger' ? 'danger' : 'primary'} style={{ flex: '1 1 auto' }} onClick={() => {
                         onConfirm();
                         onClose();
                     }}>
                         {confirmLabel || t('action.ok')}
                     </Button>
                 </div>
+            }
+        >
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
+                <p style={{ margin: 0, lineHeight: 1.5 }}>{message}</p>
+                {children}
             </div>
         </Modal>
     );

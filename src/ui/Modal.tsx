@@ -8,9 +8,10 @@ interface ModalProps {
     onClose: () => void;
     title: string;
     children: React.ReactNode;
+    footer?: React.ReactNode;
 }
 
-export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
+export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, footer }) => {
     const { t } = useTranslation();
     const modalRef = React.useRef<HTMLDivElement>(null);
     const lastFocusedElement = React.useRef<HTMLElement | null>(null);
@@ -92,9 +93,14 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }
                         <X size={20} aria-hidden="true" />
                     </button>
                 </div>
-                <div className={styles.content}>
+                <div className={styles.body}>
                     {children}
                 </div>
+                {footer && (
+                    <div className={styles.footer}>
+                        {footer}
+                    </div>
+                )}
             </div>
         </div>
     );

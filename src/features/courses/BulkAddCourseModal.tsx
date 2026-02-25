@@ -143,7 +143,23 @@ export const BulkAddCourseModal: React.FC<BulkAddCourseModalProps> = ({ isOpen, 
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={handleClose} title={t('modal.paste_courses.title')}>
+        <Modal
+            isOpen={isOpen}
+            onClose={handleClose}
+            title={t('modal.paste_courses.title')}
+            footer={
+                <div style={{ display: 'flex', justifyContent: step === 'input' ? 'flex-end' : 'space-between', width: '100%', gap: 'var(--space-md)' }}>
+                    {step === 'input' ? (
+                        <Button onClick={handlePreview}>{t('action.preview')}</Button>
+                    ) : (
+                        <>
+                            <Button variant="ghost" onClick={() => setStep('input')}>{t('action.back')}</Button>
+                            <Button onClick={handleSave}>{t('action.save_courses')} ({preview.length})</Button>
+                        </>
+                    )}
+                </div>
+            }
+        >
             {step === 'input' ? (
                 <div>
                     <p style={{ marginBottom: 'var(--space-md)', fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
@@ -162,35 +178,19 @@ export const BulkAddCourseModal: React.FC<BulkAddCourseModalProps> = ({ isOpen, 
                         name="bulkCoursesText"
                         value={text}
                         onChange={e => setText(e.target.value)}
-                        style={{ width: '100%', minHeight: '200px', height: '30vh', padding: 'var(--space-sm)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-primary)', color: 'var(--color-text-primary)' }}
+                        style={{ width: '100%', minHeight: '150px', height: '25vh', padding: 'var(--space-sm)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-primary)', color: 'var(--color-text-primary)' }}
                         placeholder={t('modal.paste_courses.placeholder')}
                     />
-                    <div style={{
-                        display: 'flex',
-                        justifyContent: 'flex-end',
-                        marginTop: 'var(--space-lg)',
-                        position: 'sticky',
-                        bottom: 0,
-                        backgroundColor: 'var(--color-bg-primary)',
-                        paddingTop: 'var(--space-md)',
-                        borderTop: '1px solid var(--color-border)',
-                        zIndex: 10,
-                        marginInline: 'calc(var(--space-lg) * -1)',
-                        paddingInline: 'var(--space-lg)',
-                        paddingBottom: 'var(--space-xs)'
-                    }}>
-                        <Button onClick={handlePreview}>{t('action.preview')}</Button>
-                    </div>
                 </div>
             ) : (
-                <div>
-                    <div style={{ maxHeight: '50vh', overflowY: 'auto', marginBottom: 'var(--space-md)', marginInline: 'calc(var(--space-lg) * -1)', paddingInline: 'var(--space-lg)' }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
+                <div style={{ minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+                    <div style={{ overflowX: 'auto', marginBottom: 'var(--space-md)' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem', minWidth: '400px' }}>
                             <thead>
                                 <tr style={{ borderBottom: '1px solid var(--color-border)', textAlign: 'left' }}>
                                     <th style={{ padding: '8px' }}>{t('label.course_name')}</th>
-                                    <th style={{ padding: '8px' }}>{t('label.credits')}</th>
-                                    <th style={{ padding: '8px' }}>{t('label.semester')}</th>
+                                    <th style={{ padding: '8px', width: '80px' }}>{t('label.credits')}</th>
+                                    <th style={{ padding: '8px', width: '120px' }}>{t('label.semester')}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -247,22 +247,6 @@ export const BulkAddCourseModal: React.FC<BulkAddCourseModalProps> = ({ isOpen, 
                                 ))}
                             </tbody>
                         </table>
-                    </div>
-                    <div style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        position: 'sticky',
-                        bottom: 0,
-                        backgroundColor: 'var(--color-bg-primary)',
-                        paddingTop: 'var(--space-md)',
-                        borderTop: '1px solid var(--color-border)',
-                        zIndex: 10,
-                        marginInline: 'calc(var(--space-lg) * -1)',
-                        paddingInline: 'var(--space-lg)',
-                        paddingBottom: 'var(--space-xs)'
-                    }}>
-                        <Button variant="ghost" onClick={() => setStep('input')}>{t('action.back')}</Button>
-                        <Button onClick={handleSave}>{t('action.save_courses')} ({preview.length})</Button>
                     </div>
                 </div>
             )}
