@@ -1,7 +1,6 @@
-import React, { useEffect, useState, useMemo, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { usePlans, useCourses } from '@/core/hooks/useData';
 import type { Course } from '@/core/models/types';
-import { calculateDegreeProgress, groupCoursesBySemester } from '@/core/services/dataService';
 import { savePlan, getSemesterConfig } from '@/core/db/db';
 import { v4 as uuidv4 } from 'uuid';
 import { useTranslation } from '@/app/i18n/useTranslation';
@@ -9,10 +8,11 @@ import { DegreeSnapshot } from './components/DegreeSnapshot';
 import { SemesterRoadmap } from './components/SemesterRoadmap';
 import { SemesterDrawer } from './components/SemesterDrawer';
 import { CourseModal } from '@/features/courses/CourseModal';
+import { DashboardHeader } from './components/DashboardHeader';
+import { useDashboardData } from './hooks/useDashboardData';
 import { Button } from '@/ui/Button';
 import { Card } from '@/ui/Card';
-import { Link } from 'react-router-dom';
-import { Plus, GraduationCap, Info, MoreHorizontal, FileDown, Database, Upload, List } from 'lucide-react';
+import { GraduationCap, Info } from 'lucide-react';
 import { generateDegreePDF } from '@/core/services/pdfGenerator';
 import { importDataFromJSON, exportDataToJSON } from '@/core/services/importExport';
 
@@ -44,24 +44,7 @@ export const Dashboard: React.FC = () => {
     const currentPlan = plans[0];
     const { courses, loading: coursesLoading } = useCourses(currentPlan?.id || null);
 
-    const { progress, bySemester, stats } = useMemo(() => {
-        if (!courses) return {
-            progress: { totalCredits: 0, completedCredits: 0, percentage: 0 },
-            bySemester: [],
-            stats: { completedCount: 0, inProgressCount: 0, totalRemainingCredits: 0 }
-        };
-
-        const prog = calculateDegreeProgress(courses);
-        const semesters = groupCoursesBySemester(courses, semesterConfig);
-
-        const stats = {
-            completedCount: courses.filter(c => c.effectiveStatus === 'completed').length,
-            inProgressCount: courses.filter(c => c.effectiveStatus === 'in_progress').length,
-            totalRemainingCredits: Math.max(0, prog.totalCredits - prog.completedCredits)
-        };
-
-        return { progress: prog, bySemester: semesters, stats };
-    }, [courses, semesterConfig]);
+    const { progress, bySemester, stats } = useDashboardData(courses, semesterConfig);
 
     const handleCreatePlan = async () => {
         const defaultPlan = {
@@ -164,66 +147,21 @@ export const Dashboard: React.FC = () => {
     return (
         <div style={{ padding: 'var(--space-md)', maxWidth: '1000px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
 
-            {/* Minimal Header with Primary Action */}
-            <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>{t('nav.dashboard')}</h1>
+            <DashboardHeader
+                title={t('nav.dashboard')}
+                showExportSuccess={showExportSuccess}
+                showActions={showActions}
+                setShowActions={setShowActions}
+                onAddCourse={() => setIsModalOpen(true)}
+                onExportPDF={handleExportPDF}
+                onExportJSON={handleExportJSON}
+                onImportClick={() => importInputRef.current?.click()}
+                language={language}
+                actionsRef={actionsRef}
+            />
 
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', position: 'relative' }}>
-                    {showExportSuccess && (
-                        <div style={{
-                            color: 'var(--color-success)',
-                            fontSize: '0.85rem',
-                            fontWeight: 500
-                        }}>
-                            {t('msg.export_success')}
-                        </div>
-                    )}
-                    <div style={{ display: 'flex', gap: '8px', position: 'relative' }} ref={actionsRef}>
-                        <Button
-                            size="sm"
-                            variant="primary"
-                            onClick={() => setIsModalOpen(true)}
-                            style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem' }}
-                        >
-                            <Plus size={16} />
-                            {t('dashboard.add_course')}
-                        </Button>
+            <input type="file" ref={importInputRef} style={{ display: 'none' }} onChange={handleImportJSON} accept=".json" />
 
-                        <Button
-                            size="sm"
-                            variant="secondary"
-                            onClick={() => setShowActions(!showActions)}
-                            style={{ padding: '0 8px' }}
-                        >
-                            <MoreHorizontal size={18} />
-                        </Button>
-
-                        {showActions && (
-                            <div style={{
-                                position: 'absolute',
-                                top: '100%',
-                                [language === 'he' ? 'left' : 'right']: 0,
-                                marginTop: '8px',
-                                backgroundColor: 'var(--color-bg-secondary)',
-                                border: '1px solid var(--color-border)',
-                                borderRadius: '8px',
-                                boxShadow: '0 10px 25px rgba(0,0,0,0.3)',
-                                zIndex: 100,
-                                minWidth: '180px',
-                                overflow: 'hidden'
-                            }}>
-                                <MenuLink to="/courses" icon={<List size={16} />} label={t('label.manage_courses')} />
-                                <MenuButton onClick={handleExportPDF} icon={<FileDown size={16} />} label={t('action.export_pdf')} />
-                                <MenuButton onClick={handleExportJSON} icon={<Database size={16} />} label={t('action.export_json')} />
-                                <MenuButton onClick={() => importInputRef.current?.click()} icon={<Upload size={16} />} label={t('action.import_json')} />
-                                <input type="file" ref={importInputRef} style={{ display: 'none' }} onChange={handleImportJSON} accept=".json" />
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </header>
-
-            {/* TOP: Primary Degree Progress Card */}
             <DegreeSnapshot
                 degreeName={currentPlan.name}
                 totalCredits={progress.totalCredits}
@@ -234,7 +172,6 @@ export const Dashboard: React.FC = () => {
                 inProgressCount={stats.inProgressCount}
             />
 
-            {/* SEMESTER OVERVIEW - Dominant Content */}
             <section style={{ flex: 1 }}>
                 {courses?.length === 0 ? (
                     <Card style={{
@@ -258,7 +195,6 @@ export const Dashboard: React.FC = () => {
                 )}
             </section>
 
-            {/* Semester Details Drawer */}
             <SemesterDrawer
                 isOpen={!!selectedSemester}
                 onClose={() => setSelectedSemester(null)}
@@ -266,7 +202,6 @@ export const Dashboard: React.FC = () => {
                 onAddCourse={handleAddCourseFromDrawer}
             />
 
-            {/* Quick Add Modal */}
             {currentPlan && (
                 <CourseModal
                     isOpen={isModalOpen}
@@ -282,40 +217,3 @@ export const Dashboard: React.FC = () => {
         </div>
     );
 };
-
-const MenuLink = ({ to, icon, label }: { to: string, icon: React.ReactNode, label: string }) => (
-    <Link to={to} style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '10px',
-        padding: '10px 16px',
-        textDecoration: 'none',
-        color: 'var(--color-text-primary)',
-        fontSize: '0.9rem',
-        transition: 'background 0.2s'
-    }} className="menu-item">
-        {icon}
-        {label}
-        <style>{`.menu-item:hover { background: var(--color-bg-tertiary); }`}</style>
-    </Link>
-);
-
-const MenuButton = ({ onClick, icon, label, variant = 'default' }: { onClick: () => void, icon: React.ReactNode, label: string, variant?: 'default' | 'danger' }) => (
-    <button onClick={onClick} style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '10px',
-        padding: '10px 16px',
-        width: '100%',
-        border: 'none',
-        background: 'none',
-        textAlign: 'left',
-        cursor: 'pointer',
-        color: variant === 'danger' ? 'var(--color-danger)' : 'var(--color-text-primary)',
-        fontSize: '0.9rem',
-        transition: 'background 0.2s'
-    }} className="menu-item">
-        {icon}
-        {label}
-    </button>
-);

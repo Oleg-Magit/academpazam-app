@@ -1,0 +1,20 @@
+﻿
+> academpazamapp@1.0.0 build
+> tsc -b && vite build
+
+src/features/courses/components/CourseList.tsx(27,20): error TS2345: Argument of type '"msg.no_courses_found"' is not assignable to parameter of type '"app.title" | "nav.dashboard" | "nav.courses" | "nav.topics" | "nav.settings" | "dashboard.add_course" | "dashboard.paste_courses" | "dashboard.my_courses" | "dashboard.no_courses" | ... 190 more ... | "modal.paste_courses.format_3"'.
+src/features/courses/components/CourseList.tsx(53,21): error TS2322: Type '{ children: Element[]; key: string; onClick: () => void; style: { padding: string; cursor: "pointer"; display: "flex"; flexDirection: "column"; gap: string; position: "relative"; transition: "transform 0.2s, box-shadow 0.2s"; border: string; }; onMouseOver: (e: any) => void; onMouseOut: (e: any) => void; }' is not assignable to type 'IntrinsicAttributes & CardProps'.
+  Property 'onMouseOver' does not exist on type 'IntrinsicAttributes & CardProps'.
+src/features/courses/components/CourseList.tsx(53,34): error TS7006: Parameter 'e' implicitly has an 'any' type.
+src/features/courses/components/CourseList.tsx(57,33): error TS7006: Parameter 'e' implicitly has an 'any' type.
+src/features/courses/components/CourseList.tsx(71,32): error TS2322: Type '"default" | "success" | "warning"' is not assignable to type '"error" | "success" | "warning" | "neutral" | "info" | undefined'.
+  Type '"default"' is not assignable to type '"error" | "success" | "warning" | "neutral" | "info" | undefined'.
+src/features/courses/components/CoursesToolbar.tsx(32,40): error TS2345: Argument of type '"label.search_courses"' is not assignable to parameter of type '"app.title" | "nav.dashboard" | "nav.courses" | "nav.topics" | "nav.settings" | "dashboard.add_course" | "dashboard.paste_courses" | "dashboard.my_courses" | "dashboard.no_courses" | ... 190 more ... | "modal.paste_courses.format_3"'.
+src/features/courses/components/CoursesToolbar.tsx(56,44): error TS2345: Argument of type '"filter.all_statuses"' is not assignable to parameter of type '"app.title" | "nav.dashboard" | "nav.courses" | "nav.topics" | "nav.settings" | "dashboard.add_course" | "dashboard.paste_courses" | "dashboard.my_courses" | "dashboard.no_courses" | ... 190 more ... | "modal.paste_courses.format_3"'.
+src/features/courses/components/CoursesToolbar.tsx(65,24): error TS2345: Argument of type '"action.bulk_add"' is not assignable to parameter of type '"app.title" | "nav.dashboard" | "nav.courses" | "nav.topics" | "nav.settings" | "dashboard.add_course" | "dashboard.paste_courses" | "dashboard.my_courses" | "dashboard.no_courses" | ... 190 more ... | "modal.paste_courses.format_3"'.
+src/features/courses/components/CoursesToolbar.tsx(69,24): error TS2345: Argument of type '"action.add_course"' is not assignable to parameter of type '"app.title" | "nav.dashboard" | "nav.courses" | "nav.topics" | "nav.settings" | "dashboard.add_course" | "dashboard.paste_courses" | "dashboard.my_courses" | "dashboard.no_courses" | ... 190 more ... | "modal.paste_courses.format_3"'.
+src/features/dashboard/Dashboard.tsx(160,17): error TS2322: Type 'RefObject<HTMLDivElement | null>' is not assignable to type 'RefObject<HTMLDivElement>'.
+  Type 'HTMLDivElement | null' is not assignable to type 'HTMLDivElement'.
+    Type 'null' is not assignable to type 'HTMLDivElement'.
+src/features/settings/components/DataSettings.tsx(32,74): error TS2345: Argument of type 'string' is not assignable to parameter of type 'SupportedLang | undefined'.
+
