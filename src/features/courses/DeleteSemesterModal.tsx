@@ -2,43 +2,41 @@ import React, { useState } from 'react';
 import { Modal } from '@/ui/Modal';
 import { Button } from '@/ui/Button';
 import { Select } from '@/ui/Select';
-import type { CourseWithTopics } from '@/core/models/types';
-
+import { useTranslation } from '@/app/i18n/useTranslation';
+import type { CourseWithTopics, Semester } from '@/core/models/types';
 
 interface DeleteSemesterModalProps {
     isOpen: boolean;
     onClose: () => void;
     semesterId: string;
-    semesterLabel: string;
+    semesterName: string;
     courses: CourseWithTopics[];
-    totalSemesters: number;
+    semesters: Semester[];
     onDelete: (targetSemesterId: string | null) => Promise<void>;
 }
 
 export const DeleteSemesterModal: React.FC<DeleteSemesterModalProps> = ({
-    isOpen, onClose, semesterId, semesterLabel, courses, totalSemesters, onDelete
+    isOpen, onClose, semesterId, semesterName, courses, semesters, onDelete
 }) => {
-    const [migrationTarget, setMigrationTarget] = useState<string>('prev');
+    const { t } = useTranslation();
+    const [migrationTarget, setMigrationTarget] = useState<string>('');
     const [isDeleting, setIsDeleting] = useState(false);
 
+    // Default migration target to the first available semester that isn't this one
+    useState(() => {
+        const firstOther = semesters.find(s => s.id !== semesterId);
+        if (firstOther) setMigrationTarget(firstOther.id);
+    });
+
     const hasCourses = courses.length > 0;
-    const semIndex = parseInt(semesterId);
 
     // Options for migration
-    const migrationOptions = [
-        { value: 'prev', label: `Move to previous semester (Semester ${semIndex - 1})` },
-        ...Array.from({ length: totalSemesters }, (_, i) => {
-            const id = (i + 1).toString();
-            if (id === semesterId) return null;
-            return { value: id, label: `Move to Semester ${id}` };
-        }).filter(Boolean) as { value: string, label: string }[]
-    ];
-
-    if (semIndex === 1) {
-        // Can't move to previous if it's semester 1.
-        // Remove 'prev' option.
-        if (migrationOptions[0].value === 'prev') migrationOptions.shift();
-    }
+    const migrationOptions = semesters
+        .filter(s => s.id !== semesterId)
+        .map(s => ({
+            value: s.id,
+            label: `${t('action.move_to')} ${s.name}`
+        }));
 
     const handleDelete = async () => {
         setIsDeleting(true);
@@ -56,22 +54,22 @@ export const DeleteSemesterModal: React.FC<DeleteSemesterModalProps> = ({
         <Modal
             isOpen={isOpen}
             onClose={onClose}
-            title={`Delete ${semesterLabel}`}
+            title={`${t('action.delete')} ${semesterName}`}
         >
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <p>
-                    Are you sure you want to delete <strong>{semesterLabel}</strong>?
+                    {t('msg.delete_semester_confirm', { name: semesterName }) || `Are you sure you want to delete ${semesterName}?`}
                 </p>
 
                 {hasCourses && (
                     <div style={{ padding: '12px', backgroundColor: 'var(--color-bg-secondary)', borderRadius: '8px' }}>
                         <p style={{ margin: '0 0 12px 0', color: 'var(--color-warning)', fontWeight: 500 }}>
-                            Warning: This semester contains {courses.length} courses.
+                            {t('msg.semester_contains_courses', { count: courses.length }) || `Warning: This semester contains ${courses.length} courses.`}
                         </p>
                         <Select
                             id="migration-target"
                             name="migrationTarget"
-                            label="Migrate courses to:"
+                            label={t('label.migrate_to') || "Migrate courses to:"}
                             value={migrationTarget}
                             onChange={(e) => setMigrationTarget(e.target.value)}
                             options={migrationOptions}
@@ -81,16 +79,16 @@ export const DeleteSemesterModal: React.FC<DeleteSemesterModalProps> = ({
 
                 {!hasCourses && (
                     <p style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)' }}>
-                        This semester is empty and can be safely deleted.
+                        {t('msg.semester_empty_safe') || "This semester is empty and can be safely deleted."}
                     </p>
                 )}
 
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '16px' }}>
                     <Button variant="ghost" onClick={onClose} disabled={isDeleting}>
-                        Cancel
+                        {t('action.cancel')}
                     </Button>
                     <Button variant="danger" onClick={handleDelete} disabled={isDeleting}>
-                        {isDeleting ? 'Deleting...' : 'Delete Semester'}
+                        {isDeleting ? t('label.loading') : t('action.delete')}
                     </Button>
                 </div>
             </div>

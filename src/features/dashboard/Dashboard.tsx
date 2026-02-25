@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { usePlans, useCourses } from '@/core/hooks/useData';
+import { usePlans, useCourses, useSemesters } from '@/core/hooks/useData';
 import type { Course } from '@/core/models/types';
-import { savePlan, getSemesterConfig } from '@/core/db/db';
+import { savePlan } from '@/core/db/db';
 import { v4 as uuidv4 } from 'uuid';
 import { exportDataToJSON, importDataFromJSON } from '@/core/services/importExport';
 import { useTranslation } from '@/app/i18n/useTranslation';
@@ -21,18 +21,15 @@ export const Dashboard: React.FC = () => {
     const { plans, loading: plansLoading, refresh: refreshPlans } = usePlans();
 
     const [selectedSemester, setSelectedSemester] = useState<string | null>(null);
-    const [semesterConfig, setSemesterConfig] = useState<{ count: number, labels: string[] } | undefined>(undefined);
     const [showActions, setShowActions] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [initialModalData, setInitialModalData] = useState<Partial<Course>>({ semester: '1' });
+    const [initialModalData, setInitialModalData] = useState<Partial<Course>>({});
     const [showExportSuccess, setShowExportSuccess] = useState(false);
     const [exportError, setExportError] = useState<string | null>(null);
     const actionsRef = useRef<HTMLDivElement>(null);
     const importInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
-        getSemesterConfig().then(setSemesterConfig);
-
         const handleClickOutside = (event: MouseEvent) => {
             if (actionsRef.current && !actionsRef.current.contains(event.target as Node)) {
                 setShowActions(false);
@@ -43,9 +40,16 @@ export const Dashboard: React.FC = () => {
     }, []);
 
     const currentPlan = plans[0];
-    const { courses, loading: coursesLoading } = useCourses(currentPlan?.id || null);
+    const { courses, loading: coursesLoading, refresh: refreshCourses } = useCourses(currentPlan?.id || null);
+    const { semesters, loading: semestersLoading, refresh: refreshSemesters } = useSemesters();
 
-    const { progress, bySemester, stats } = useDashboardData(courses, semesterConfig);
+    const refresh = () => {
+        refreshPlans();
+        refreshCourses();
+        refreshSemesters();
+    };
+
+    const { progress, bySemester, stats } = useDashboardData(courses, semesters);
 
     const handleCreatePlan = async () => {
         const defaultPlan = {
@@ -75,7 +79,6 @@ export const Dashboard: React.FC = () => {
             const { generateDegreePDF } = await import('@/core/services/pdfGenerator');
             const pdfBytes = await generateDegreePDF(currentPlan.name, courses, language);
 
-            // Minimal header check
             const header = String.fromCharCode(...pdfBytes.slice(0, 5));
             if (!header.startsWith('%PDF-')) {
                 throw new Error('Invalid PDF generation - header missing');
@@ -90,7 +93,6 @@ export const Dashboard: React.FC = () => {
             document.body.appendChild(a);
             a.click();
 
-            // Delayed revocation for better browser compatibility (Chrome/Edge)
             setTimeout(() => {
                 URL.revokeObjectURL(url);
                 document.body.removeChild(a);
@@ -122,8 +124,8 @@ export const Dashboard: React.FC = () => {
         }
     };
 
-    const handleAddCourseFromDrawer = (semesterId: string) => {
-        setInitialModalData({ semester: semesterId });
+    const handleAddCourseFromDrawer = (semId: string) => {
+        setInitialModalData({ semesterId: semId });
         setIsModalOpen(true);
     };
 
@@ -132,18 +134,17 @@ export const Dashboard: React.FC = () => {
         if (!file) return;
         const text = await file.text();
         await importDataFromJSON(text, 'merge');
-        refreshPlans();
+        refresh();
     };
 
     const handleSaveCourse = () => {
-        refreshPlans();
+        refresh();
     };
 
-    if (plansLoading) {
+    if (plansLoading || semestersLoading) {
         return <DashboardSkeleton />;
     }
 
-    // EMPTY STATE: No plan exists
     if (!currentPlan) {
         return (
             <div style={{ padding: 'var(--space-xl)', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
@@ -167,7 +168,7 @@ export const Dashboard: React.FC = () => {
         return <div style={{ padding: '40px', textAlign: 'center' }}>{t('msg.loading_courses')}</div>;
     }
 
-    const selectedSemesterGroup = bySemester.find(g => g.semester === selectedSemester) || null;
+    const selectedSemesterGroup = bySemester.find(g => g.semesterId === selectedSemester) || null;
 
     return (
         <div style={{ padding: 'var(--space-md)', maxWidth: '1000px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
@@ -232,12 +233,12 @@ export const Dashboard: React.FC = () => {
                     isOpen={isModalOpen}
                     onClose={() => {
                         setIsModalOpen(false);
-                        setInitialModalData({ semester: '1' }); // Reset
+                        setInitialModalData({}); // Reset
                     }}
                     onSave={handleSaveCourse}
                     planId={currentPlan.id}
                     initialData={initialModalData}
-                    semesterConfig={semesterConfig || { count: 8, labels: [] }}
+                    semesters={semesters}
                 />
             )}
 

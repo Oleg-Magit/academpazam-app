@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { usePlans, useCourses } from '@/core/hooks/useData';
+import { usePlans, useCourses, useSemesters } from '@/core/hooks/useData';
 import { deleteCourse } from '@/core/db/db';
 import { CourseModal } from './CourseModal';
 import { BulkAddCourseModal } from './BulkAddCourseModal';
@@ -25,7 +25,13 @@ export const Courses: React.FC = () => {
     const navigate = useNavigate();
     const { plans } = usePlans();
     const currentPlan = plans[0];
-    const { courses, loading, refresh } = useCourses(currentPlan?.id || null);
+    const { courses, loading: coursesLoading, refresh: refreshCourses } = useCourses(currentPlan?.id || null);
+    const { semesters, loading: semestersLoading, refresh: refreshSemesters } = useSemesters();
+
+    const refresh = () => {
+        refreshCourses();
+        refreshSemesters();
+    };
 
     const isMobile = useMediaQuery('(max-width: 768px)');
     const [mobileView, setMobileView] = useState<'list' | 'details'>('list');
@@ -33,13 +39,17 @@ export const Courses: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
     const [editingCourse, setEditingCourse] = useState<CourseWithTopics | null>(null);
-    const [selectedSemester, setSelectedSemester] = useState<string>('1');
+    const [selectedSemester, setSelectedSemester] = useState<string>('');
+    useEffect(() => {
+        if (semesters.length > 0 && !selectedSemester) {
+            setSelectedSemester(semesters[0].id);
+        }
+    }, [semesters, selectedSemester]);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
     const [courseToDelete, setCourseToDelete] = useState<Course | null>(null);
 
     const {
-        semesterConfig,
         bySemester,
         editingSemesterId,
         setEditingSemesterId,
@@ -53,8 +63,9 @@ export const Courses: React.FC = () => {
         startRenaming,
         saveRename,
         promptDeleteSemester,
-        confirmDeleteSemester
-    } = useSemesterManagement(courses, refresh);
+        confirmDeleteSemester,
+        handleReorder
+    } = useSemesterManagement(courses, semesters, refresh);
 
     // Sync mobileView with selectedSemester
     useEffect(() => {
@@ -81,7 +92,7 @@ export const Courses: React.FC = () => {
             // FIXED: Global search across all semesters
             return courses.filter(filterFn);
         } else {
-            const group = bySemester.find(g => g.semester === selectedSemester);
+            const group = bySemester.find(g => g.semesterId === selectedSemester);
             if (!group) return [];
             return group.courses.filter(filterFn);
         }
@@ -89,13 +100,11 @@ export const Courses: React.FC = () => {
 
     const semesterLabels = useMemo(() => {
         const labels: Record<string, string> = {};
-        bySemester.forEach(g => {
-            if (g.semester) {
-                (labels as any)[g.semester] = g.label;
-            }
+        semesters.forEach(s => {
+            labels[s.id] = s.name;
         });
         return labels;
-    }, [bySemester]);
+    }, [semesters]);
 
     const handleEdit = (course: CourseWithTopics) => {
         setEditingCourse(course);
@@ -126,7 +135,7 @@ export const Courses: React.FC = () => {
     };
 
     if (!currentPlan) return <div>{t('msg.no_plan_found')}</div>;
-    if (loading) return <div>{t('msg.loading_courses')}</div>;
+    if (coursesLoading || semestersLoading) return <div>{t('msg.loading_courses')}</div>;
 
     const renderSemesterNav = () => (
         <SemesterNavigation
@@ -144,7 +153,8 @@ export const Courses: React.FC = () => {
             onStartRenaming={startRenaming}
             onSaveRename={saveRename}
             onPromptDelete={promptDeleteSemester}
-            semesterCount={semesterConfig.count}
+            onReorder={handleReorder}
+            semesters={semesters}
             isMobile={isMobile}
         />
     );
@@ -174,7 +184,7 @@ export const Courses: React.FC = () => {
                 <div style={{ marginBottom: '16px' }}>
                     <h1 style={{ fontSize: '1.5rem', margin: 0 }}>
                         {isFiltering ? t('label.search_results') :
-                            (bySemester.find(s => s.semester === selectedSemester)?.label || `${t('label.semester')} ${selectedSemester}`)}
+                            (bySemester.find(s => s.semesterId === selectedSemester)?.semesterName || t('label.semester'))}
                     </h1>
                     <span style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)' }}>
                         {displayedCourses.length} {t('label.courses_found')}
@@ -214,8 +224,8 @@ export const Courses: React.FC = () => {
                 onSave={handleSave}
                 planId={currentPlan.id}
                 courseToEdit={editingCourse}
-                initialData={!editingCourse ? { semester: selectedSemester, name: '', credits: 3 } : undefined}
-                semesterConfig={semesterConfig}
+                initialData={!editingCourse ? { semesterId: selectedSemester, name: '', credits: 3 } : undefined}
+                semesters={semesters}
             />
 
             <BulkAddCourseModal
@@ -223,7 +233,7 @@ export const Courses: React.FC = () => {
                 onClose={() => setIsBulkModalOpen(false)}
                 onSave={handleSave}
                 planId={currentPlan.id}
-                semesterConfig={semesterConfig}
+                semesters={semesters}
             />
 
             {semesterToDelete && (
@@ -231,9 +241,9 @@ export const Courses: React.FC = () => {
                     isOpen={deleteModalOpen}
                     onClose={() => setDeleteModalOpen(false)}
                     semesterId={semesterToDelete.id}
-                    semesterLabel={semesterToDelete.label}
-                    courses={courses.filter(c => c.semester === semesterToDelete.id)}
-                    totalSemesters={semesterConfig.count}
+                    semesterName={semesterToDelete.name}
+                    courses={courses.filter(c => c.semesterId === semesterToDelete.id)}
+                    semesters={semesters}
                     onDelete={confirmDeleteSemester}
                 />
             )}

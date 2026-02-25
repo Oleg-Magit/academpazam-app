@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import type { Plan, CourseWithTopics, Topic } from '../models/types';
-import { getPlans, getPlan, getCoursesByPlan, getTopicsByCourse } from '../db/db';
+import type { Plan, CourseWithTopics, Topic, Semester } from '../models/types';
+import { getPlans, getPlan, getCoursesByPlan, getTopicsByCourse, getSemesters } from '../db/db';
 import { enrichCourses } from '../services/dataService';
 
 export function usePlans() {
@@ -119,4 +119,31 @@ export function useTopics(courseId: string | null) {
     }, [courseId, version]);
 
     return { topics, loading, error, refresh };
+}
+
+export function useSemesters() {
+    const [semesters, setSemesters] = useState<Semester[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<Error | null>(null);
+    const [version, setVersion] = useState(0);
+
+    const refresh = useCallback(() => setVersion(v => v + 1), []);
+
+    useEffect(() => {
+        let active = true;
+        setLoading(true);
+        getSemesters()
+            .then(res => {
+                if (active) setSemesters(res);
+            })
+            .catch(err => {
+                if (active) setError(err);
+            })
+            .finally(() => {
+                if (active) setLoading(false);
+            });
+        return () => { active = false; };
+    }, [version]);
+
+    return { semesters, loading, error, refresh };
 }

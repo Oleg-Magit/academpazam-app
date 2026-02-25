@@ -1,8 +1,8 @@
 import React from 'react';
 import { Button } from '@/ui/Button';
-import { Plus, Edit2, Trash2, Save } from 'lucide-react';
+import { Plus, Edit2, Trash2, Save, ChevronUp, ChevronDown } from 'lucide-react';
 import { useTranslation } from '@/app/i18n/useTranslation';
-import type { SemesterGroup } from '@/core/models/types';
+import type { SemesterGroup, Semester } from '@/core/models/types';
 
 interface SemesterNavigationProps {
     bySemester: SemesterGroup[];
@@ -15,8 +15,9 @@ interface SemesterNavigationProps {
     onAddSemester: () => void;
     onStartRenaming: (semId: string, currentLabel: string) => void;
     onSaveRename: () => void;
-    onPromptDelete: (semId: string, label: string) => void;
-    semesterCount: number;
+    onPromptDelete: (semester: Semester) => void;
+    onReorder: (semesterId: string, direction: 'up' | 'down') => void;
+    semesters: Semester[];
     isMobile?: boolean;
 }
 
@@ -32,7 +33,8 @@ export const SemesterNavigation: React.FC<SemesterNavigationProps> = ({
     onStartRenaming,
     onSaveRename,
     onPromptDelete,
-    semesterCount,
+    onReorder,
+    semesters,
     isMobile = false
 }) => {
     const { t } = useTranslation();
@@ -50,16 +52,16 @@ export const SemesterNavigation: React.FC<SemesterNavigationProps> = ({
             paddingBottom: isMobile ? '16px' : '0'
         }}>
             <h2 style={{ fontSize: '1.2rem', marginBottom: '16px', paddingLeft: '8px' }}>{t('label.semesters')}</h2>
-            {bySemester.map(sem => (
+            {bySemester.map((sem, index) => (
                 <div
-                    key={sem.semester}
-                    onClick={() => onSelectSemester(sem.semester)}
+                    key={sem.semesterId}
+                    onClick={() => onSelectSemester(sem.semesterId)}
                     style={{
                         padding: isMobile ? '12px 16px' : '8px 12px',
                         borderRadius: '8px',
                         cursor: 'pointer',
-                        backgroundColor: selectedSemester === sem.semester ? 'var(--color-bg-secondary)' : 'transparent',
-                        border: selectedSemester === sem.semester ? '1px solid var(--color-border)' : '1px solid transparent',
+                        backgroundColor: selectedSemester === sem.semesterId ? 'var(--color-bg-secondary)' : 'transparent',
+                        border: selectedSemester === sem.semesterId ? '1px solid var(--color-border)' : '1px solid transparent',
                         display: 'flex',
                         justifyContent: 'space-between',
                         alignItems: 'center',
@@ -69,15 +71,15 @@ export const SemesterNavigation: React.FC<SemesterNavigationProps> = ({
                     }}
                     className="semester-row"
                 >
-                    {editingSemesterId === sem.semester ? (
+                    {editingSemesterId === sem.semesterId ? (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '4px', width: '100%' }} onClick={e => e.stopPropagation()}>
                             <input
-                                id={`rename-semester-${sem.semester}`}
-                                name={`renameSemester-${sem.semester}`}
+                                id={`rename-semester-${sem.semesterId}`}
+                                name={`renameSemester-${sem.semesterId}`}
                                 value={tempLabel}
                                 onChange={e => setTempLabel(e.target.value)}
                                 autoFocus
-                                aria-label={`Rename semester ${sem.semester}`}
+                                aria-label={`Rename semester ${sem.semesterId}`}
                                 style={{
                                     width: '100%',
                                     padding: isMobile ? '10px' : '4px',
@@ -98,17 +100,39 @@ export const SemesterNavigation: React.FC<SemesterNavigationProps> = ({
                         </div>
                     ) : (
                         <>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, overflow: 'hidden' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flex: 1, overflow: 'hidden' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        disabled={index === 0}
+                                        style={{ padding: 0, height: '14px', visibility: selectedSemester === sem.semesterId ? 'visible' : 'hidden' }}
+                                        onClick={(e) => { e.stopPropagation(); onReorder(sem.semesterId, 'up'); }}
+                                    >
+                                        <ChevronUp size={12} />
+                                    </Button>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        disabled={index === semesters.length - 1}
+                                        style={{ padding: 0, height: '14px', visibility: selectedSemester === sem.semesterId ? 'visible' : 'hidden' }}
+                                        onClick={(e) => { e.stopPropagation(); onReorder(sem.semesterId, 'down'); }}
+                                    >
+                                        <ChevronDown size={12} />
+                                    </Button>
+                                </div>
+
                                 <span style={{
-                                    fontWeight: selectedSemester === sem.semester ? 600 : 400,
+                                    fontWeight: selectedSemester === sem.semesterId ? 600 : 400,
                                     fontSize: isMobile ? '1.1rem' : '1rem',
                                     whiteSpace: 'nowrap',
                                     overflow: 'hidden',
-                                    textOverflow: 'ellipsis'
+                                    textOverflow: 'ellipsis',
+                                    marginLeft: '4px'
                                 }}>
-                                    {sem.label || `${t('label.semester')} ${sem.semester}`}
+                                    {sem.semesterName}
                                 </span>
-                                {selectedSemester === sem.semester && (
+                                {selectedSemester === sem.semesterId && (
                                     <div style={{ display: 'flex', gap: '4px' }}>
                                         <Button
                                             variant="ghost"
@@ -116,21 +140,22 @@ export const SemesterNavigation: React.FC<SemesterNavigationProps> = ({
                                             style={{ padding: '4px', height: 'auto' }}
                                             onClick={(e) => {
                                                 e.stopPropagation();
-                                                onStartRenaming(sem.semester, sem.label || `${t('label.semester')} ${sem.semester}`);
+                                                onStartRenaming(sem.semesterId, sem.semesterName);
                                             }}
                                             aria-label={t('action.edit')}
                                         >
                                             <Edit2 size={isMobile ? 18 : 12} style={{ opacity: 0.7 }} />
                                         </Button>
 
-                                        {semesterCount > 1 && (
+                                        {semesters.length > 1 && (
                                             <Button
                                                 variant="ghost"
                                                 size="sm"
                                                 style={{ padding: '4px', height: 'auto', color: 'var(--color-danger)' }}
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    onPromptDelete(sem.semester, sem.label || `${t('label.semester')} ${sem.semester}`);
+                                                    const fullSem = semesters.find(s => s.id === sem.semesterId);
+                                                    if (fullSem) onPromptDelete(fullSem);
                                                 }}
                                                 aria-label={t('action.delete')}
                                             >

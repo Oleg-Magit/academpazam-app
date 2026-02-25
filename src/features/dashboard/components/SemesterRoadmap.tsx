@@ -55,15 +55,15 @@ export const SemesterRoadmap: React.FC<SemesterRoadmapProps> = ({
             msOverflowStyle: 'none'
         }} className="roadmap-scroller">
             {semestersWithStatus.map((sem, index) => (
-                <React.Fragment key={sem.semester}>
+                <React.Fragment key={sem.semesterId}>
                     <SemesterNode
-                        semester={sem.semester}
-                        label={sem.label}
+                        semesterId={sem.semesterId}
+                        label={sem.semesterName}
                         status={sem.status}
                         totalCredits={sem.totalCredits}
                         completedCredits={sem.completedCredits}
-                        isSelected={selectedSemester === sem.semester}
-                        onClick={() => onSelectSemester(sem.semester)}
+                        isSelected={selectedSemester === sem.semesterId}
+                        onClick={() => onSelectSemester(sem.semesterId)}
                     />
                     {index < semestersWithStatus.length - 1 && (
                         <div style={{

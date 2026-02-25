@@ -95,7 +95,7 @@ export const SemesterDrawer: React.FC<SemesterDrawerProps> = ({
                     justifyContent: 'space-between',
                     alignItems: 'center'
                 }}>
-                    <h2 style={{ margin: 0 }}>{semesterGroup.label || `${t('label.semester')} ${semesterGroup.semester}`}</h2>
+                    <h2 style={{ margin: 0 }}>{semesterGroup.semesterName}</h2>
                     <Button variant="ghost" size="sm" onClick={onClose} aria-label="Close">
                         <X size={24} />
                     </Button>
@@ -177,7 +177,7 @@ export const SemesterDrawer: React.FC<SemesterDrawerProps> = ({
                                 variant="secondary"
                                 style={{ width: '100%', justifyContent: 'center' }}
                                 onClick={() => {
-                                    if (semesterGroup) onAddCourse(semesterGroup.semester);
+                                    if (semesterGroup) onAddCourse(semesterGroup.semesterId);
                                     onClose();
                                 }}
                             >

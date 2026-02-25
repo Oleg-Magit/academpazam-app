@@ -121,7 +121,7 @@ export const CourseDetails: React.FC = () => {
                             {course.code && <Badge>{course.code}</Badge>}
                         </div>
                         <div style={{ color: 'var(--color-text-secondary)' }}>
-                            {t('label.semester')} {course.semester} • {course.credits} {t('label.credits')}
+                            {t('label.semester')} {course.semesterId} • {course.credits} {t('label.credits')}
                         </div>
                         {course.notes && (
                             <div style={{ marginTop: 'var(--space-md)', fontSize: '0.875rem', color: 'var(--color-text-secondary)', fontStyle: 'italic' }}>

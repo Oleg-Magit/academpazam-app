@@ -3,7 +3,7 @@ import { Modal } from '@/ui/Modal';
 import { Input } from '@/ui/Input';
 import { Select } from '@/ui/Select';
 import { Button } from '@/ui/Button';
-import type { Course, CourseStatus } from '@/core/models/types';
+import type { Course, CourseStatus, Semester } from '@/core/models/types';
 import { saveCourse } from '@/core/db/db';
 import { v4 as uuidv4 } from 'uuid';
 import { useTranslation } from '@/app/i18n/useTranslation';
@@ -15,17 +15,17 @@ interface CourseModalProps {
     planId: string;
     courseToEdit?: Course | null;
     initialData?: Partial<Course>;
-    semesterConfig: { count: number, labels: string[] };
+    semesters: Semester[];
 }
 
 export const CourseModal: React.FC<CourseModalProps> = ({
-    isOpen, onClose, onSave, planId, courseToEdit, initialData, semesterConfig
+    isOpen, onClose, onSave, planId, courseToEdit, initialData, semesters
 }) => {
     const { t } = useTranslation();
     const [name, setName] = useState('');
     const [code, setCode] = useState('');
     const [credits, setCredits] = useState('3');
-    const [semester, setSemester] = useState('1');
+    const [semesterId, setSemesterId] = useState('');
     const [notes, setNotes] = useState('');
     const [manualStatus, setManualStatus] = useState<CourseStatus>('not_started');
     const [error, setError] = useState('');
@@ -35,19 +35,19 @@ export const CourseModal: React.FC<CourseModalProps> = ({
             setName(courseToEdit.name);
             setCode(courseToEdit.code || '');
             setCredits(courseToEdit.credits.toString());
-            setSemester(courseToEdit.semester);
+            setSemesterId(courseToEdit.semesterId);
             setNotes(courseToEdit.notes || '');
             setManualStatus(courseToEdit.manualStatus || 'not_started');
         } else {
             setName(initialData?.name || '');
             setCode(initialData?.code || '');
             setCredits(initialData?.credits?.toString() || '3');
-            setSemester(initialData?.semester || '1');
+            setSemesterId(initialData?.semesterId || (semesters.length > 0 ? semesters[0].id : ''));
             setNotes(initialData?.notes || '');
             setManualStatus(initialData?.manualStatus || 'not_started');
         }
         setError('');
-    }, [courseToEdit, isOpen, initialData]);
+    }, [courseToEdit, isOpen, initialData, semesters]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -67,7 +67,7 @@ export const CourseModal: React.FC<CourseModalProps> = ({
             name,
             code,
             credits: creditsNum,
-            semester,
+            semesterId,
             notes,
             manualStatus: manualStatus,
             createdAt: courseToEdit?.createdAt || Date.now(),
@@ -85,15 +85,11 @@ export const CourseModal: React.FC<CourseModalProps> = ({
     };
 
     const SEMESTER_OPTIONS = React.useMemo(() => {
-        return Array.from({ length: semesterConfig.count }, (_, i) => {
-            const id = (i + 1).toString();
-            const label = (semesterConfig.labels[i] || '').trim();
-            return {
-                value: id,
-                label: label || `${t('label.semester')} ${id}`
-            };
-        });
-    }, [semesterConfig, t]);
+        return semesters.map(s => ({
+            value: s.id,
+            label: s.name
+        }));
+    }, [semesters]);
 
     const STATUS_OPTIONS: { value: CourseStatus; label: string }[] = React.useMemo(() => [
         { value: 'not_started', label: t('status.not_started') },
@@ -140,8 +136,8 @@ export const CourseModal: React.FC<CourseModalProps> = ({
                         id="course-semester"
                         name="courseSemester"
                         label={t('label.semester')}
-                        value={semester}
-                        onChange={e => setSemester(e.target.value)}
+                        value={semesterId}
+                        onChange={e => setSemesterId(e.target.value)}
                         options={SEMESTER_OPTIONS}
                     />
                 </div>

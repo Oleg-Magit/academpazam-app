@@ -3,7 +3,7 @@ import { useTranslation } from '@/app/i18n/useTranslation';
 import { ProgressBar } from '@/ui/ProgressBar';
 
 interface SemesterNodeProps {
-    semester: string;
+    semesterId: string;
     label?: string;
     status: 'completed' | 'current' | 'upcoming';
     totalCredits: number;
@@ -13,7 +13,7 @@ interface SemesterNodeProps {
 }
 
 export const SemesterNode: React.FC<SemesterNodeProps> = memo(({
-    semester,
+    semesterId,
     label,
     status,
     totalCredits,
@@ -51,7 +51,7 @@ export const SemesterNode: React.FC<SemesterNodeProps> = memo(({
         <div
             onClick={onClick}
             role="button"
-            aria-label={`${label || t('label.semester') + ' ' + semester} - ${progress.toFixed(0)}%`}
+            aria-label={`${label || (t('label.semester') + ' ' + semesterId)} - ${progress.toFixed(0)}%`}
             style={{
                 flex: '0 0 auto',
                 width: '180px',
@@ -78,13 +78,8 @@ export const SemesterNode: React.FC<SemesterNodeProps> = memo(({
                 justifyContent: 'space-between',
                 alignItems: 'center'
             }}>
-                <span style={{
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    maxWidth: '120px'
-                }}>
-                    {label || `${t('label.semester')} ${semester}`}
+                <span>
+                    {label || `${t('label.semester')} ${semesterId}`}
                 </span>
                 {status === 'completed' && (
                     <div style={{

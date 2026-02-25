@@ -4,7 +4,7 @@ import { Button } from '@/ui/Button';
 import { Select } from '@/ui/Select';
 import { saveCourse } from '@/core/db/db';
 import { v4 as uuidv4 } from 'uuid';
-import type { Course } from '@/core/models/types';
+import type { Course, Semester } from '@/core/models/types';
 import { useTranslation } from '@/app/i18n/useTranslation';
 
 interface BulkAddCourseModalProps {
@@ -12,33 +12,29 @@ interface BulkAddCourseModalProps {
     onClose: () => void;
     onSave: () => void;
     planId: string;
-    semesterConfig: { count: number, labels: string[] };
+    semesters: Semester[];
 }
 
 interface ParsedCourse {
     id: string;
     name: string;
     credits: number;
-    semester: string;
+    semesterId: string;
     error?: string;
 }
 
-export const BulkAddCourseModal: React.FC<BulkAddCourseModalProps> = ({ isOpen, onClose, onSave, planId, semesterConfig }) => {
+export const BulkAddCourseModal: React.FC<BulkAddCourseModalProps> = ({ isOpen, onClose, onSave, planId, semesters }) => {
     const { t } = useTranslation();
     const [text, setText] = useState('');
     const [preview, setPreview] = useState<ParsedCourse[]>([]);
     const [step, setStep] = useState<'input' | 'preview'>('input');
 
     const SEMESTER_OPTIONS = React.useMemo(() => {
-        return Array.from({ length: semesterConfig.count }, (_, i) => {
-            const id = (i + 1).toString();
-            const label = (semesterConfig.labels[i] || '').trim();
-            return {
-                value: id,
-                label: label || `${t('label.semester')} ${id}`
-            };
-        });
-    }, [semesterConfig, t]);
+        return semesters.map(s => ({
+            value: s.id,
+            label: s.name
+        }));
+    }, [semesters]);
 
     const parseLine = (line: string): { name: string, credits: number, semester: string } | null => {
         line = line.trim();
@@ -78,19 +74,23 @@ export const BulkAddCourseModal: React.FC<BulkAddCourseModalProps> = ({ isOpen, 
         }
 
         // Fallback: assume "Name"
-        return { name: line, credits: 0, semester: '1' };
+        return { name: line, credits: 0, semester: semesters.length > 0 ? semesters[0].id : '' };
     };
 
     const handlePreview = () => {
         const lines = text.split('\n');
-        const parsed: ParsedCourse[] = lines.map(line => {
-            const result = parseLine(line);
-            if (!result) return null;
-            return {
-                id: uuidv4(),
-                ...result
-            };
-        }).filter((x): x is ParsedCourse => x !== null);
+        const parsed: ParsedCourse[] = lines
+            .map(line => {
+                const result = parseLine(line);
+                if (!result) return null;
+                return {
+                    id: uuidv4(),
+                    name: result.name,
+                    credits: result.credits,
+                    semesterId: result.semester,
+                } as ParsedCourse;
+            })
+            .filter((x): x is ParsedCourse => x !== null);
 
         setPreview(parsed);
         setStep('preview');
@@ -103,7 +103,7 @@ export const BulkAddCourseModal: React.FC<BulkAddCourseModalProps> = ({ isOpen, 
                 degreePlanId: planId,
                 name: item.name,
                 credits: item.credits,
-                semester: item.semester,
+                semesterId: item.semesterId,
                 createdAt: Date.now(),
                 updatedAt: Date.now()
             };
@@ -194,10 +194,10 @@ export const BulkAddCourseModal: React.FC<BulkAddCourseModalProps> = ({ isOpen, 
                                             <Select
                                                 id={`preview-sem-${idx}`}
                                                 name={`previewSem-${idx}`}
-                                                value={item.semester}
+                                                value={item.semesterId}
                                                 onChange={e => {
                                                     const newPreview = [...preview];
-                                                    newPreview[idx].semester = e.target.value;
+                                                    newPreview[idx].semesterId = e.target.value;
                                                     setPreview(newPreview);
                                                 }}
                                                 options={SEMESTER_OPTIONS}

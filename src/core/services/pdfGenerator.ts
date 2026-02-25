@@ -1,5 +1,6 @@
 import type { CourseWithTopics } from '../models/types';
 import { groupCoursesBySemester, calculateDegreeProgress } from './dataService';
+import { getSemesters } from '../db/db';
 import { drawCellText } from '../../features/pdf/pdfText';
 import { getPdfLib } from './getPdfLib';
 import { getFontKit } from './getFontKit';
@@ -100,7 +101,8 @@ export const generateDegreePDF = async (degreeName: string, courses: CourseWithT
     });
 
     let currentY = summaryY - 40;
-    const groups = groupCoursesBySemester(courses);
+    const semestersData = await getSemesters();
+    const groups = groupCoursesBySemester(courses, semestersData);
 
     // Columns config - adjusted for RTL
     interface ColConfig { x: number; width: number }
@@ -128,7 +130,7 @@ export const generateDegreePDF = async (degreeName: string, courses: CourseWithT
             currentY = newPage.getSize().height - 50;
         }
 
-        const semLabel = group.label || `${t('label.semester')} ${group.semester}`;
+        const semLabel = group.semesterName;
         drawCellText(page, customFont, semLabel, {
             x: margin,
             y: currentY,

@@ -9,13 +9,20 @@ export interface Plan {
     updatedAt: number;
 }
 
+export interface Semester {
+    id: string; // uuid or stable string
+    name: string;
+    createdAt: number;
+    orderIndex: number; // Controls display order
+}
+
 export interface Course {
     id: string; // uuid
     degreePlanId: string;
     code?: string;
     name: string;
     credits: number;
-    semester: string; // "1", "2", ... "Summer"
+    semesterId: string; // Reference to Semester.id
     notes?: string;
     grade?: number | null;
     manualStatus?: CourseStatus; // Only used if topics.length === 0
@@ -45,8 +52,9 @@ export interface CourseWithTopics extends Course {
 }
 
 export interface SemesterGroup {
-    semester: string;
-    label?: string;
+    semesterId: string;
+    semesterName: string;
+    orderIndex: number;
     courses: CourseWithTopics[];
     totalCredits: number;
     completedCredits: number;

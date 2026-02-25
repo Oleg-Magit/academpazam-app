@@ -1,4 +1,4 @@
-import type { Course, Topic, CourseStatus, CourseWithTopics, SemesterGroup } from '../models/types';
+import type { Course, Topic, CourseStatus, CourseWithTopics, SemesterGroup, Semester } from '../models/types';
 import { getTopicsByCourse } from '../db/db';
 
 /**
@@ -32,39 +32,46 @@ export const enrichCourses = async (courses: Course[]): Promise<CourseWithTopics
 /**
  * Groups courses into semesters for roadmap rendering.
  */
-export const groupCoursesBySemester = (courses: CourseWithTopics[], semesterConfig?: { count: number, labels: string[] }): SemesterGroup[] => {
+export const groupCoursesBySemester = (
+    courses: CourseWithTopics[],
+    semesters: Semester[]
+): SemesterGroup[] => {
     const groups: Record<string, SemesterGroup> = {};
-    const count = semesterConfig?.count ?? 8;
-    const labels = semesterConfig?.labels ?? [];
 
-    for (let i = 1; i <= count; i++) {
-        const semStr = i.toString();
-        groups[semStr] = {
-            semester: semStr,
+    // Initialize groups from canonical semesters list
+    semesters.forEach(sem => {
+        groups[sem.id] = {
+            semesterId: sem.id,
+            semesterName: sem.name,
+            orderIndex: sem.orderIndex,
             courses: [],
             totalCredits: 0,
-            completedCredits: 0,
-            label: labels[i - 1]
+            completedCredits: 0
         };
-    }
+    });
 
     courses.forEach(course => {
-        const sem = course.semester;
-        if (!groups[sem]) {
-            groups[sem] = { semester: sem, courses: [], totalCredits: 0, completedCredits: 0 };
+        const semId = course.semesterId;
+        // Handle potential orphan courses (fallback group)
+        if (!groups[semId]) {
+            groups[semId] = {
+                semesterId: semId,
+                semesterName: 'Other',
+                orderIndex: 999,
+                courses: [],
+                totalCredits: 0,
+                completedCredits: 0
+            };
         }
-        groups[sem].courses.push(course);
-        groups[sem].totalCredits += course.credits;
+        groups[semId].courses.push(course);
+        groups[semId].totalCredits += course.credits;
         if (course.effectiveStatus === 'completed') {
-            groups[sem].completedCredits += course.credits;
+            groups[semId].completedCredits += course.credits;
         }
     });
 
-    return Object.values(groups).sort((a, b) => {
-        const semA = parseInt(a.semester) || 999;
-        const semB = parseInt(b.semester) || 999;
-        return semA - semB;
-    });
+    // Return sorted by orderIndex
+    return Object.values(groups).sort((a, b) => a.orderIndex - b.orderIndex);
 };
 
 /**

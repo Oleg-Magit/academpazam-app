@@ -1,6 +1,7 @@
 import { openDB } from 'idb';
 import type { DBSchema, IDBPDatabase } from 'idb';
-import type { Plan, Course, Topic, Meta } from '../models/types';
+import type { Plan, Course, Topic, Meta, Semester } from '../models/types';
+import { v4 as uuidv4 } from 'uuid';
 
 interface AcademPazamDB extends DBSchema {
     plans: {
@@ -20,6 +21,11 @@ interface AcademPazamDB extends DBSchema {
     meta: {
         key: string;
         value: Meta;
+    };
+    semesters: {
+        key: string;
+        value: Semester;
+        indexes: { 'by-order': number };
     };
 }
 
@@ -46,10 +52,93 @@ export const initDB = () => {
                 if (!db.objectStoreNames.contains('meta')) {
                     db.createObjectStore('meta', { keyPath: 'key' });
                 }
+                if (!db.objectStoreNames.contains('semesters')) {
+                    const store = db.createObjectStore('semesters', { keyPath: 'id' });
+                    store.createIndex('by-order', 'orderIndex');
+                }
             },
         });
+
+        // Trigger migration if needed
+        migrateToSemesterIds();
     }
     return dbPromise;
+};
+
+/**
+ * Migrates legacy data (semester strings on courses) to the new Semester entity model.
+ * This runs on app load and handles the transition gracefully.
+ */
+const migrateToSemesterIds = async () => {
+    const db = await initDB();
+
+    // Check if migration has already been performed
+    const migrationMeta = await db.get('meta', 'semester_id_migration_done');
+    if (migrationMeta) return;
+
+    console.log('[Migration] Starting Semester ID normalization...');
+
+    const tx = db.transaction(['courses', 'semesters', 'meta'], 'readwrite');
+    const courseStore = tx.objectStore('courses');
+    const semesterStore = tx.objectStore('semesters');
+    const metaStore = tx.objectStore('meta');
+
+    const courses = await courseStore.getAll();
+    const semesterConfig = await db.get('meta', 'semesterLabels');
+    const labels = semesterConfig?.value || [];
+    const countMeta = await db.get('meta', 'semesterCount');
+    const count = countMeta?.value || 8;
+
+    const semesterMap: Record<string, string> = {}; // legacyName -> newId
+
+    // 1. Create Semesters based on legacy config or course data
+    for (let i = 1; i <= count; i++) {
+        const legacyName = i.toString();
+        const customLabel = labels[i - 1];
+        const id = uuidv4();
+        const name = customLabel || `Semester ${i}`;
+
+        await semesterStore.put({
+            id,
+            name,
+            createdAt: Date.now(),
+            orderIndex: i - 1
+        });
+        semesterMap[legacyName] = id;
+    }
+
+    // 2. Handle any courses with non-numeric semester strings if they exist
+    for (const course of courses) {
+        // @ts-ignore - legacy access
+        const legacySem = course.semester;
+        if (legacySem && !semesterMap[legacySem]) {
+            const id = uuidv4();
+            await semesterStore.put({
+                id,
+                name: legacySem,
+                createdAt: Date.now(),
+                orderIndex: Object.keys(semesterMap).length
+            });
+            semesterMap[legacySem] = id;
+        }
+    }
+
+    // 3. Update courses to reference new IDs
+    for (const course of courses) {
+        // @ts-ignore - legacy access
+        const legacySem = course.semester;
+        if (legacySem && semesterMap[legacySem]) {
+            const updatedCourse = { ...course } as any;
+            updatedCourse.semesterId = semesterMap[legacySem];
+            delete updatedCourse.semester;
+            await courseStore.put(updatedCourse);
+        }
+    }
+
+    await metaStore.put({ key: 'semester_id_migration_done', value: true });
+    await tx.done;
+
+    console.log('[Migration] Semester ID normalization complete.');
 };
 
 /**
@@ -149,26 +238,59 @@ export const saveSemesterConfig = async (count: number, labels: string[]) => {
     await saveMeta('semesterLabels', labels);
 };
 
-// Export / Import Helpers
+/**
+ * Semester Operations
+ */
+export const getSemesters = async () => {
+    const db = await initDB();
+    const semesters = await db.getAll('semesters');
+    return semesters.sort((a, b) => a.orderIndex - b.orderIndex || a.createdAt - b.createdAt);
+};
+
+export const saveSemester = async (semester: Semester) => (await initDB()).put('semesters', semester);
+
+export const deleteSemester = async (id: string, cascade: boolean = false) => {
+    const db = await initDB();
+    const tx = db.transaction(['semesters', 'courses', 'topics'], 'readwrite');
+
+    if (cascade) {
+        const courses = await tx.objectStore('courses').getAll();
+        const semesterCourses = courses.filter((c: any) => c.semesterId === id);
+        for (const course of semesterCourses) {
+            const topics = await tx.objectStore('topics').getAll();
+            const courseTopics = topics.filter((t: any) => t.courseId === course.id);
+            for (const topic of courseTopics) {
+                await tx.objectStore('topics').delete(topic.id);
+            }
+            await tx.objectStore('courses').delete(course.id);
+        }
+    }
+
+    await tx.objectStore('semesters').delete(id);
+    await tx.done;
+};
+
 export const getAllData = async () => {
     const db = await initDB();
-    const [plans, courses, topics, meta] = await Promise.all([
+    const [plans, courses, topics, meta, semesters] = await Promise.all([
         db.getAll('plans'),
         db.getAll('courses'),
         db.getAll('topics'),
         db.getAll('meta'),
+        db.getAll('semesters'),
     ]);
-    return { plans, courses, topics, meta };
+    return { plans, courses, topics, meta, semesters };
 };
 
 export const clearAllData = async () => {
     const db = await initDB();
-    const tx = db.transaction(['plans', 'courses', 'topics', 'meta'], 'readwrite');
+    const tx = db.transaction(['plans', 'courses', 'topics', 'meta', 'semesters'], 'readwrite');
     await Promise.all([
         tx.objectStore('plans').clear(),
         tx.objectStore('courses').clear(),
         tx.objectStore('topics').clear(),
         tx.objectStore('meta').clear(),
+        tx.objectStore('semesters').clear(),
     ]);
     await tx.done;
 };

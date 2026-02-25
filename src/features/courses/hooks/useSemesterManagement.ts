@@ -1,32 +1,36 @@
-import { useState, useEffect, useMemo } from 'react';
-import { getSemesterConfig, saveSemesterConfig, saveCourse } from '@/core/db/db';
-import type { CourseWithTopics } from '@/core/models/types';
+import { useState, useMemo } from 'react';
+import { saveSemester, deleteSemester, saveCourse } from '@/core/db/db';
+import type { CourseWithTopics, Semester } from '@/core/models/types';
 import { groupCoursesBySemester } from '@/core/services/dataService';
 import { useTranslation } from '@/app/i18n/useTranslation';
+import { v4 as uuidv4 } from 'uuid';
 
-export const useSemesterManagement = (courses: CourseWithTopics[], refresh: () => void) => {
+export const useSemesterManagement = (
+    courses: CourseWithTopics[],
+    semesters: Semester[],
+    refresh: () => void
+) => {
     const { t } = useTranslation();
-    const [semesterConfig, setSemesterConfig] = useState<{ count: number, labels: string[] }>({ count: 8, labels: [] });
     const [editingSemesterId, setEditingSemesterId] = useState<string | null>(null);
     const [tempLabel, setTempLabel] = useState('');
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-    const [semesterToDelete, setSemesterToDelete] = useState<{ id: string, label: string } | null>(null);
+    const [semesterToDelete, setSemesterToDelete] = useState<Semester | null>(null);
     const [errorMsg, setErrorMsg] = useState('');
 
-    useEffect(() => {
-        getSemesterConfig().then(setSemesterConfig);
-    }, []);
-
     const bySemester = useMemo(() => {
-        return groupCoursesBySemester(courses, semesterConfig);
-    }, [courses, semesterConfig]);
+        return groupCoursesBySemester(courses, semesters);
+    }, [courses, semesters]);
 
     const handleAddSemester = async () => {
-        const newCount = semesterConfig.count + 1;
-        const newLabels = [...semesterConfig.labels];
-        await saveSemesterConfig(newCount, newLabels);
-        setSemesterConfig({ count: newCount, labels: newLabels });
-        return newCount.toString();
+        const newSemester: Semester = {
+            id: uuidv4(),
+            name: `${t('semester.semester')} ${semesters.length + 1}`,
+            createdAt: Date.now(),
+            orderIndex: semesters.length > 0 ? Math.max(...semesters.map(s => s.orderIndex)) + 1 : 0
+        };
+        await saveSemester(newSemester);
+        refresh();
+        return newSemester.id;
     };
 
     const startRenaming = (semId: string, currentLabel: string) => {
@@ -37,25 +41,24 @@ export const useSemesterManagement = (courses: CourseWithTopics[], refresh: () =
     const saveRename = async () => {
         if (!editingSemesterId) return;
 
-        const semIndex = parseInt(editingSemesterId) - 1;
-        if (semIndex >= 0) {
-            const newLabels = [...semesterConfig.labels];
-            while (newLabels.length <= semIndex) newLabels.push('');
-            newLabels[semIndex] = tempLabel;
-
-            await saveSemesterConfig(semesterConfig.count, newLabels);
-            setSemesterConfig({ ...semesterConfig, labels: newLabels });
+        const semester = semesters.find(s => s.id === editingSemesterId);
+        if (semester) {
+            await saveSemester({
+                ...semester,
+                name: tempLabel
+            });
+            refresh();
         }
         setEditingSemesterId(null);
     };
 
-    const promptDeleteSemester = (semId: string, label: string) => {
-        if (semesterConfig.count <= 1) {
+    const promptDeleteSemester = (semester: Semester) => {
+        if (semesters.length <= 1) {
             setErrorMsg(t('msg.cannot_delete_only_semester'));
             setTimeout(() => setErrorMsg(''), 3000);
             return;
         }
-        setSemesterToDelete({ id: semId, label });
+        setSemesterToDelete(semester);
         setDeleteModalOpen(true);
     };
 
@@ -63,50 +66,49 @@ export const useSemesterManagement = (courses: CourseWithTopics[], refresh: () =
         if (!semesterToDelete) return;
 
         const deleteId = semesterToDelete.id;
-        const deleteIndex = parseInt(deleteId);
 
         if (targetId) {
-            let actualTarget = targetId;
-            if (targetId === 'prev') {
-                actualTarget = (deleteIndex - 1).toString();
-            }
-
-            const group = bySemester.find(g => g.semester === deleteId);
+            // Reassign courses to another semester
+            const group = bySemester.find(g => g.semesterId === deleteId);
             if (group && group.courses.length > 0) {
                 await Promise.all(group.courses.map(c =>
-                    saveCourse({ ...c, semester: actualTarget, updatedAt: Date.now() })
+                    saveCourse({ ...c, semesterId: targetId, updatedAt: Date.now() })
                 ));
             }
+            await deleteSemester(deleteId, false);
+        } else {
+            // Delete semester and all its courses
+            await deleteSemester(deleteId, true);
         }
-
-        const higherSemCourses = courses.filter(c => {
-            const s = parseInt(c.semester);
-            return !isNaN(s) && s > deleteIndex;
-        });
-
-        if (higherSemCourses.length > 0) {
-            await Promise.all(higherSemCourses.map(c => {
-                const currentS = parseInt(c.semester);
-                return saveCourse({ ...c, semester: (currentS - 1).toString(), updatedAt: Date.now() });
-            }));
-        }
-
-        const newLabels = [...semesterConfig.labels];
-        if (deleteIndex - 1 < newLabels.length) {
-            newLabels.splice(deleteIndex - 1, 1);
-        }
-        const newCount = semesterConfig.count - 1;
-
-        await saveSemesterConfig(newCount, newLabels);
-        setSemesterConfig({ count: newCount, labels: newLabels });
 
         refresh();
         setDeleteModalOpen(false);
         setSemesterToDelete(null);
     };
 
+    const handleReorder = async (semesterId: string, direction: 'up' | 'down') => {
+        const index = semesters.findIndex(s => s.id === semesterId);
+        if (index === -1) return;
+        if (direction === 'up' && index === 0) return;
+        if (direction === 'down' && index === semesters.length - 1) return;
+
+        const targetIndex = direction === 'up' ? index - 1 : index + 1;
+        const current = semesters[index];
+        const target = semesters[targetIndex];
+
+        // Swap orderIndex
+        const currentOrder = current.orderIndex;
+        const targetOrder = target.orderIndex;
+
+        await Promise.all([
+            saveSemester({ ...current, orderIndex: targetOrder }),
+            saveSemester({ ...target, orderIndex: currentOrder })
+        ]);
+
+        refresh();
+    };
+
     return {
-        semesterConfig,
         bySemester,
         editingSemesterId,
         setEditingSemesterId,
@@ -120,6 +122,7 @@ export const useSemesterManagement = (courses: CourseWithTopics[], refresh: () =
         startRenaming,
         saveRename,
         promptDeleteSemester,
-        confirmDeleteSemester
+        confirmDeleteSemester,
+        handleReorder
     };
 };
