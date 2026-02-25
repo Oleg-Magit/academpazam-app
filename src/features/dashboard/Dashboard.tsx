@@ -11,11 +11,12 @@ import { SemesterDrawer } from './components/SemesterDrawer';
 import { CourseModal } from '@/features/courses/CourseModal';
 import { DashboardHeader } from './components/DashboardHeader';
 import { useDashboardData } from './hooks/useDashboardData';
+import { useSemesterManagement } from '@/features/courses/hooks/useSemesterManagement';
 import { DashboardSkeleton } from './components/DashboardSkeleton';
 import { Button } from '@/ui/Button';
 import { ConfirmationModal } from '@/ui/ConfirmationModal';
 import { Card } from '@/ui/Card';
-import { GraduationCap, Info } from 'lucide-react';
+import { GraduationCap, Info, Plus } from 'lucide-react';
 
 export const Dashboard: React.FC = () => {
     const { t, language } = useTranslation();
@@ -51,6 +52,7 @@ export const Dashboard: React.FC = () => {
         refreshSemesters();
     };
 
+    const { handleAddSemester } = useSemesterManagement(courses, semesters, refresh);
     const { progress, bySemester, stats } = useDashboardData(courses, semesters);
 
     const handleCreatePlan = async () => {
@@ -223,7 +225,27 @@ export const Dashboard: React.FC = () => {
             />
 
             <section style={{ flex: 1 }}>
-                {courses?.length === 0 ? (
+                {semesters.length === 0 ? (
+                    <Card style={{
+                        textAlign: 'center',
+                        padding: 'var(--space-xl)',
+                        backgroundColor: 'var(--color-bg-secondary)',
+                        border: '1px dashed var(--color-border)',
+                        marginTop: 'var(--space-md)'
+                    }}>
+                        <Info size={32} color="var(--color-accent)" style={{ marginBottom: 'var(--space-sm)' }} />
+                        <h2 style={{ fontSize: '1.25rem', marginBottom: 'var(--space-md)', fontWeight: 600 }}>
+                            {t('dashboard.empty_no_semesters_title')}
+                        </h2>
+                        <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-xl)', lineHeight: 1.5 }}>
+                            {t('dashboard.empty_no_semesters_desc')}
+                        </p>
+                        <Button onClick={handleAddSemester} variant="primary">
+                            <Plus size={18} style={{ marginRight: '8px' }} />
+                            {t('dashboard.add_first_semester')}
+                        </Button>
+                    </Card>
+                ) : courses?.length === 0 ? (
                     <Card style={{
                         textAlign: 'center',
                         padding: 'var(--space-xl)',
@@ -235,6 +257,10 @@ export const Dashboard: React.FC = () => {
                         <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-md)' }}>
                             {t('dashboard.empty_hint')}
                         </p>
+                        <Button onClick={() => setIsModalOpen(true)} variant="secondary">
+                            <Plus size={18} style={{ marginRight: '8px' }} />
+                            {t('dashboard.add_first_course')}
+                        </Button>
                     </Card>
                 ) : (
                     <SemesterRoadmap

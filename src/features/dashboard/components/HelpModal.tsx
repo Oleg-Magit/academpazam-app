@@ -1,7 +1,7 @@
 import React from 'react';
 import { Modal } from '@/ui/Modal';
 import { useTranslation } from '@/app/i18n/useTranslation';
-import { Info, Plus, FileText, Database, ShieldCheck, Download } from 'lucide-react';
+import { Info, Plus, FileText, Database, ShieldCheck } from 'lucide-react';
 
 interface HelpModalProps {
     isOpen: boolean;
@@ -14,29 +14,34 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
     const sections = [
         {
             icon: <Plus size={20} className="text-accent" />,
-            title: t('help.adding_courses.title') || 'Adding Courses',
-            body: t('help.adding_courses.body') || 'Create your degree plan by adding courses to semesters. You can use the "Add Course" button on the Courses page or the shortcut in the Dashboard semester drawer.'
+            title: t('help.workflow.step1'),
+            body: t('help.workflow.step1_body')
         },
         {
             icon: <FileText size={20} className="text-accent" />,
-            title: t('help.bulk_add.title') || 'Bulk Import',
-            body: t('help.bulk_add.body') || 'Import multiple courses at once using the "Bulk Add" tool. We support various text formats: "Course | 3.0 | Semester 1", "Course - 3.0 - Sem 1", etc.'
+            title: t('help.workflow.step2'),
+            body: t('help.workflow.step2_body')
         },
         {
             icon: <Database size={20} className="text-accent" />,
-            title: t('help.tracking.title') || 'Tracking Progress',
-            body: t('help.tracking.body') || 'Add topics to each course to track your weekly progress. The course status automatically updates from "Not Started" to "In Progress" as you complete topics.'
+            title: t('help.workflow.step3'),
+            body: t('help.workflow.step3_body')
         },
         {
             icon: <ShieldCheck size={20} className="text-accent" />,
-            title: t('help.privacy.title') || 'Data Privacy',
-            body: t('help.privacy.body') || 'Your data is 100% private and stored only on your device (IndexedDB). No data ever leaves your browser or is sent to any server.'
+            title: t('help.workflow.step4'),
+            body: t('help.workflow.step4_body')
         },
         {
-            icon: <Download size={20} className="text-accent" />,
-            title: t('help.backup.title') || 'Backups & PDF',
-            body: t('help.backup.body') || 'Export your data as a JSON file for backup in Settings. You can also generate a beautiful PDF summary of your degree progress for offline use.'
+            icon: <Plus size={20} className="text-accent" />,
+            title: t('help.privacy.title'),
+            body: t('help.privacy.body')
         }
+    ];
+
+    const troubleshooting = [
+        t('help.troubleshooting.no_add_course'),
+        t('help.troubleshooting.not_updating')
     ];
 
     return (
@@ -69,6 +74,24 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
                             </div>
                         </div>
                     ))}
+                </div>
+
+                <div style={{
+                    marginTop: '8px',
+                    padding: '20px',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    borderRadius: '12px',
+                    border: '1px solid rgba(239, 68, 68, 0.2)'
+                }}>
+                    <h3 style={{ margin: '0 0 12px 0', fontSize: '1rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Info size={18} className="text-danger" />
+                        {t('help.troubleshooting.title')}
+                    </h3>
+                    <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.9rem', color: 'var(--color-text-secondary)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        {troubleshooting.map((item, idx) => (
+                            <li key={idx}>{item}</li>
+                        ))}
+                    </ul>
                 </div>
 
                 <div style={{
