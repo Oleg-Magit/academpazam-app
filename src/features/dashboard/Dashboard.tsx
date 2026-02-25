@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { usePlans, useCourses } from '@/core/hooks/useData';
+import type { Course } from '@/core/models/types';
 import { calculateDegreeProgress, groupCoursesBySemester } from '@/core/services/dataService';
 import { savePlan, getSemesterConfig } from '@/core/db/db';
 import { v4 as uuidv4 } from 'uuid';
@@ -23,6 +24,8 @@ export const Dashboard: React.FC = () => {
     const [semesterConfig, setSemesterConfig] = useState<{ count: number, labels: string[] } | undefined>(undefined);
     const [showActions, setShowActions] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [initialModalData, setInitialModalData] = useState<Partial<Course>>({ semester: '1' });
+    const [showExportSuccess, setShowExportSuccess] = useState(false);
     const actionsRef = useRef<HTMLDivElement>(null);
     const importInputRef = useRef<HTMLInputElement>(null);
 
@@ -84,7 +87,9 @@ export const Dashboard: React.FC = () => {
             a.download = `${currentPlan.name}-Progress.pdf`;
             a.click();
             URL.revokeObjectURL(url);
-            alert(t('msg.export_success'));
+
+            setShowExportSuccess(true);
+            setTimeout(() => setShowExportSuccess(false), 3000);
         } catch (e) {
             console.error(e);
         }
@@ -99,11 +104,18 @@ export const Dashboard: React.FC = () => {
             a.download = `academ-pazam-backup-${new Date().toISOString().slice(0, 10)}.json`;
             a.click();
             URL.revokeObjectURL(url);
-            alert(t('msg.export_success'));
+
+            setShowExportSuccess(true);
+            setTimeout(() => setShowExportSuccess(false), 3000);
             setShowActions(false);
         } catch (e) {
             console.error(e);
         }
+    };
+
+    const handleAddCourseFromDrawer = (semesterId: string) => {
+        setInitialModalData({ semester: semesterId });
+        setIsModalOpen(true);
     };
 
     const handleImportJSON = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -156,47 +168,58 @@ export const Dashboard: React.FC = () => {
             <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>{t('nav.dashboard')}</h1>
 
-                <div style={{ display: 'flex', gap: '8px', position: 'relative' }} ref={actionsRef}>
-                    <Button
-                        size="sm"
-                        variant="primary"
-                        onClick={() => setIsModalOpen(true)}
-                        style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem' }}
-                    >
-                        <Plus size={16} />
-                        {t('dashboard.add_course')}
-                    </Button>
-
-                    <Button
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => setShowActions(!showActions)}
-                        style={{ padding: '0 8px' }}
-                    >
-                        <MoreHorizontal size={18} />
-                    </Button>
-
-                    {showActions && (
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', position: 'relative' }}>
+                    {showExportSuccess && (
                         <div style={{
-                            position: 'absolute',
-                            top: '100%',
-                            [language === 'he' ? 'left' : 'right']: 0,
-                            marginTop: '8px',
-                            backgroundColor: 'var(--color-bg-secondary)',
-                            border: '1px solid var(--color-border)',
-                            borderRadius: '8px',
-                            boxShadow: '0 10px 25px rgba(0,0,0,0.3)',
-                            zIndex: 100,
-                            minWidth: '180px',
-                            overflow: 'hidden'
+                            color: 'var(--color-success)',
+                            fontSize: '0.85rem',
+                            fontWeight: 500
                         }}>
-                            <MenuLink to="/courses" icon={<List size={16} />} label={t('label.manage_courses')} />
-                            <MenuButton onClick={handleExportPDF} icon={<FileDown size={16} />} label={t('action.export_pdf')} />
-                            <MenuButton onClick={handleExportJSON} icon={<Database size={16} />} label={t('action.export_json')} />
-                            <MenuButton onClick={() => importInputRef.current?.click()} icon={<Upload size={16} />} label={t('action.import_json')} />
-                            <input type="file" ref={importInputRef} style={{ display: 'none' }} onChange={handleImportJSON} accept=".json" />
+                            {t('msg.export_success')}
                         </div>
                     )}
+                    <div style={{ display: 'flex', gap: '8px', position: 'relative' }} ref={actionsRef}>
+                        <Button
+                            size="sm"
+                            variant="primary"
+                            onClick={() => setIsModalOpen(true)}
+                            style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem' }}
+                        >
+                            <Plus size={16} />
+                            {t('dashboard.add_course')}
+                        </Button>
+
+                        <Button
+                            size="sm"
+                            variant="secondary"
+                            onClick={() => setShowActions(!showActions)}
+                            style={{ padding: '0 8px' }}
+                        >
+                            <MoreHorizontal size={18} />
+                        </Button>
+
+                        {showActions && (
+                            <div style={{
+                                position: 'absolute',
+                                top: '100%',
+                                [language === 'he' ? 'left' : 'right']: 0,
+                                marginTop: '8px',
+                                backgroundColor: 'var(--color-bg-secondary)',
+                                border: '1px solid var(--color-border)',
+                                borderRadius: '8px',
+                                boxShadow: '0 10px 25px rgba(0,0,0,0.3)',
+                                zIndex: 100,
+                                minWidth: '180px',
+                                overflow: 'hidden'
+                            }}>
+                                <MenuLink to="/courses" icon={<List size={16} />} label={t('label.manage_courses')} />
+                                <MenuButton onClick={handleExportPDF} icon={<FileDown size={16} />} label={t('action.export_pdf')} />
+                                <MenuButton onClick={handleExportJSON} icon={<Database size={16} />} label={t('action.export_json')} />
+                                <MenuButton onClick={() => importInputRef.current?.click()} icon={<Upload size={16} />} label={t('action.import_json')} />
+                                <input type="file" ref={importInputRef} style={{ display: 'none' }} onChange={handleImportJSON} accept=".json" />
+                            </div>
+                        )}
+                    </div>
                 </div>
             </header>
 
@@ -240,16 +263,20 @@ export const Dashboard: React.FC = () => {
                 isOpen={!!selectedSemester}
                 onClose={() => setSelectedSemester(null)}
                 semesterGroup={selectedSemesterGroup}
+                onAddCourse={handleAddCourseFromDrawer}
             />
 
             {/* Quick Add Modal */}
             {currentPlan && (
                 <CourseModal
                     isOpen={isModalOpen}
-                    onClose={() => setIsModalOpen(false)}
+                    onClose={() => {
+                        setIsModalOpen(false);
+                        setInitialModalData({ semester: '1' }); // Reset
+                    }}
                     onSave={handleSaveCourse}
                     planId={currentPlan.id}
-                    initialData={{ semester: '1' }}
+                    initialData={initialModalData}
                 />
             )}
         </div>

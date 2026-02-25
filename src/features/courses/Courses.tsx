@@ -13,6 +13,7 @@ import { Plus, Edit2, Trash2, ChevronRight, FileText, Search, Save } from 'lucid
 import { Link, useNavigate } from 'react-router-dom';
 import { DeleteSemesterModal } from './DeleteSemesterModal';
 import { useTranslation } from '@/app/i18n/useTranslation';
+import { ConfirmationModal } from '@/ui/ConfirmationModal';
 
 export const Courses: React.FC = () => {
     const { t } = useTranslation();
@@ -35,6 +36,8 @@ export const Courses: React.FC = () => {
     // Delete Semester
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [semesterToDelete, setSemesterToDelete] = useState<{ id: string, label: string } | null>(null);
+    const [courseToDelete, setCourseToDelete] = useState<Course | null>(null);
+    const [errorMsg, setErrorMsg] = useState('');
 
     useEffect(() => {
         const loadConfig = async () => {
@@ -78,7 +81,8 @@ export const Courses: React.FC = () => {
     const promptDeleteSemester = (e: React.MouseEvent, semId: string, label: string) => {
         e.stopPropagation();
         if (semesterConfig.count <= 1) {
-            alert(t('msg.cannot_delete_only_semester') || "Cannot delete the only semester.");
+            setErrorMsg(t('msg.cannot_delete_only_semester'));
+            setTimeout(() => setErrorMsg(''), 3000);
             return;
         }
         setSemesterToDelete({ id: semId, label });
@@ -140,11 +144,15 @@ export const Courses: React.FC = () => {
         setIsModalOpen(true);
     };
 
-    const handleDelete = async (course: Course) => {
-        if (confirm(t('msg.delete_course_prompt', { name: course.name }))) {
-            await deleteCourse(course.id);
-            refresh();
-        }
+    const handleDelete = (course: Course) => {
+        setCourseToDelete(course);
+    };
+
+    const confirmCourseDelete = async () => {
+        if (!courseToDelete) return;
+        await deleteCourse(courseToDelete.id);
+        setCourseToDelete(null);
+        refresh();
     };
 
     const handleSave = () => {
@@ -447,6 +455,35 @@ export const Courses: React.FC = () => {
                     />
                 )
             }
-        </div >
+
+            {courseToDelete && (
+                <ConfirmationModal
+                    isOpen={!!courseToDelete}
+                    onClose={() => setCourseToDelete(null)}
+                    onConfirm={confirmCourseDelete}
+                    title={t('action.delete')}
+                    message={t('msg.delete_course_prompt', { name: courseToDelete.name })}
+                    variant="danger"
+                    confirmLabel={t('action.delete')}
+                />
+            )}
+
+            {errorMsg && (
+                <div style={{
+                    position: 'fixed',
+                    bottom: '24px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    backgroundColor: 'var(--color-danger)',
+                    color: 'white',
+                    padding: '12px 24px',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+                    zIndex: 1000
+                }}>
+                    {errorMsg}
+                </div>
+            )}
+        </div>
     );
 };

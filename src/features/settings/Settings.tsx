@@ -14,6 +14,7 @@ import { LANGUAGES } from '../../app/i18n';
 import type { Language } from '../../app/i18n';
 import { useCourses } from '@/core/hooks/useData';
 import { generateDegreePDF } from '@/core/services/pdfGenerator';
+import { ConfirmationModal } from '@/ui/ConfirmationModal';
 
 export const Settings: React.FC = () => {
     const { t, language, setLanguage, direction, setDirection } = useTranslation();
@@ -23,6 +24,8 @@ export const Settings: React.FC = () => {
     const { courses } = useCourses(currentPlan?.id || null);
     const [importing, setImporting] = useState(false);
     const [message, setMessage] = useState('');
+    const [pendingReplace, setPendingReplace] = useState<File | null>(null);
+    const [showResetConfirm, setShowResetConfirm] = useState(false);
 
     // Plan editing
     const [isEditingPlan, setIsEditingPlan] = useState(false);
@@ -91,33 +94,47 @@ export const Settings: React.FC = () => {
         }
     };
 
+    const performImport = async (file: File, mode: 'replace' | 'merge') => {
+        try {
+            setImporting(true);
+            const text = await file.text();
+            const result = await importDataFromJSON(text, mode);
+            setImporting(false);
+            setMessage(result.message);
+            if (result.success) {
+                refreshPlans();
+                setTimeout(() => window.location.reload(), 1000);
+            }
+        } catch (e) {
+            console.error(e);
+            setMessage(t('msg.saved_error'));
+            setImporting(false);
+        } finally {
+            setPendingReplace(null);
+        }
+    };
+
     const handleImportJSON = async (e: React.ChangeEvent<HTMLInputElement>, mode: 'replace' | 'merge') => {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        if (mode === 'replace' && !confirm(t('msg.replace_confirm'))) {
+        if (mode === 'replace') {
+            setPendingReplace(file);
             return;
         }
 
-        setImporting(true);
-        const text = await file.text();
-        const result = await importDataFromJSON(text, mode);
-        setImporting(false);
-        setMessage(result.message);
-        if (result.success) {
-            refreshPlans();
-            setTimeout(() => window.location.reload(), 1000);
-        }
+        performImport(file, mode);
         e.target.value = '';
     };
 
 
     const handleReset = async () => {
-        const confirmation = prompt(t('msg.reset_confirm') + ' ' + t('msg.reset_confirm_suffix'));
-        if (confirmation === 'DELETE') {
-            await clearAllData();
-            window.location.reload();
-        }
+        setShowResetConfirm(true);
+    };
+
+    const confirmReset = async () => {
+        await clearAllData();
+        window.location.reload();
     };
 
     return (
@@ -317,6 +334,24 @@ export const Settings: React.FC = () => {
 
                 {/* PDF Export */}
             </div>
+            <ConfirmationModal
+                isOpen={!!pendingReplace}
+                onClose={() => setPendingReplace(null)}
+                onConfirm={() => pendingReplace && performImport(pendingReplace, 'replace')}
+                title={t('settings.replace')}
+                message={t('msg.replace_confirm')}
+                variant="danger"
+            />
+
+            <ConfirmationModal
+                isOpen={showResetConfirm}
+                onClose={() => setShowResetConfirm(null as any)} // null as any since onClose expects void
+                onConfirm={confirmReset}
+                title={t('action.reset_data')}
+                message={t('msg.reset_confirm')}
+                variant="danger"
+                confirmLabel={t('action.delete')}
+            />
         </div>
     );
 };

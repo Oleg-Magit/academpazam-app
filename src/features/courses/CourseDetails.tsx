@@ -12,6 +12,7 @@ import { Plus, ArrowLeft, Trash2, Edit2, CheckCircle, Circle, Clock, FileText } 
 import { useTranslation } from '@/app/i18n/useTranslation';
 import { PASS_GRADE } from '@/core/constants/grades';
 import { Input } from '@/ui/Input';
+import { ConfirmationModal } from '@/ui/ConfirmationModal';
 
 export const CourseDetails: React.FC = () => {
     const { t } = useTranslation();
@@ -23,6 +24,8 @@ export const CourseDetails: React.FC = () => {
     const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
     const [editingTopic, setEditingTopic] = useState<Topic | null>(null);
     const [gradeInput, setGradeInput] = useState<string>('');
+    const [topicToDelete, setTopicToDelete] = useState<Topic | null>(null);
+    const [errorMsg, setErrorMsg] = useState('');
 
     // Fetch course effect
     React.useEffect(() => {
@@ -39,11 +42,15 @@ export const CourseDetails: React.FC = () => {
         setIsModalOpen(true);
     };
 
-    const handleDeleteTopic = async (topic: Topic) => {
-        if (confirm(t('msg.delete_topic_prompt', { title: topic.title }))) {
-            await deleteTopic(topic.id);
-            refreshTopics();
-        }
+    const handleDeleteTopic = (topic: Topic) => {
+        setTopicToDelete(topic);
+    };
+
+    const confirmDeleteTopic = async () => {
+        if (!topicToDelete) return;
+        await deleteTopic(topicToDelete.id);
+        refreshTopics();
+        setTopicToDelete(null);
     };
 
     const handleToggleStatus = async (topic: Topic) => {
@@ -84,7 +91,8 @@ export const CourseDetails: React.FC = () => {
         } else {
             // Revert if invalid
             setGradeInput(course.grade?.toString() || '');
-            alert(t('msg.grade_invalid'));
+            setErrorMsg(t('msg.grade_invalid'));
+            setTimeout(() => setErrorMsg(''), 3000);
         }
     };
 
@@ -228,6 +236,34 @@ export const CourseDetails: React.FC = () => {
                 onSave={handleSave}
                 courseId={course.id}
             />
+            {course && (
+                <ConfirmationModal
+                    isOpen={!!topicToDelete}
+                    onClose={() => setTopicToDelete(null)}
+                    onConfirm={confirmDeleteTopic}
+                    title={t('action.delete')}
+                    message={t('msg.delete_topic_prompt', { title: topicToDelete?.title })}
+                    variant="danger"
+                    confirmLabel={t('action.delete')}
+                />
+            )}
+
+            {errorMsg && (
+                <div style={{
+                    position: 'fixed',
+                    bottom: '24px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    backgroundColor: 'var(--color-danger)',
+                    color: 'white',
+                    padding: '12px 24px',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+                    zIndex: 1000
+                }}>
+                    {errorMsg}
+                </div>
+            )}
         </div>
     );
 };

@@ -35,6 +35,7 @@ export const he = {
     'action.import_data': 'ייבוא נתונים',
     'action.export_data': 'ייצוא נתונים',
     'action.reset_data': 'איפוס נתונים',
+    'action.ok': 'אישור',
 
     // Settings
     'settings.title': 'הגדרות',

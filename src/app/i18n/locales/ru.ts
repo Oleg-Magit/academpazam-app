@@ -35,6 +35,7 @@ export const ru = {
     'action.import_data': 'Импорт данных',
     'action.export_data': 'Экспорт данных',
     'action.reset_data': 'Сброс данных',
+    'action.ok': 'ОК',
 
     // Settings
     'settings.title': 'Настройки',

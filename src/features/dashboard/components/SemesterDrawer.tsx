@@ -3,7 +3,7 @@ import type { SemesterGroup } from '@/core/models/types';
 import { Card } from '@/ui/Card';
 import { Badge } from '@/ui/Badge';
 import { useTranslation } from '@/app/i18n/useTranslation';
-import { X, Info } from 'lucide-react';
+import { X, Info, Plus } from 'lucide-react';
 import { Button } from '@/ui/Button';
 import { Link } from 'react-router-dom';
 
@@ -11,12 +11,14 @@ interface SemesterDrawerProps {
     isOpen: boolean;
     onClose: () => void;
     semesterGroup: SemesterGroup | null;
+    onAddCourse: (semesterId: string) => void;
 }
 
 export const SemesterDrawer: React.FC<SemesterDrawerProps> = ({
     isOpen,
     onClose,
-    semesterGroup
+    semesterGroup,
+    onAddCourse
 }) => {
     const { t } = useTranslation();
     const drawerRef = useRef<HTMLDivElement>(null);
@@ -174,13 +176,13 @@ export const SemesterDrawer: React.FC<SemesterDrawerProps> = ({
                             <Button
                                 variant="secondary"
                                 style={{ width: '100%', justifyContent: 'center' }}
-                                onClick={onClose}
-                            // We close the drawer and the caller should open the modal
-                            // But since this is a drawer, it's better if we just use a prop callback
+                                onClick={() => {
+                                    if (semesterGroup) onAddCourse(semesterGroup.semester);
+                                    onClose();
+                                }}
                             >
-                                <Link to="/courses" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    + {t('dashboard.add_course')}
-                                </Link>
+                                <Plus size={16} style={{ marginRight: '8px' }} />
+                                {t('dashboard.add_course')}
                             </Button>
                         </div>
                     </div>

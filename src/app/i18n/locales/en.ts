@@ -35,6 +35,7 @@ export const en = {
     'action.import_data': 'Import Data',
     'action.export_data': 'Export Data',
     'action.reset_data': 'Reset Data',
+    'action.ok': 'OK',
 
     // Settings
     'settings.title': 'Settings',
