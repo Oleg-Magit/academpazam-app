@@ -10,6 +10,7 @@ interface CoursesToolbarProps {
     onStatusFilterChange: (val: string) => void;
     onAddCourse: () => void;
     onBulkAdd: () => void;
+    isMobile?: boolean;
 }
 
 export const CoursesToolbar: React.FC<CoursesToolbarProps> = ({
@@ -18,14 +19,29 @@ export const CoursesToolbar: React.FC<CoursesToolbarProps> = ({
     statusFilter,
     onStatusFilterChange,
     onAddCourse,
-    onBulkAdd
+    onBulkAdd,
+    isMobile = false
 }) => {
     const { t } = useTranslation();
 
     return (
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '16px', borderBottom: '1px solid var(--color-border)' }}>
-            <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flex: 1 }}>
-                <div style={{ position: 'relative', flex: 1, maxWidth: '300px' }}>
+        <div style={{
+            display: 'flex',
+            flexDirection: isMobile ? 'column' : 'row',
+            gap: isMobile ? '12px' : '0',
+            justifyContent: 'space-between',
+            alignItems: isMobile ? 'stretch' : 'center',
+            paddingBottom: '16px',
+            borderBottom: '1px solid var(--color-border)'
+        }}>
+            <div style={{
+                display: 'flex',
+                flexDirection: isMobile ? 'column' : 'row',
+                gap: '12px',
+                alignItems: isMobile ? 'stretch' : 'center',
+                flex: 1
+            }}>
+                <div style={{ position: 'relative', flex: 1, maxWidth: isMobile ? '100%' : '300px' }}>
                     <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', opacity: 0.5 }} />
                     <input
                         type="text"
@@ -35,11 +51,12 @@ export const CoursesToolbar: React.FC<CoursesToolbarProps> = ({
                         onChange={e => onSearchChange(e.target.value)}
                         style={{
                             width: '100%',
-                            padding: '10px 12px 10px 36px',
+                            padding: isMobile ? '12px 12px 12px 40px' : '10px 12px 10px 36px',
                             borderRadius: '8px',
                             border: '1px solid var(--color-border)',
                             backgroundColor: 'var(--color-bg-secondary)',
-                            color: 'var(--color-text-primary)'
+                            color: 'var(--color-text-primary)',
+                            fontSize: isMobile ? '1rem' : 'initial'
                         }}
                     />
                 </div>
@@ -48,11 +65,13 @@ export const CoursesToolbar: React.FC<CoursesToolbarProps> = ({
                     onChange={e => onStatusFilterChange(e.target.value)}
                     aria-label={t('label.filter_status')}
                     style={{
-                        padding: '10px 12px',
+                        padding: isMobile ? '12px' : '10px 12px',
                         borderRadius: '8px',
                         border: '1px solid var(--color-border)',
                         backgroundColor: 'var(--color-bg-secondary)',
-                        color: 'var(--color-text-primary)'
+                        color: 'var(--color-text-primary)',
+                        flex: isMobile ? 'none' : '0 1 auto',
+                        fontSize: isMobile ? '1rem' : 'initial'
                     }}
                 >
                     <option value="all">{t('status.all')}</option>
@@ -61,14 +80,29 @@ export const CoursesToolbar: React.FC<CoursesToolbarProps> = ({
                     <option value="not_started">{t('status.not_started')}</option>
                 </select>
             </div>
-            <div style={{ display: 'flex', gap: '8px' }}>
-                <Button variant="secondary" onClick={onBulkAdd}>
-                    <FileText size={18} style={{ marginRight: '8px' }} />
-                    {t('action.import_json')}
+            <div style={{
+                display: 'flex',
+                gap: '8px',
+                justifyContent: isMobile ? 'flex-end' : 'flex-start',
+                marginTop: isMobile ? '8px' : '0'
+            }}>
+                <Button
+                    variant="secondary"
+                    onClick={onBulkAdd}
+                    title={isMobile ? t('action.import_json') : undefined}
+                >
+                    <FileText size={isMobile ? 20 : 18} style={{ marginRight: isMobile ? '0' : '8px' }} />
+                    {!isMobile && t('action.import_json')}
                 </Button>
-                <Button variant="primary" onClick={onAddCourse}>
-                    <Plus size={18} style={{ marginRight: '8px' }} />
-                    {t('dashboard.add_course')}
+                <Button
+                    variant="primary"
+                    onClick={onAddCourse}
+                    title={isMobile ? t('dashboard.add_course') : undefined}
+                    style={{ flex: isMobile ? 1 : 'none' }}
+                >
+                    <Plus size={isMobile ? 20 : 18} style={{ marginRight: isMobile ? '0' : '8px' }} />
+                    {!isMobile && t('dashboard.add_course')}
+                    {isMobile && <span style={{ marginLeft: '8px' }}>{t('dashboard.add_course')}</span>}
                 </Button>
             </div>
         </div>

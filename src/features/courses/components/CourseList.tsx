@@ -13,6 +13,7 @@ interface CourseListProps {
     onNavigate: (courseId: string) => void;
     showSemesterLabel?: boolean;
     semesterLabels?: Record<string, string>;
+    isMobile?: boolean;
 }
 
 export const CourseList: React.FC<CourseListProps> = ({
@@ -21,7 +22,8 @@ export const CourseList: React.FC<CourseListProps> = ({
     onDelete,
     onNavigate,
     showSemesterLabel,
-    semesterLabels
+    semesterLabels,
+    isMobile = false
 }) => {
     const { t } = useTranslation();
 
@@ -36,7 +38,7 @@ export const CourseList: React.FC<CourseListProps> = ({
     return (
         <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+            gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(300px, 1fr))',
             gap: '16px',
             padding: '4px'
         }}>
@@ -45,22 +47,30 @@ export const CourseList: React.FC<CourseListProps> = ({
                     key={course.id}
                     onClick={() => onNavigate(course.id)}
                     style={{
-                        padding: '16px',
+                        padding: isMobile ? '20px' : '16px',
                         cursor: 'pointer',
                         display: 'flex',
                         flexDirection: 'column',
                         gap: '12px',
                         position: 'relative',
                         transition: 'transform 0.2s, box-shadow 0.2s',
-                        border: '1px solid var(--color-border)'
+                        border: '1px solid var(--color-border)',
+                        minHeight: isMobile ? '140px' : 'auto'
                     }}
                 >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <div style={{ flex: 1, overflow: 'hidden' }}>
-                            <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginBottom: '2px' }}>
+                            <div style={{ fontSize: isMobile ? '0.85rem' : '0.75rem', color: 'var(--color-text-secondary)', marginBottom: '2px' }}>
                                 {course.code}
                             </div>
-                            <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            <h3 style={{
+                                margin: 0,
+                                fontSize: isMobile ? '1.1rem' : '1rem',
+                                fontWeight: 600,
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis'
+                            }}>
                                 {course.name}
                             </h3>
                             {showSemesterLabel && (
@@ -75,7 +85,7 @@ export const CourseList: React.FC<CourseListProps> = ({
                     </div>
 
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto' }}>
-                        <div style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)' }}>
+                        <div style={{ fontSize: isMobile ? '0.95rem' : '0.85rem', color: 'var(--color-text-secondary)' }}>
                             {course.credits} {t('label.credits')}
                             {course.grade !== null && course.grade !== undefined && (
                                 <span style={{ marginLeft: '8px', color: 'var(--color-accent)', fontWeight: 600 }}>
@@ -83,33 +93,33 @@ export const CourseList: React.FC<CourseListProps> = ({
                                 </span>
                             )}
                         </div>
-                        <div style={{ display: 'flex', gap: '4px' }}>
+                        <div style={{ display: 'flex', gap: '8px' }}>
                             <Button
                                 variant="ghost"
-                                size="sm"
-                                style={{ padding: '4px' }}
+                                size={isMobile ? 'md' : 'sm'}
+                                style={{ padding: isMobile ? '8px' : '4px' }}
                                 onClick={(e: React.MouseEvent) => {
                                     e.stopPropagation();
                                     onEdit(course);
                                 }}
                                 aria-label={t('action.edit')}
                             >
-                                <Edit2 size={16} />
+                                <Edit2 size={isMobile ? 20 : 16} />
                             </Button>
                             <Button
                                 variant="ghost"
-                                size="sm"
-                                style={{ padding: '4px', color: 'var(--color-danger)' }}
+                                size={isMobile ? 'md' : 'sm'}
+                                style={{ padding: isMobile ? '8px' : '4px', color: 'var(--color-danger)' }}
                                 onClick={(e: React.MouseEvent) => {
                                     e.stopPropagation();
                                     onDelete(course);
                                 }}
                                 aria-label={t('action.delete')}
                             >
-                                <Trash2 size={16} />
+                                <Trash2 size={isMobile ? 20 : 16} />
                             </Button>
-                            <div style={{ marginLeft: '4px', opacity: 0.5 }}>
-                                <ChevronRight size={18} />
+                            <div style={{ marginLeft: '4px', opacity: 0.5, display: 'flex', alignItems: 'center' }}>
+                                <ChevronRight size={isMobile ? 22 : 18} />
                             </div>
                         </div>
                     </div>

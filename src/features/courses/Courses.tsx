@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { usePlans, useCourses } from '@/core/hooks/useData';
 import { deleteCourse } from '@/core/db/db';
 import { CourseModal } from './CourseModal';
@@ -7,6 +7,9 @@ import { DeleteSemesterModal } from './DeleteSemesterModal';
 import { ConfirmationModal } from '@/ui/ConfirmationModal';
 import { useTranslation } from '@/app/i18n/useTranslation';
 import { useNavigate } from 'react-router-dom';
+import { useMediaQuery } from '@/core/hooks/useMediaQuery';
+import { ChevronLeft } from 'lucide-react';
+import { Button } from '@/ui/Button';
 import type { Course, CourseWithTopics } from '@/core/models/types';
 
 // Sub-components
@@ -23,6 +26,9 @@ export const Courses: React.FC = () => {
     const { plans } = usePlans();
     const currentPlan = plans[0];
     const { courses, loading, refresh } = useCourses(currentPlan?.id || null);
+
+    const isMobile = useMediaQuery('(max-width: 768px)');
+    const [mobileView, setMobileView] = useState<'list' | 'details'>('list');
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
@@ -50,7 +56,16 @@ export const Courses: React.FC = () => {
         confirmDeleteSemester
     } = useSemesterManagement(courses, refresh);
 
-    const isSearching = searchTerm.trim() !== '' || statusFilter !== 'all';
+    // Sync mobileView with selectedSemester
+    useEffect(() => {
+        if (isMobile && selectedSemester && mobileView === 'list') {
+            // Only auto-switch to details if we are actually selecting something (not just initial mount)
+            // But requirement says: "If selectedSemesterId exists, mobile should start at Step B"
+            setMobileView('details');
+        }
+    }, [selectedSemester, isMobile]);
+
+    const isFiltering = searchTerm.trim() !== '' || statusFilter !== 'all';
 
     const displayedCourses = useMemo(() => {
         const filterFn = (c: CourseWithTopics) => {
@@ -62,14 +77,15 @@ export const Courses: React.FC = () => {
             return matchesSearch && matchesStatus;
         };
 
-        if (isSearching) {
+        if (isFiltering) {
+            // FIXED: Global search across all semesters
             return courses.filter(filterFn);
         } else {
             const group = bySemester.find(g => g.semester === selectedSemester);
             if (!group) return [];
             return group.courses.filter(filterFn);
         }
-    }, [bySemester, courses, selectedSemester, searchTerm, statusFilter, isSearching]);
+    }, [bySemester, courses, selectedSemester, searchTerm, statusFilter, isFiltering]);
 
     const semesterLabels = useMemo(() => {
         const labels: Record<string, string> = {};
@@ -102,60 +118,92 @@ export const Courses: React.FC = () => {
         setEditingCourse(null);
     };
 
+    const handleSelectSemester = (semId: string) => {
+        setSelectedSemester(semId);
+        if (isMobile) {
+            setMobileView('details');
+        }
+    };
+
     if (!currentPlan) return <div>{t('msg.no_plan_found')}</div>;
     if (loading) return <div>{t('msg.loading_courses')}</div>;
 
-    return (
-        <div style={{ display: 'flex', gap: 'var(--space-lg)', height: 'calc(100vh - 100px)', overflow: 'hidden' }}>
-            <SemesterNavigation
-                bySemester={bySemester}
-                selectedSemester={selectedSemester}
-                onSelectSemester={setSelectedSemester}
-                editingSemesterId={editingSemesterId}
-                setEditingSemesterId={setEditingSemesterId}
-                tempLabel={tempLabel}
-                setTempLabel={setTempLabel}
-                onAddSemester={async () => {
-                    const nextId = await handleAddSemester();
-                    setSelectedSemester(nextId);
-                }}
-                onStartRenaming={startRenaming}
-                onSaveRename={saveRename}
-                onPromptDelete={promptDeleteSemester}
-                semesterCount={semesterConfig.count}
+    const renderSemesterNav = () => (
+        <SemesterNavigation
+            bySemester={bySemester}
+            selectedSemester={selectedSemester}
+            onSelectSemester={handleSelectSemester}
+            editingSemesterId={editingSemesterId}
+            setEditingSemesterId={setEditingSemesterId}
+            tempLabel={tempLabel}
+            setTempLabel={setTempLabel}
+            onAddSemester={async () => {
+                const nextId = await handleAddSemester();
+                handleSelectSemester(nextId);
+            }}
+            onStartRenaming={startRenaming}
+            onSaveRename={saveRename}
+            onPromptDelete={promptDeleteSemester}
+            semesterCount={semesterConfig.count}
+            isMobile={isMobile}
+        />
+    );
+
+    const renderCourseContent = () => (
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'var(--space-md)', overflow: 'hidden' }}>
+            {isMobile && mobileView === 'details' && !isFiltering && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                    <Button variant="ghost" size="sm" onClick={() => setMobileView('list')} style={{ padding: '4px' }}>
+                        <ChevronLeft size={20} />
+                        {t('action.back')}
+                    </Button>
+                </div>
+            )}
+
+            <CoursesToolbar
+                searchTerm={searchTerm}
+                onSearchChange={setSearchTerm}
+                statusFilter={statusFilter}
+                onStatusFilterChange={setStatusFilter}
+                onAddCourse={() => setIsModalOpen(true)}
+                onBulkAdd={() => setIsBulkModalOpen(true)}
+                isMobile={isMobile}
             />
 
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'var(--space-md)', overflow: 'hidden' }}>
-                <CoursesToolbar
-                    searchTerm={searchTerm}
-                    onSearchChange={setSearchTerm}
-                    statusFilter={statusFilter}
-                    onStatusFilterChange={setStatusFilter}
-                    onAddCourse={() => setIsModalOpen(true)}
-                    onBulkAdd={() => setIsBulkModalOpen(true)}
-                />
-
-                <div style={{ overflowY: 'auto', paddingRight: '4px', paddingBottom: '32px' }}>
-                    <div style={{ marginBottom: '16px' }}>
-                        <h1 style={{ fontSize: '1.5rem', margin: 0 }}>
-                            {isSearching ? t('label.search_results') :
-                                (bySemester.find(s => s.semester === selectedSemester)?.label || `${t('label.semester')} ${selectedSemester}`)}
-                        </h1>
-                        <span style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)' }}>
-                            {displayedCourses.length} {t('label.courses_found')}
-                        </span>
-                    </div>
-
-                    <CourseList
-                        courses={displayedCourses}
-                        onEdit={handleEdit}
-                        onDelete={handleDelete}
-                        onNavigate={(id) => navigate(`/courses/${id}`)}
-                        showSemesterLabel={isSearching}
-                        semesterLabels={semesterLabels}
-                    />
+            <div style={{ overflowY: 'auto', paddingRight: '4px', paddingBottom: '32px' }}>
+                <div style={{ marginBottom: '16px' }}>
+                    <h1 style={{ fontSize: '1.5rem', margin: 0 }}>
+                        {isFiltering ? t('label.search_results') :
+                            (bySemester.find(s => s.semester === selectedSemester)?.label || `${t('label.semester')} ${selectedSemester}`)}
+                    </h1>
+                    <span style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)' }}>
+                        {displayedCourses.length} {t('label.courses_found')}
+                    </span>
                 </div>
+
+                <CourseList
+                    courses={displayedCourses}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                    onNavigate={(id) => navigate(`/courses/${id}`)}
+                    showSemesterLabel={isFiltering}
+                    semesterLabels={semesterLabels}
+                    isMobile={isMobile}
+                />
             </div>
+        </div>
+    );
+
+    return (
+        <div style={{
+            display: 'flex',
+            flexDirection: isMobile ? 'column' : 'row',
+            gap: isMobile ? 'var(--space-md)' : 'var(--space-lg)',
+            height: 'calc(100vh - 100px)',
+            overflow: 'hidden'
+        }}>
+            {(!isMobile || (isMobile && mobileView === 'list' && !isFiltering)) && renderSemesterNav()}
+            {(!isMobile || (isMobile && (mobileView === 'details' || isFiltering))) && renderCourseContent()}
 
             <CourseModal
                 isOpen={isModalOpen}
