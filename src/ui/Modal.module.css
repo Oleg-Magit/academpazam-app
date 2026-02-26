@@ -20,16 +20,16 @@
 .modal {
     background-color: var(--color-bg-primary);
     border-radius: var(--radius-lg);
-    width: 100%;
-    max-width: 28rem;
+    width: 92vw;
+    max-width: 520px;
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 
     /* Responsive height limits */
-    max-height: 90vh;
+    max-height: 85vh;
     /* Fallback */
-    max-height: 90svh;
+    max-height: 85svh;
     /* Fallback */
-    max-height: 90dvh;
+    max-height: 85dvh;
     /* Dynamic */
 
     display: flex;
@@ -50,6 +50,8 @@
     font-size: 1.25rem;
     font-weight: 600;
     margin: 0;
+    min-width: 0;
+    word-break: break-word;
 }
 
 .closeButton {
@@ -114,5 +116,7 @@
     .footer {
         padding: var(--space-md);
         padding-bottom: calc(env(safe-area-inset-bottom) + 16px);
+        flex-wrap: wrap;
+        gap: var(--space-sm);
     }
 }

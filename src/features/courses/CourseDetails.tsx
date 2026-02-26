@@ -115,24 +115,24 @@ export const CourseDetails: React.FC = () => {
             </Button>
 
             <Card style={{ marginBottom: 'var(--space-lg)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                    <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)', marginBottom: 'var(--space-xs)' }}>
-                            <h1 style={{ fontSize: '1.5rem', margin: 0 }}>{course.name}</h1>
-                            {course.code && <Badge>{course.code}</Badge>}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 'var(--space-md)' }}>
+                    <div style={{ flex: '1 1 280px', minWidth: 0, maxWidth: '100%' }}>
+                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--space-md)', marginBottom: 'var(--space-xs)', flexWrap: 'wrap' }}>
+                            <h1 style={{ fontSize: '1.5rem', margin: 0, wordBreak: 'break-word', minWidth: 0, flex: '1 1 auto' }}>{course.name}</h1>
+                            {course.code && <span style={{ flexShrink: 0 }}><Badge>{course.code}</Badge></span>}
                         </div>
-                        <div style={{ color: 'var(--color-text-secondary)' }}>
+                        <div style={{ color: 'var(--color-text-secondary)', fontSize: '0.9rem' }}>
                             {semesters.find(s => s.id === course.semesterId)?.name || t('label.semester')} • {course.credits} {t('label.credits')}
                         </div>
                         {course.notes && (
-                            <div style={{ marginTop: 'var(--space-md)', fontSize: '0.875rem', color: 'var(--color-text-secondary)', fontStyle: 'italic' }}>
+                            <div style={{ marginTop: 'var(--space-md)', fontSize: '0.875rem', color: 'var(--color-text-secondary)', fontStyle: 'italic', wordBreak: 'break-word' }}>
                                 {t('label.notes')}: {course.notes}
                             </div>
                         )}
 
                         {/* Grade Section */}
-                        <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <div style={{ width: '120px' }}>
+                        <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                            <div style={{ width: '120px', flexShrink: 0 }}>
                                 <Input
                                     id="course-grade"
                                     name="courseGrade"
@@ -146,28 +146,42 @@ export const CourseDetails: React.FC = () => {
                                 />
                             </div>
                             {course.grade !== null && course.grade !== undefined && (
-                                <div style={{ paddingTop: '14px' }}>
+                                <div style={{ paddingTop: '10px' }}>
                                     <Badge variant={gradeStatus === 'passed' ? 'success' : 'error'} aria-label={t(gradeStatus === 'ungraded' ? 'label.ungraded' : `status.${gradeStatus}`)}>
                                         {t(gradeStatus === 'ungraded' ? 'label.ungraded' : `status.${gradeStatus}`)}
                                     </Badge>
                                 </div>
                             )}
                             {!isGradeEnabled && (
-                                <div style={{ paddingTop: '14px', fontSize: '0.8rem', color: 'var(--color-text-secondary)' }}>
+                                <div style={{ paddingTop: '10px', fontSize: '0.8rem', color: 'var(--color-text-secondary)', flex: '1 1 100%' }}>
                                     {t('msg.grade_help')}
                                 </div>
                             )}
                         </div>
 
                     </div>
-                    <div style={{ display: 'flex', gap: 'var(--space-sm)' }}>
-                        <Button variant="secondary" onClick={() => setIsBulkModalOpen(true)}>
-                            <FileText size={16} style={{ marginRight: '8px' }} />
-                            {t('modal.bulk_topic.title')}
-                        </Button>
-                        <Button onClick={() => setIsModalOpen(true)}>
-                            <Plus size={16} style={{ marginRight: '8px' }} />
+                    <div style={{
+                        display: 'flex',
+                        gap: 'var(--space-sm)',
+                        flexWrap: 'wrap',
+                        flex: '1 1 100%',
+                        minWidth: 0,
+                        marginTop: 'var(--space-md)'
+                    }}>
+                        <Button
+                            style={{ flex: '1 1 140px', minHeight: '44px', justifyContent: 'center' }}
+                            onClick={() => setIsModalOpen(true)}
+                        >
+                            <Plus size={18} style={{ marginRight: '8px' }} />
                             {t('modal.add_topic.title')}
+                        </Button>
+                        <Button
+                            variant="secondary"
+                            style={{ flex: '1 1 140px', minHeight: '44px', justifyContent: 'center' }}
+                            onClick={() => setIsBulkModalOpen(true)}
+                        >
+                            <FileText size={18} style={{ marginRight: '8px' }} />
+                            {t('modal.bulk_topic.title')}
                         </Button>
                     </div>
                 </div>
@@ -193,14 +207,14 @@ export const CourseDetails: React.FC = () => {
                                     <Circle size={24} aria-hidden="true" />}
                         </button>
 
-                        <div style={{ flex: 1 }}>
-                            <div style={{ fontWeight: 500, textDecoration: topic.status === 'done' ? 'line-through' : 'none', color: topic.status === 'done' ? 'var(--color-text-secondary)' : 'var(--color-text-primary)' }}>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontWeight: 500, textDecoration: topic.status === 'done' ? 'line-through' : 'none', color: topic.status === 'done' ? 'var(--color-text-secondary)' : 'var(--color-text-primary)', wordBreak: 'break-word' }}>
                                 {topic.title}
                             </div>
-                            {topic.description && <div style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>{topic.description}</div>}
+                            {topic.description && <div style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', wordBreak: 'break-word' }}>{topic.description}</div>}
                         </div>
 
-                        <div style={{ display: 'flex', gap: 'var(--space-sm)' }}>
+                        <div style={{ display: 'flex', gap: 'var(--space-xs)', flexShrink: 0 }}>
                             <Button variant="ghost" size="sm" onClick={() => handleEditTopic(topic)} aria-label={t('action.edit')}>
                                 <Edit2 size={16} aria-hidden="true" />
                             </Button>
@@ -238,34 +252,38 @@ export const CourseDetails: React.FC = () => {
                 onSave={handleSave}
                 courseId={course.id}
             />
-            {course && (
-                <ConfirmationModal
-                    isOpen={!!topicToDelete}
-                    onClose={() => setTopicToDelete(null)}
-                    onConfirm={confirmDeleteTopic}
-                    title={t('action.delete')}
-                    message={t('msg.delete_topic_prompt', { title: topicToDelete?.title })}
-                    variant="danger"
-                    confirmLabel={t('action.delete')}
-                />
-            )}
+            {
+                course && (
+                    <ConfirmationModal
+                        isOpen={!!topicToDelete}
+                        onClose={() => setTopicToDelete(null)}
+                        onConfirm={confirmDeleteTopic}
+                        title={t('action.delete')}
+                        message={t('msg.delete_topic_prompt', { title: topicToDelete?.title })}
+                        variant="danger"
+                        confirmLabel={t('action.delete')}
+                    />
+                )
+            }
 
-            {errorMsg && (
-                <div style={{
-                    position: 'fixed',
-                    bottom: '24px',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    backgroundColor: 'var(--color-danger)',
-                    color: 'white',
-                    padding: '12px 24px',
-                    borderRadius: '8px',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
-                    zIndex: 1000
-                }}>
-                    {errorMsg}
-                </div>
-            )}
-        </div>
+            {
+                errorMsg && (
+                    <div style={{
+                        position: 'fixed',
+                        bottom: '24px',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        backgroundColor: 'var(--color-danger)',
+                        color: 'white',
+                        padding: '12px 24px',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+                        zIndex: 1000
+                    }}>
+                        {errorMsg}
+                    </div>
+                )
+            }
+        </div >
     );
 };
