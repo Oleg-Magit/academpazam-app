@@ -220,6 +220,7 @@ export const he = {
     'label.loading': 'טוען...',
     'action.export_json': 'ייצוא JSON',
     'action.import_json': 'ייבוא JSON',
+    'action.add_list': 'הוסף רשימת קורסים',
     'action.reset_all_data': 'איפוס כל הנתונים',
     'action.switch_light': 'עבור למצב בהיר',
     'action.switch_dark': 'עבור למצב כהה',

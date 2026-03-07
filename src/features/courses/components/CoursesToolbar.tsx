@@ -89,10 +89,10 @@ export const CoursesToolbar: React.FC<CoursesToolbarProps> = ({
                 <Button
                     variant="secondary"
                     onClick={onBulkAdd}
-                    title={isMobile ? t('action.import_json') : undefined}
+                    title={isMobile ? t('action.add_list') : undefined}
                 >
                     <FileText size={isMobile ? 20 : 18} style={{ marginRight: isMobile ? '0' : '8px' }} />
-                    {!isMobile && t('action.import_json')}
+                    {!isMobile && t('action.add_list')}
                 </Button>
                 <Button
                     variant="primary"

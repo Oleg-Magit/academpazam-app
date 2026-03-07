@@ -218,6 +218,7 @@ export const ru = {
     'label.loading': 'Загрузка...',
     'action.export_json': 'Экспорт JSON',
     'action.import_json': 'Импорт JSON',
+    'action.add_list': 'Добавить список курсов',
     'action.reset_all_data': 'Сбросить все данные',
     'action.switch_light': 'Перейти на светлую',
     'action.switch_dark': 'Перейти на темную',

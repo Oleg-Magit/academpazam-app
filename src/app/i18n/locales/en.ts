@@ -230,6 +230,7 @@ export const en = {
     'label.loading': 'Loading...',
     'action.export_json': 'Export JSON',
     'action.import_json': 'Import JSON',
+    'action.add_list': 'Add List of Courses',
     'action.reset_all_data': 'Reset All Data',
     'action.switch_light': 'Switch to Light',
     'action.switch_dark': 'Switch to Dark',
