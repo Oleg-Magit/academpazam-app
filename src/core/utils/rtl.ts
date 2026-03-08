@@ -79,7 +79,8 @@ export const visualizeBiDiText = (text: string): string => {
 
     } catch (e) {
         console.error('BiDi error', e);
-        return text.split('').reverse().join(''); // Fallback
+        // Do NOT blindly reverse everything on failure, otherwise English breaks.
+        return text;
     }
 };
 

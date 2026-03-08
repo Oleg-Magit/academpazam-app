@@ -5,12 +5,16 @@ export const hasHebrew = (text: string): boolean => {
     return /[\u0590-\u05FF]/.test(text);
 };
 
+import { visualizeBiDiText } from '../../core/utils/rtl';
+
 /**
  * Modern browser PDF viewers (Chrome, etc.) handle Hebrew BiDi automatically 
  * when characters are in logical order. Manual reversal often breaks this.
+ * However, pdf-lib needs visual order for RTL string painting.
  */
 export const toPdfVisualText = (text: string, _dir: 'ltr' | 'rtl' = 'ltr'): string => {
-    return text || '';
+    if (!text) return '';
+    return visualizeBiDiText(text);
 };
 
 interface DrawCellOptions {

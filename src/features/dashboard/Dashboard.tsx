@@ -212,7 +212,7 @@ export const Dashboard: React.FC = () => {
                 actionsRef={actionsRef}
             />
 
-            <input type="file" ref={importInputRef} style={{ display: 'none' }} onChange={handleImportJSON} accept=".json" />
+            <input id="dashboard-import-json" name="dashboardImportJson" type="file" ref={importInputRef} style={{ display: 'none' }} onChange={handleImportJSON} accept=".json" />
 
             <DegreeSnapshot
                 degreeName={currentPlan.name}

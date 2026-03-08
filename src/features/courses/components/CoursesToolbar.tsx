@@ -44,6 +44,8 @@ export const CoursesToolbar: React.FC<CoursesToolbarProps> = ({
                 <div style={{ position: 'relative', flex: 1, maxWidth: isMobile ? '100%' : '300px' }}>
                     <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', opacity: 0.5 }} />
                     <input
+                        id="search-courses"
+                        name="searchCourses"
                         type="text"
                         placeholder={t('label.search_placeholder')}
                         aria-label={t('label.search_placeholder')}

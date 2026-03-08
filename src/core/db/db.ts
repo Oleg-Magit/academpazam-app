@@ -108,16 +108,18 @@ const migrateToSemesterIds = async () => {
 
     console.log('[Migration] Starting Semester ID normalization...');
 
+    // Fetch config BEFORE transaction to avoid TransactionInactiveError
+    const semesterConfig = await db.get('meta', 'semesterLabels');
+    const labels = semesterConfig?.value || [];
+    const countMeta = await db.get('meta', 'semesterCount');
+    const count = countMeta?.value || 8;
+
     const tx = db.transaction(['courses', 'semesters', 'meta'], 'readwrite');
     const courseStore = tx.objectStore('courses');
     const semesterStore = tx.objectStore('semesters');
     const metaStore = tx.objectStore('meta');
 
     const courses = await courseStore.getAll();
-    const semesterConfig = await db.get('meta', 'semesterLabels');
-    const labels = semesterConfig?.value || [];
-    const countMeta = await db.get('meta', 'semesterCount');
-    const count = countMeta?.value || 8;
 
     const semesterMap: Record<string, string> = {}; // legacyName -> newId
 

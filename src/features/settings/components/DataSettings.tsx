@@ -155,8 +155,8 @@ export const DataSettings: React.FC<DataSettingsProps> = ({ plan, courses, onRef
                                 <Upload size={16} style={{ marginRight: '8px' }} />
                                 {t('action.import_json')} ({t('settings.replace')})
                             </Button>
-                            <input ref={mergeInputRef} type="file" accept=".json" style={{ display: 'none' }} onChange={e => handleImportClick(e, 'merge')} />
-                            <input ref={replaceInputRef} type="file" accept=".json" style={{ display: 'none' }} onChange={e => handleImportClick(e, 'replace')} />
+                            <input id="import-merge" name="importMerge" ref={mergeInputRef} type="file" accept=".json" style={{ display: 'none' }} onChange={e => handleImportClick(e, 'merge')} />
+                            <input id="import-replace" name="importReplace" ref={replaceInputRef} type="file" accept=".json" style={{ display: 'none' }} onChange={e => handleImportClick(e, 'replace')} />
                         </div>
                     </div>
 
