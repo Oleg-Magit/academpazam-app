@@ -9,9 +9,10 @@ interface ModalProps {
     title: string;
     children: React.ReactNode;
     footer?: React.ReactNode;
+    closeOnOverlayClick?: boolean;
 }
 
-export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, footer }) => {
+export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, footer, closeOnOverlayClick = true }) => {
     const { t } = useTranslation();
     const modalRef = React.useRef<HTMLDivElement>(null);
     const lastFocusedElement = React.useRef<HTMLElement | null>(null);
@@ -74,7 +75,7 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, 
     if (!isOpen) return null;
 
     return (
-        <div className={styles.overlay} onClick={onClose} role="presentation">
+        <div className={styles.overlay} onClick={() => { if (closeOnOverlayClick) onClose(); }} role="presentation">
             <div
                 className={styles.modal}
                 onClick={e => e.stopPropagation()}
