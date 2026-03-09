@@ -96,7 +96,7 @@ export const initDB = () => {
 };
 
 /**
- * Migrates legacy data (semester strings on courses) to the new Semester entity model.
+ * Migration function to move from numeric/string semester keys to UUIDs.
  * This runs on app load and handles the transition gracefully.
  */
 const migrateToSemesterIds = async () => {
@@ -114,6 +114,17 @@ const migrateToSemesterIds = async () => {
     const countMeta = await db.get('meta', 'semesterCount');
     const count = countMeta?.value || 8;
 
+    // Fetch current language for localization
+    const currentLang = (localStorage.getItem('i18nextLng') as any) || 'en';
+
+    let defaultSemesterStr = 'Semester';
+    try {
+        const { translate } = await import('../utils/translate');
+        defaultSemesterStr = translate(currentLang, 'semester.semester') || 'Semester';
+    } catch (e) {
+        // Fallback
+    }
+
     const tx = db.transaction(['courses', 'semesters', 'meta'], 'readwrite');
     const courseStore = tx.objectStore('courses');
     const semesterStore = tx.objectStore('semesters');
@@ -122,23 +133,6 @@ const migrateToSemesterIds = async () => {
     const courses = await courseStore.getAll();
 
     const semesterMap: Record<string, string> = {}; // legacyName -> newId
-
-    // Fetch current language for localization
-    const currentLang = (localStorage.getItem('i18nextLng') as any) || 'en';
-
-    // We import translate dynamically or directly. 
-    // Wait, let's just dynamic import to avoid circular dep if any, or just import it at top.
-    // Better yet, just use a hardcoded fallback if translate fails.
-    // Actually `db.ts` might not have dynamic imports easily in this tight loop. 
-    // Let's use it from `translate` which is imported? Wait, `translate` isn't imported yet. 
-    // Let me dynamically import it since it's an async function anyway.
-    let defaultSemesterStr = 'Semester';
-    try {
-        const { translate } = await import('../utils/translate');
-        defaultSemesterStr = translate(currentLang, 'semester.semester') || 'Semester';
-    } catch (e) {
-        // Fallback
-    }
 
     // 1. Create Semesters based on legacy config or course data
     for (let i = 1; i <= count; i++) {

@@ -63,6 +63,8 @@ export const CoursesToolbar: React.FC<CoursesToolbarProps> = ({
                     />
                 </div>
                 <select
+                    id="status-filter"
+                    name="statusFilter"
                     value={statusFilter}
                     onChange={e => onStatusFilterChange(e.target.value)}
                     aria-label={t('label.filter_status')}

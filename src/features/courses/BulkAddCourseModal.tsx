@@ -28,21 +28,25 @@ export const BulkAddCourseModal: React.FC<BulkAddCourseModalProps> = ({ isOpen, 
     const { t } = useTranslation();
     const [text, setText] = useState('');
     const [preview, setPreview] = useState<ParsedCourse[]>([]);
+    const [pendingSemesters, setPendingSemesters] = useState<Semester[]>([]);
     const [step, setStep] = useState<'input' | 'preview'>('input');
 
     const SEMESTER_OPTIONS = React.useMemo(() => {
-        return semesters.map(s => ({
+        const all = [...semesters, ...pendingSemesters].sort((a, b) => a.orderIndex - b.orderIndex);
+        return all.map(s => ({
             value: s.id,
             label: s.name
         }));
-    }, [semesters]);
+    }, [semesters, pendingSemesters]);
 
-    const matchSemester = (str: string) => {
+    const matchSemester = (str: string, currentPending: Semester[] = []) => {
         str = str.toLowerCase().trim();
         if (!str) return null;
 
+        const allSems = [...semesters, ...currentPending];
+
         // Exact match
-        let m = semesters.find(s => s.name.toLowerCase() === str);
+        let m = allSems.find(s => s.name.toLowerCase() === str);
         if (m) return m.id;
 
         // Match by standard numeric position explicitly (e.g., "^1$", "^01$", "^Semester 1$", "^סמסטר 1$")
@@ -56,15 +60,31 @@ export const BulkAddCourseModal: React.FC<BulkAddCourseModalProps> = ({ isOpen, 
 
         if (semNum !== null) {
             const targetIndex = semNum - 1; // "1" -> orderIndex 0
-            if (targetIndex >= 0 && targetIndex < semesters.length) {
+            if (targetIndex >= 0) {
                 // Find by orderIndex (which matches the display order/expected semester)
-                const byIndex = semesters.find(s => s.orderIndex === targetIndex);
+                const byIndex = allSems.find(s => s.orderIndex === targetIndex);
                 if (byIndex) return byIndex.id;
+
+                // Did not exist! We must create a new pending semester.
+                const newId = uuidv4();
+
+                // Fetch the translated string for "Semester" if available, else fallback
+                const tWord = t('semester.semester') || 'Semester';
+
+                const newSem: Semester = {
+                    id: newId,
+                    name: `${tWord} ${semNum}`,
+                    orderIndex: targetIndex,
+                    createdAt: Date.now()
+                };
+
+                currentPending.push(newSem);
+                return newId;
             }
         }
 
         // Fallback to substring matching if numeric extraction didn't work
-        m = semesters.find(s => s.name.toLowerCase().endsWith(str) || s.name.toLowerCase().startsWith(str));
+        m = allSems.find(s => s.name.toLowerCase().endsWith(str) || s.name.toLowerCase().startsWith(str));
         if (m) return m.id;
 
         return null;
@@ -74,12 +94,13 @@ export const BulkAddCourseModal: React.FC<BulkAddCourseModalProps> = ({ isOpen, 
         const lines = text.split('\n');
         const parsed: ParsedCourse[] = [];
         let currentSemesterId = semesters.length > 0 ? semesters[0].id : '';
+        const newPendingSemesters: Semester[] = [];
 
         for (let rawLine of lines) {
             const line = rawLine.trim();
             if (!line) continue;
 
-            const semMatchId = matchSemester(line);
+            const semMatchId = matchSemester(line, newPendingSemesters);
             if (semMatchId) {
                 currentSemesterId = semMatchId;
                 continue;
@@ -93,7 +114,7 @@ export const BulkAddCourseModal: React.FC<BulkAddCourseModalProps> = ({ isOpen, 
             if (pipeParts.length === 3) {
                 name = pipeParts[0].trim();
                 credits = parseFloat(pipeParts[1].trim()) || 0;
-                const match = matchSemester(pipeParts[2].trim());
+                const match = matchSemester(pipeParts[2].trim(), newPendingSemesters);
                 if (match) inlineSemId = match;
             } else {
                 const dashParts = line.split('-').map(s => s.trim());
@@ -109,7 +130,7 @@ export const BulkAddCourseModal: React.FC<BulkAddCourseModalProps> = ({ isOpen, 
                         if (!isNaN(possibleCred2)) {
                             credits = possibleCred2;
                             name = dashParts.slice(0, dashParts.length - 2).join(' - ');
-                            const match = matchSemester(lastPart);
+                            const match = matchSemester(lastPart, newPendingSemesters);
                             if (match) inlineSemId = match;
                         }
                     }
@@ -121,7 +142,7 @@ export const BulkAddCourseModal: React.FC<BulkAddCourseModalProps> = ({ isOpen, 
                         credits = parseFloat(matchPattern[2]);
                         const semPart = matchPattern[3].trim();
                         if (semPart) {
-                            const match = matchSemester(semPart);
+                            const match = matchSemester(semPart, newPendingSemesters);
                             if (match) inlineSemId = match;
                         }
                     }
@@ -135,6 +156,7 @@ export const BulkAddCourseModal: React.FC<BulkAddCourseModalProps> = ({ isOpen, 
                 semesterId: inlineSemId
             });
         }
+        setPendingSemesters(newPendingSemesters);
         setPreview(parsed);
         setStep('preview');
     };
@@ -162,6 +184,17 @@ export const BulkAddCourseModal: React.FC<BulkAddCourseModalProps> = ({ isOpen, 
             return;
         }
 
+        // Save any pending semesters we dynamically created and actually used
+        const usedPending = pendingSemesters.filter(ps => newPreview.some(course => course.semesterId === ps.id));
+        if (usedPending.length > 0) {
+            // Because saveSemester is inside db.ts, but `import { saveCourse }` is already at the top. Let's dynamically import saveSemester if not imported, or just import at the top.
+            // I'll dynamically import to avoid touching the header blocks here.
+            const { saveSemester } = await import('@/core/db/db');
+            for (const ps of usedPending) {
+                await saveSemester(ps);
+            }
+        }
+
         for (const item of preview) {
             const course: Course = {
                 id: item.id,
@@ -181,6 +214,7 @@ export const BulkAddCourseModal: React.FC<BulkAddCourseModalProps> = ({ isOpen, 
     const handleClose = () => {
         setText('');
         setPreview([]);
+        setPendingSemesters([]);
         setStep('input');
         onClose();
     };
@@ -229,7 +263,7 @@ export const BulkAddCourseModal: React.FC<BulkAddCourseModalProps> = ({ isOpen, 
             ) : (
                 <div style={{ minHeight: 0, display: 'flex', flexDirection: 'column' }}>
                     <div style={{ overflowX: 'auto', marginBottom: 'var(--space-md)' }}>
-                        {groupCoursesBySemester(preview.map(p => ({ id: p.id, degreePlanId: planId, name: p.name, credits: p.credits, semesterId: p.semesterId, createdAt: 0, updatedAt: 0, topics: [], effectiveStatus: 'not_started' as any })), semesters).filter(g => g.courses.length > 0).map(group => (
+                        {groupCoursesBySemester(preview.map(p => ({ id: p.id, degreePlanId: planId, name: p.name, credits: p.credits, semesterId: p.semesterId, createdAt: 0, updatedAt: 0, topics: [], effectiveStatus: 'not_started' as any })), [...semesters, ...pendingSemesters]).filter(g => g.courses.length > 0).map(group => (
                             <div key={group.semesterId} style={{ marginBottom: '16px' }}>
                                 <h3 style={{ margin: '0 0 8px 0', fontSize: '1rem' }}>{group.semesterName}</h3>
                                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem', minWidth: '400px' }}>

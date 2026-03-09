@@ -17,8 +17,8 @@ export const generateDegreePDF = async (degreeName: string, courses: CourseWithT
     // Robust Font Loading via service
     const customFont = await loadCustomFont(pdfDoc, lang);
 
-    const page = pdfDoc.addPage();
-    const { width, height } = page.getSize();
+    let currentPage = pdfDoc.addPage();
+    const { width, height } = currentPage.getSize();
     const margin = 50;
     const contentWidth = width - (margin * 2);
 
@@ -33,7 +33,7 @@ export const generateDegreePDF = async (degreeName: string, courses: CourseWithT
         ? `${translatedProgress}: ${degreeName}`
         : `${degreeName}: ${translatedProgress}`;
 
-    drawCellText(page, customFont, headerTitle, {
+    drawCellText(currentPage, customFont, headerTitle, {
         x: margin,
         y: height - 50,
         width: contentWidth,
@@ -43,7 +43,7 @@ export const generateDegreePDF = async (degreeName: string, courses: CourseWithT
     });
 
     const dateStr = new Date().toLocaleDateString(lang === 'he' ? 'he-IL' : (lang === 'ru' ? 'ru-RU' : 'en-US'));
-    drawCellText(page, customFont, dateStr, {
+    drawCellText(currentPage, customFont, dateStr, {
         x: margin,
         y: height - 75,
         width: contentWidth,
@@ -64,7 +64,7 @@ export const generateDegreePDF = async (degreeName: string, courses: CourseWithT
     };
     const colAlign = lang === 'he' ? 'right' : 'left';
 
-    drawCellText(page, customFont, `${t('label.total_credits')}: ${progress.totalCredits}`, {
+    drawCellText(currentPage, customFont, `${t('label.total_credits')}: ${progress.totalCredits}`, {
         x: getX(0),
         y: summaryY,
         width: summaryColWidth,
@@ -73,7 +73,7 @@ export const generateDegreePDF = async (degreeName: string, courses: CourseWithT
         align: colAlign
     });
 
-    drawCellText(page, customFont, `${t('label.completed')}: ${progress.completedCredits}`, {
+    drawCellText(currentPage, customFont, `${t('label.completed')}: ${progress.completedCredits}`, {
         x: getX(1),
         y: summaryY,
         width: summaryColWidth,
@@ -82,7 +82,7 @@ export const generateDegreePDF = async (degreeName: string, courses: CourseWithT
         align: colAlign
     });
 
-    drawCellText(page, customFont, `${t('label.remaining')}: ${progress.totalCredits - progress.completedCredits}`, {
+    drawCellText(currentPage, customFont, `${t('label.remaining')}: ${progress.totalCredits - progress.completedCredits}`, {
         x: getX(2),
         y: summaryY,
         width: summaryColWidth,
@@ -91,7 +91,7 @@ export const generateDegreePDF = async (degreeName: string, courses: CourseWithT
         align: colAlign
     });
 
-    drawCellText(page, customFont, `${t('dashboard.degree_progress')}: ${progress.percentage.toFixed(1)}%`, {
+    drawCellText(currentPage, customFont, `${t('dashboard.degree_progress')}: ${progress.percentage.toFixed(1)}%`, {
         x: getX(3),
         y: summaryY,
         width: summaryColWidth,
@@ -126,12 +126,12 @@ export const generateDegreePDF = async (degreeName: string, courses: CourseWithT
 
     for (const group of groups) {
         if (currentY < 120) {
-            const newPage = pdfDoc.addPage();
-            currentY = newPage.getSize().height - 50;
+            currentPage = pdfDoc.addPage();
+            currentY = currentPage.getSize().height - 50;
         }
 
         const semLabel = group.semesterName;
-        drawCellText(page, customFont, semLabel, {
+        drawCellText(currentPage, customFont, semLabel, {
             x: margin,
             y: currentY,
             width: contentWidth,
@@ -143,10 +143,10 @@ export const generateDegreePDF = async (degreeName: string, courses: CourseWithT
 
         const headerSize = 10;
         const colAlignHeader = lang === 'he' ? 'right' : 'left';
-        drawCellText(page, customFont, t('label.course_code'), { x: cols.code.x, y: currentY, width: cols.code.width, size: headerSize, color: black, align: colAlignHeader });
-        drawCellText(page, customFont, t('label.course_name'), { x: cols.name.x, y: currentY, width: cols.name.width, size: headerSize, color: black, align: colAlignHeader });
-        drawCellText(page, customFont, t('label.credits'), { x: cols.credits.x, y: currentY, width: cols.credits.width, size: headerSize, color: black, align: colAlignHeader });
-        drawCellText(page, customFont, t('label.initial_status'), { x: cols.status.x, y: currentY, width: cols.status.width, size: headerSize, color: black, align: colAlignHeader });
+        drawCellText(currentPage, customFont, t('label.course_code'), { x: cols.code.x, y: currentY, width: cols.code.width, size: headerSize, color: black, align: colAlignHeader });
+        drawCellText(currentPage, customFont, t('label.course_name'), { x: cols.name.x, y: currentY, width: cols.name.width, size: headerSize, color: black, align: colAlignHeader });
+        drawCellText(currentPage, customFont, t('label.credits'), { x: cols.credits.x, y: currentY, width: cols.credits.width, size: headerSize, color: black, align: colAlignHeader });
+        drawCellText(currentPage, customFont, t('label.initial_status'), { x: cols.status.x, y: currentY, width: cols.status.width, size: headerSize, color: black, align: colAlignHeader });
         // 'label.initial_status' is 'Initial Status'. 'status.manual' is 'Manual'.
         // Is there a generic 'Status'? 'label.initial_status' is close enough or use 'dashboard.degree_progress' context?
         // Actually 'label.initial_status' = 'Initial Status'.
@@ -156,7 +156,7 @@ export const generateDegreePDF = async (degreeName: string, courses: CourseWithT
         // Let's use 'label.initial_status' for now as it exists.
 
         currentY -= 10;
-        page.drawLine({
+        currentPage.drawLine({
             start: { x: margin, y: currentY },
             end: { x: margin + contentWidth, y: currentY },
             thickness: 1,
@@ -166,30 +166,35 @@ export const generateDegreePDF = async (degreeName: string, courses: CourseWithT
 
         for (const course of group.courses) {
             if (currentY < 50) {
-                const newPage = pdfDoc.addPage();
-                currentY = newPage.getSize().height - 50;
+                currentPage = pdfDoc.addPage();
+                currentY = currentPage.getSize().height - 50;
             }
 
             // Draw Course Code
-            drawCellText(page, customFont, txt(course.code || ''), {
+            drawCellText(currentPage, customFont, txt(course.code || ''), {
                 x: cols.code.x, y: currentY, width: cols.code.width, size: 10, color: black,
                 align: lang === 'he' ? 'right' : 'left'
             });
 
             // Draw Course Name
-            drawCellText(page, customFont, txt(course.name), {
+            drawCellText(currentPage, customFont, txt(course.name), {
                 x: cols.name.x, y: currentY, width: cols.name.width, size: 10, color: black,
                 align: lang === 'he' ? 'right' : 'left'
             });
 
             // Draw Credits
-            drawCellText(page, customFont, txt(course.credits.toString()), {
+            drawCellText(currentPage, customFont, txt(course.credits.toString()), {
                 x: cols.credits.x, y: currentY, width: cols.credits.width, size: 10, color: black,
                 align: lang === 'he' ? 'right' : 'left'
             });
 
-            const statusKey = `status.${course.effectiveStatus}` as TranslationKey;
-            drawCellText(page, customFont, t(statusKey) || txt(course.effectiveStatus), {
+            // Draw Expected Status
+            // Since we don't calculate row status logic here yet, default to 'not_started' or the derived status
+            let courseStatusKey: TranslationKey = 'status.not_started';
+            if (course.effectiveStatus === 'completed') courseStatusKey = 'status.completed';
+            else if (course.effectiveStatus === 'in_progress') courseStatusKey = 'status.in_progress';
+
+            drawCellText(currentPage, customFont, t(courseStatusKey), {
                 x: cols.status.x, y: currentY, width: cols.status.width, size: 10, color: black,
                 align: lang === 'he' ? 'right' : 'left'
             });
