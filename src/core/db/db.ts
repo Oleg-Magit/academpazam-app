@@ -123,12 +123,29 @@ const migrateToSemesterIds = async () => {
 
     const semesterMap: Record<string, string> = {}; // legacyName -> newId
 
+    // Fetch current language for localization
+    const currentLang = (localStorage.getItem('i18nextLng') as any) || 'en';
+
+    // We import translate dynamically or directly. 
+    // Wait, let's just dynamic import to avoid circular dep if any, or just import it at top.
+    // Better yet, just use a hardcoded fallback if translate fails.
+    // Actually `db.ts` might not have dynamic imports easily in this tight loop. 
+    // Let's use it from `translate` which is imported? Wait, `translate` isn't imported yet. 
+    // Let me dynamically import it since it's an async function anyway.
+    let defaultSemesterStr = 'Semester';
+    try {
+        const { translate } = await import('../utils/translate');
+        defaultSemesterStr = translate(currentLang, 'semester.semester') || 'Semester';
+    } catch (e) {
+        // Fallback
+    }
+
     // 1. Create Semesters based on legacy config or course data
     for (let i = 1; i <= count; i++) {
         const legacyName = i.toString();
         const customLabel = labels[i - 1];
         const id = uuidv4();
-        const name = customLabel || `Semester ${i}`;
+        const name = customLabel || `${defaultSemesterStr} ${i}`;
 
         await semesterStore.put({
             id,
