@@ -125,7 +125,7 @@ export const generateDegreePDF = async (degreeName: string, courses: CourseWithT
     }
 
     for (const group of groups) {
-        if (currentY < 100) {
+        if (currentY < 120) {
             const newPage = pdfDoc.addPage();
             currentY = newPage.getSize().height - 50;
         }
@@ -139,7 +139,7 @@ export const generateDegreePDF = async (degreeName: string, courses: CourseWithT
             color: rgb(0, 0, 0.8),
             align: lang === 'he' ? 'right' : 'left',
         });
-        currentY -= 20;
+        currentY -= 25;
 
         const headerSize = 10;
         const colAlignHeader = lang === 'he' ? 'right' : 'left';
@@ -155,14 +155,14 @@ export const generateDegreePDF = async (degreeName: string, courses: CourseWithT
         // We lack a generic column header 'Status'.
         // Let's use 'label.initial_status' for now as it exists.
 
-        currentY -= 5;
+        currentY -= 10;
         page.drawLine({
             start: { x: margin, y: currentY },
             end: { x: margin + contentWidth, y: currentY },
             thickness: 1,
             color: rgb(0.8, 0.8, 0.8),
         });
-        currentY -= 15;
+        currentY -= 20;
 
         for (const course of group.courses) {
             if (currentY < 50) {
@@ -196,7 +196,7 @@ export const generateDegreePDF = async (degreeName: string, courses: CourseWithT
 
             currentY -= 20;
         }
-        currentY -= 20; // Space between semesters
+        currentY -= 30; // Solid spacing between semesters
     }
 
     const pdfBytes = await pdfDoc.save();

@@ -39,15 +39,28 @@ export const BulkAddCourseModal: React.FC<BulkAddCourseModalProps> = ({ isOpen, 
 
     const matchSemester = (str: string) => {
         str = str.toLowerCase().trim();
+        if (!str) return null;
+
+        // Exact match
         let m = semesters.find(s => s.name.toLowerCase() === str);
         if (m) return m.id;
+
+        // Match by standard numeric position explicitly (e.g., "1", "01", "Semester 1", "סמסטר 1")
+        const numberMatch = str.match(/\d+/);
+        if (numberMatch) {
+            const semNum = parseInt(numberMatch[0], 10);
+            const targetIndex = semNum - 1; // "1" -> orderIndex 0
+            if (targetIndex >= 0 && targetIndex < semesters.length) {
+                // Find by orderIndex (which matches the display order/expected semester)
+                const byIndex = semesters.find(s => s.orderIndex === targetIndex);
+                if (byIndex) return byIndex.id;
+            }
+        }
+
+        // Fallback to substring matching if numeric extraction didn't work
         m = semesters.find(s => s.name.toLowerCase().endsWith(str) || s.name.toLowerCase().startsWith(str));
         if (m) return m.id;
-        if (str.startsWith('semester ')) {
-            const numPart = str.replace('semester ', '').trim();
-            m = semesters.find(s => s.name.toLowerCase() === numPart);
-            if (m) return m.id;
-        }
+
         return null;
     };
 
