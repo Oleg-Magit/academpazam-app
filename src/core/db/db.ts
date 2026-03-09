@@ -132,6 +132,13 @@ const migrateToSemesterIds = async () => {
 
     const courses = await courseStore.getAll();
 
+    // BUG 2 FIX: If this is a fresh setup and the user hasn't selected their language yet,
+    // delay the default semester creation so that the hardcoded labels match their chosen locale.
+    const isLangInit = localStorage.getItem('app_language_initialized') === 'true';
+    if (courses.length === 0 && !isLangInit) {
+        return;
+    }
+
     const semesterMap: Record<string, string> = {}; // legacyName -> newId
 
     // 1. Create Semesters based on legacy config or course data
