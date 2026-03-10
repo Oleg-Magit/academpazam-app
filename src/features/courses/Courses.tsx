@@ -40,11 +40,28 @@ export const Courses: React.FC = () => {
     const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
     const [editingCourse, setEditingCourse] = useState<CourseWithTopics | null>(null);
     const [selectedSemester, setSelectedSemester] = useState<string>('');
+    const [yearFilter, setYearFilter] = useState<string>('all');
+    const [termFilter, setTermFilter] = useState<string>('all');
+
     useEffect(() => {
         if (semesters.length > 0 && !selectedSemester) {
-            setSelectedSemester(semesters[0].id);
+            setSelectedSemester('all');
         }
     }, [semesters, selectedSemester]);
+
+    useEffect(() => {
+        if (selectedSemester !== 'all') {
+            const sem = semesters.find(s => s.id === selectedSemester);
+            if (sem) {
+                if (yearFilter !== 'all' && sem.year !== parseInt(yearFilter)) {
+                    setSelectedSemester('all');
+                } else if (termFilter !== 'all' && sem.term !== termFilter) {
+                    setSelectedSemester('all');
+                }
+            }
+        }
+    }, [yearFilter, termFilter, semesters, selectedSemester]);
+
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
     const [courseToDelete, setCourseToDelete] = useState<Course | null>(null);
@@ -69,34 +86,72 @@ export const Courses: React.FC = () => {
 
     // Sync mobileView with selectedSemester
     useEffect(() => {
-        if (isMobile && selectedSemester && mobileView === 'list') {
-            // Only auto-switch to details if we are actually selecting something (not just initial mount)
-            // But requirement says: "If selectedSemesterId exists, mobile should start at Step B"
+        if (isMobile && selectedSemester && selectedSemester !== 'all' && mobileView === 'list') {
+            // Only auto-switch to details if we are actually selecting a specific semester
             setMobileView('details');
         }
-    }, [selectedSemester, isMobile]);
+    }, [selectedSemester, isMobile, mobileView]);
 
-    const isFiltering = searchTerm.trim() !== '' || statusFilter !== 'all';
+    const availableYears = useMemo(() => {
+        const years = new Set<number>();
+        semesters.forEach(s => {
+            if (s.year !== undefined) years.add(s.year);
+        });
+        return Array.from(years).sort((a, b) => a - b);
+    }, [semesters]);
+
+    const availableTerms = useMemo(() => {
+        if (yearFilter === 'all') return ['A', 'B', 'SUMMER'];
+        const terms = new Set<string>();
+        semesters.forEach(s => {
+            if (s.year === parseInt(yearFilter) && s.term) terms.add(s.term);
+        });
+        return ['A', 'B', 'SUMMER'].filter(t => terms.has(t));
+    }, [semesters, yearFilter]);
+
+    const filteredSemestersForNav = useMemo(() => {
+        return bySemester.filter(g => {
+            const sem = semesters.find(s => s.id === g.semesterId);
+            if (!sem) return true;
+            if (yearFilter !== 'all' && sem.year !== parseInt(yearFilter)) return false;
+            if (termFilter !== 'all' && sem.term !== termFilter) return false;
+            return true;
+        });
+    }, [bySemester, semesters, yearFilter, termFilter]);
+
+    const showSemesterLabels = searchTerm.trim() !== '' || statusFilter !== 'all' || selectedSemester === 'all';
+    const isFiltering = showSemesterLabels;
 
     const displayedCourses = useMemo(() => {
         const filterFn = (c: CourseWithTopics) => {
-            const matchesSearch = c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                (c.code && c.code.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                (c.topics && c.topics.some(t => t.title.toLowerCase().includes(searchTerm.toLowerCase())));
+            const sem = semesters.find(s => s.id === c.semesterId);
 
-            const matchesStatus = statusFilter === 'all' || c.effectiveStatus === statusFilter;
-            return matchesSearch && matchesStatus;
+            // 1. Year Filter (Ignored if a specific semester is picked)
+            if (selectedSemester === 'all' && yearFilter !== 'all' && sem?.year !== parseInt(yearFilter)) return false;
+
+            // 2. Term Filter (Ignored if a specific semester is picked)
+            if (selectedSemester === 'all' && termFilter !== 'all' && sem?.term !== termFilter) return false;
+
+            // 3. Semester Filter
+            if (selectedSemester !== 'all' && c.semesterId !== selectedSemester) return false;
+
+            // 4. Status Filter
+            if (statusFilter !== 'all' && c.effectiveStatus !== statusFilter) return false;
+
+            // 5. Search
+            if (searchTerm.trim() !== '') {
+                const searchLower = searchTerm.toLowerCase();
+                const matchesSearch = c.name.toLowerCase().includes(searchLower) ||
+                    (c.code && c.code.toLowerCase().includes(searchLower)) ||
+                    (c.topics && c.topics.some(t => t.title.toLowerCase().includes(searchLower)));
+                if (!matchesSearch) return false;
+            }
+
+            return true;
         };
 
-        if (isFiltering) {
-            // FIXED: Global search across all semesters
-            return courses.filter(filterFn);
-        } else {
-            const group = bySemester.find(g => g.semesterId === selectedSemester);
-            if (!group) return [];
-            return group.courses.filter(filterFn);
-        }
-    }, [bySemester, courses, selectedSemester, searchTerm, statusFilter, isFiltering]);
+        return courses.filter(filterFn);
+    }, [courses, semesters, selectedSemester, searchTerm, statusFilter, yearFilter, termFilter]);
 
     const semesterLabels = useMemo(() => {
         const labels: Record<string, string> = {};
@@ -139,7 +194,7 @@ export const Courses: React.FC = () => {
 
     const renderSemesterNav = () => (
         <SemesterNavigation
-            bySemester={bySemester}
+            bySemester={filteredSemestersForNav}
             selectedSemester={selectedSemester}
             onSelectSemester={handleSelectSemester}
             editingSemesterId={editingSemesterId}
@@ -175,6 +230,12 @@ export const Courses: React.FC = () => {
                 onSearchChange={setSearchTerm}
                 statusFilter={statusFilter}
                 onStatusFilterChange={setStatusFilter}
+                yearFilter={yearFilter}
+                onYearFilterChange={setYearFilter}
+                termFilter={termFilter}
+                onTermFilterChange={setTermFilter}
+                availableYears={availableYears}
+                availableTerms={availableTerms}
                 onAddCourse={() => setIsModalOpen(true)}
                 onBulkAdd={() => setIsBulkModalOpen(true)}
                 isMobile={isMobile}
@@ -183,8 +244,9 @@ export const Courses: React.FC = () => {
             <div style={{ overflowY: 'auto', paddingRight: '4px', paddingBottom: '32px' }}>
                 <div style={{ marginBottom: '16px' }}>
                     <h1 style={{ fontSize: '1.5rem', margin: 0 }}>
-                        {isFiltering ? t('label.search_results') :
-                            (bySemester.find(s => s.semesterId === selectedSemester)?.semesterName || t('label.semester'))}
+                        {searchTerm.trim() !== '' || statusFilter !== 'all' ? t('label.search_results') :
+                            (selectedSemester === 'all' ? (t('label.all_semesters' as any) || 'All Semesters') :
+                                (bySemester.find(s => s.semesterId === selectedSemester)?.semesterName || t('label.semester')))}
                     </h1>
                     <span style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)' }}>
                         {displayedCourses.length} {t('label.courses_found')}
@@ -196,7 +258,7 @@ export const Courses: React.FC = () => {
                     onEdit={handleEdit}
                     onDelete={handleDelete}
                     onNavigate={(id) => navigate(`/courses/${id}`)}
-                    showSemesterLabel={isFiltering}
+                    showSemesterLabel={showSemesterLabels}
                     semesterLabels={semesterLabels}
                     isMobile={isMobile}
                 />

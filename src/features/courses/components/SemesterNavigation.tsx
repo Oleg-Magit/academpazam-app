@@ -52,6 +52,27 @@ export const SemesterNavigation: React.FC<SemesterNavigationProps> = ({
             paddingBottom: isMobile ? '16px' : '0'
         }}>
             <h2 style={{ fontSize: '1.2rem', marginBottom: '16px', paddingLeft: '8px' }}>{t('label.semesters')}</h2>
+
+            <div
+                onClick={() => onSelectSemester('all')}
+                style={{
+                    padding: isMobile ? '12px 16px' : '8px 12px',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    backgroundColor: selectedSemester === 'all' ? 'var(--color-bg-secondary)' : 'transparent',
+                    border: selectedSemester === 'all' ? '1px solid var(--color-border)' : '1px solid transparent',
+                    display: 'flex',
+                    alignItems: 'center',
+                    minHeight: isMobile ? '56px' : '42px',
+                    marginBottom: '8px',
+                    transition: 'all 0.2s ease',
+                }}
+            >
+                <span style={{ fontWeight: selectedSemester === 'all' ? 600 : 400, marginLeft: '4px' }}>
+                    {t('label.all_semesters' as any) || 'All Semesters'}
+                </span>
+            </div>
+
             {bySemester.map((sem, index) => (
                 <div
                     key={sem.semesterId}

@@ -8,6 +8,12 @@ interface CoursesToolbarProps {
     onSearchChange: (val: string) => void;
     statusFilter: string;
     onStatusFilterChange: (val: string) => void;
+    yearFilter: string;
+    onYearFilterChange: (val: string) => void;
+    termFilter: string;
+    onTermFilterChange: (val: string) => void;
+    availableYears: number[];
+    availableTerms: string[];
     onAddCourse: () => void;
     onBulkAdd: () => void;
     isMobile?: boolean;
@@ -18,6 +24,12 @@ export const CoursesToolbar: React.FC<CoursesToolbarProps> = ({
     onSearchChange,
     statusFilter,
     onStatusFilterChange,
+    yearFilter,
+    onYearFilterChange,
+    termFilter,
+    onTermFilterChange,
+    availableYears,
+    availableTerms,
     onAddCourse,
     onBulkAdd,
     isMobile = false
@@ -39,7 +51,8 @@ export const CoursesToolbar: React.FC<CoursesToolbarProps> = ({
                 flexDirection: isMobile ? 'column' : 'row',
                 gap: '12px',
                 alignItems: isMobile ? 'stretch' : 'center',
-                flex: 1
+                flex: 1,
+                flexWrap: 'wrap'
             }}>
                 <div style={{ position: 'relative', flex: 1, maxWidth: isMobile ? '100%' : '300px' }}>
                     <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', opacity: 0.5 }} />
@@ -62,6 +75,47 @@ export const CoursesToolbar: React.FC<CoursesToolbarProps> = ({
                         }}
                     />
                 </div>
+
+                <select
+                    id="year-filter"
+                    name="yearFilter"
+                    value={yearFilter}
+                    onChange={e => onYearFilterChange(e.target.value)}
+                    aria-label={t('label.filter_year' as any) || 'Filter by Year'}
+                    style={{
+                        padding: isMobile ? '12px' : '10px 12px',
+                        borderRadius: '8px',
+                        border: '1px solid var(--color-border)',
+                        backgroundColor: 'var(--color-bg-secondary)',
+                        color: 'var(--color-text-primary)',
+                        flex: isMobile ? '1' : '0 1 auto',
+                        fontSize: isMobile ? '1rem' : 'initial'
+                    }}
+                >
+                    <option value="all">{t('label.all_years' as any) || 'All Years'}</option>
+                    {availableYears.map(y => <option key={y} value={y.toString()}>{t('label.year' as any) || 'Year'} {y}</option>)}
+                </select>
+
+                <select
+                    id="term-filter"
+                    name="termFilter"
+                    value={termFilter}
+                    onChange={e => onTermFilterChange(e.target.value)}
+                    aria-label={t('label.filter_term' as any) || 'Filter by Term'}
+                    style={{
+                        padding: isMobile ? '12px' : '10px 12px',
+                        borderRadius: '8px',
+                        border: '1px solid var(--color-border)',
+                        backgroundColor: 'var(--color-bg-secondary)',
+                        color: 'var(--color-text-primary)',
+                        flex: isMobile ? '1' : '0 1 auto',
+                        fontSize: isMobile ? '1rem' : 'initial'
+                    }}
+                >
+                    <option value="all">{t('label.all_terms' as any) || 'All Terms'}</option>
+                    {availableTerms.map(tOption => <option key={tOption} value={tOption}>{tOption}</option>)}
+                </select>
+
                 <select
                     id="status-filter"
                     name="statusFilter"
