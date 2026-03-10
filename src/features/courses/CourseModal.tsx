@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Modal } from '@/ui/Modal';
 import { Input } from '@/ui/Input';
 import { Select } from '@/ui/Select';
@@ -7,6 +7,7 @@ import type { Course, CourseStatus, Semester } from '@/core/models/types';
 import { saveCourse } from '@/core/db/db';
 import { v4 as uuidv4 } from 'uuid';
 import { useTranslation } from '@/app/i18n/useTranslation';
+import { useMediaQuery } from '@/core/hooks/useMediaQuery';
 
 interface CourseModalProps {
     isOpen: boolean;
@@ -22,6 +23,7 @@ export const CourseModal: React.FC<CourseModalProps> = ({
     isOpen, onClose, onSave, planId, courseToEdit, initialData, semesters
 }) => {
     const { t } = useTranslation();
+    const isMobile = useMediaQuery('(max-width: 640px)');
     const [name, setName] = useState('');
     const [code, setCode] = useState('');
     const [credits, setCredits] = useState('3');
@@ -96,7 +98,7 @@ export const CourseModal: React.FC<CourseModalProps> = ({
         }
     };
 
-    const SEMESTER_OPTIONS = React.useMemo(() => {
+    const SEMESTER_OPTIONS = useMemo(() => {
         // Sort semesters by year then by orderIndex to ensure logical order in dropdown
         const sorted = [...semesters].sort((a, b) => {
             const yearA = a.year || 1;
@@ -109,10 +111,8 @@ export const CourseModal: React.FC<CourseModalProps> = ({
             const yearStr = `${t('label.year')} ${s.year || 1}`;
             const termStr = t(`term.${(s.term || 'A').toLowerCase()}` as any);
 
-            const defaultPrefix = t('semester.semester');
             const isDefault = !s.name ||
-                s.name.startsWith(defaultPrefix) ||
-                /^\d+$/.test(s.name);
+                /^(Semester|סמסטר|Семестр)\s+\d+$/i.test(s.name);
 
             const mainLabel = `${yearStr} / ${termStr}`;
             // If custom name, append as secondary context
@@ -125,7 +125,7 @@ export const CourseModal: React.FC<CourseModalProps> = ({
         });
     }, [semesters, t]);
 
-    const STATUS_OPTIONS: { value: CourseStatus; label: string }[] = React.useMemo(() => [
+    const STATUS_OPTIONS: { value: CourseStatus; label: string }[] = useMemo(() => [
         { value: 'not_started', label: t('status.not_started') },
         { value: 'in_progress', label: t('status.in_progress') },
         { value: 'completed', label: t('status.completed') }
@@ -169,7 +169,11 @@ export const CourseModal: React.FC<CourseModalProps> = ({
                     required
                     autoComplete="off"
                 />
-                <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: 'var(--space-md)' }}>
+                <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: isMobile ? '1fr' : '120px 1fr',
+                    gap: 'var(--space-md)'
+                }}>
                     <Input
                         id="course-credits"
                         name="course-credits"

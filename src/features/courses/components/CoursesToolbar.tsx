@@ -39,23 +39,29 @@ export const CoursesToolbar: React.FC<CoursesToolbarProps> = ({
     return (
         <div style={{
             display: 'flex',
-            flexDirection: isMobile ? 'column' : 'row',
-            gap: '20px',
+            flexDirection: 'row', // Always row but wraps
+            gap: isMobile ? '16px' : '20px',
             justifyContent: 'space-between',
-            alignItems: isMobile ? 'stretch' : 'flex-start',
+            alignItems: 'flex-start',
             paddingBottom: '20px',
             borderBottom: '1px solid var(--color-border)',
             flexWrap: 'wrap'
         }}>
             <div style={{
                 display: 'flex',
-                flexDirection: isMobile ? 'column' : 'row',
+                flexDirection: 'row',
                 gap: '16px',
-                alignItems: isMobile ? 'stretch' : 'center',
+                alignItems: 'center',
                 flex: '1 1 auto',
-                flexWrap: 'wrap'
+                flexWrap: 'wrap',
+                width: isMobile ? '100%' : 'auto'
             }}>
-                <div style={{ position: 'relative', flex: '1 1 250px', maxWidth: isMobile ? '100%' : '350px' }}>
+                <div style={{
+                    position: 'relative',
+                    flex: isMobile ? '1 1 100%' : '1 1 250px',
+                    maxWidth: isMobile ? '100%' : '350px',
+                    order: isMobile ? 1 : 0
+                }}>
                     <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', opacity: 0.4 }} />
                     <input
                         id="search-courses"
@@ -80,9 +86,10 @@ export const CoursesToolbar: React.FC<CoursesToolbarProps> = ({
 
                 <div style={{
                     display: 'flex',
-                    gap: '12px',
+                    gap: isMobile ? '8px' : '12px',
                     flexWrap: 'wrap',
-                    flex: isMobile ? '1' : '0 1 auto'
+                    flex: isMobile ? '1 1 100%' : '0 1 auto',
+                    order: isMobile ? 3 : 2
                 }}>
                     <select
                         id="year-filter"
@@ -91,13 +98,14 @@ export const CoursesToolbar: React.FC<CoursesToolbarProps> = ({
                         onChange={e => onYearFilterChange(e.target.value)}
                         aria-label={t('label.filter_year' as any) || 'Filter by Year'}
                         style={{
-                            padding: isMobile ? '12px' : '10px 16px',
+                            padding: isMobile ? '10px 8px' : '10px 16px',
                             borderRadius: '10px',
                             border: '1px solid var(--color-border)',
                             backgroundColor: 'var(--color-bg-secondary)',
                             color: 'var(--color-text-primary)',
-                            fontSize: isMobile ? '1rem' : '0.9rem',
-                            cursor: 'pointer'
+                            fontSize: isMobile ? '0.85rem' : '0.9rem',
+                            cursor: 'pointer',
+                            flex: isMobile ? '1' : 'none'
                         }}
                     >
                         <option value="all">{t('label.all_years')}</option>
@@ -111,13 +119,14 @@ export const CoursesToolbar: React.FC<CoursesToolbarProps> = ({
                         onChange={e => onTermFilterChange(e.target.value)}
                         aria-label={t('label.filter_term' as any) || 'Filter by Term'}
                         style={{
-                            padding: isMobile ? '12px' : '10px 16px',
+                            padding: isMobile ? '10px 8px' : '10px 16px',
                             borderRadius: '10px',
                             border: '1px solid var(--color-border)',
                             backgroundColor: 'var(--color-bg-secondary)',
                             color: 'var(--color-text-primary)',
-                            fontSize: isMobile ? '1rem' : '0.9rem',
-                            cursor: 'pointer'
+                            fontSize: isMobile ? '0.85rem' : '0.9rem',
+                            cursor: 'pointer',
+                            flex: isMobile ? '1' : 'none'
                         }}
                     >
                         <option value="all">{t('label.all_terms')}</option>
@@ -135,13 +144,14 @@ export const CoursesToolbar: React.FC<CoursesToolbarProps> = ({
                         onChange={e => onStatusFilterChange(e.target.value)}
                         aria-label={t('label.filter_status')}
                         style={{
-                            padding: isMobile ? '12px' : '10px 16px',
+                            padding: isMobile ? '10px 8px' : '10px 16px',
                             borderRadius: '10px',
                             border: '1px solid var(--color-border)',
                             backgroundColor: 'var(--color-bg-secondary)',
                             color: 'var(--color-text-primary)',
-                            fontSize: isMobile ? '1rem' : '0.9rem',
-                            cursor: 'pointer'
+                            fontSize: isMobile ? '0.85rem' : '0.9rem',
+                            cursor: 'pointer',
+                            flex: isMobile ? '1' : 'none'
                         }}
                     >
                         <option value="all">{t('status.all')}</option>
@@ -154,26 +164,29 @@ export const CoursesToolbar: React.FC<CoursesToolbarProps> = ({
             <div style={{
                 display: 'flex',
                 gap: '12px',
-                justifyContent: isMobile ? 'flex-end' : 'flex-start',
+                justifyContent: isMobile ? 'stretch' : 'flex-start',
                 alignItems: 'center',
-                flexShrink: 0
+                flexShrink: 0,
+                width: isMobile ? '100%' : 'auto',
+                order: isMobile ? 2 : 3,
+                marginTop: isMobile ? '4px' : '0'
             }}>
                 <Button
                     variant="secondary"
                     onClick={onBulkAdd}
                     title={isMobile ? t('action.add_list') : undefined}
-                    style={{ height: '42px' }}
+                    style={{ height: '42px', flex: isMobile ? 1 : 'none' }}
                 >
-                    <FileText size={isMobile ? 22 : 18} style={{ marginRight: isMobile ? '0' : '8px' }} />
+                    <FileText size={isMobile ? 20 : 18} style={{ marginRight: isMobile ? '0' : '8px' }} />
                     {!isMobile && t('action.add_list')}
                 </Button>
                 <Button
                     variant="primary"
                     onClick={onAddCourse}
                     title={isMobile ? t('dashboard.add_course') : undefined}
-                    style={{ flex: isMobile ? 1 : 'none', height: '42px' }}
+                    style={{ flex: isMobile ? 2 : 'none', height: '42px' }}
                 >
-                    <Plus size={isMobile ? 22 : 18} style={{ marginRight: isMobile ? '0' : '8px' }} />
+                    <Plus size={isMobile ? 20 : 18} style={{ marginRight: isMobile ? '0' : '8px' }} />
                     {!isMobile && t('dashboard.add_course')}
                     {isMobile && <span style={{ marginLeft: '8px' }}>{t('dashboard.add_course')}</span>}
                 </Button>

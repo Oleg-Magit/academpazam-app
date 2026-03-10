@@ -103,10 +103,8 @@ export const SemesterDrawer: React.FC<SemesterDrawerProps> = ({
                             const termStr = t(`term.${tm.toLowerCase()}` as any);
                             const mainLabel = `${yearStr} / ${termStr}`;
 
-                            const defaultPrefix = t('semester.semester');
                             const isDefault = !semesterGroup.semesterName ||
-                                semesterGroup.semesterName.startsWith(defaultPrefix) ||
-                                /^\d+$/.test(semesterGroup.semesterName);
+                                /^(Semester|סמסטר|Семестр)\s+\d+$/i.test(semesterGroup.semesterName);
 
                             return isDefault ? mainLabel : `${mainLabel} (${semesterGroup.semesterName})`;
                         })()}

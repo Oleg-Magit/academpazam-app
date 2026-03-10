@@ -57,7 +57,7 @@ export const useSemesterManagement = (
 
         const newSemester: Semester = {
             id: uuidv4(),
-            name: `${t('semester.semester')} ${semesters.length + 1}`,
+            name: '', // Empty string indicates default/generated name
             createdAt: Date.now(),
             orderIndex: maxOrder + 1,
             year: newYear!,

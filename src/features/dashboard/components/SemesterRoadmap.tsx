@@ -101,10 +101,8 @@ export const SemesterRoadmap: React.FC<SemesterRoadmapProps> = ({
                                     semesterId={sem.semesterId}
                                     label={(() => {
                                         const termName = t(`term.${(sem.term || 'A').toLowerCase()}` as any);
-                                        const defaultPrefix = t('semester.semester');
                                         const isDefault = !sem.semesterName ||
-                                            sem.semesterName.startsWith(defaultPrefix) ||
-                                            /^\d+$/.test(sem.semesterName);
+                                            /^(Semester|סמסטר|Семестр)\s+\d+$/i.test(sem.semesterName);
 
                                         return isDefault ? termName : `${termName} (${sem.semesterName})`;
                                     })()}

@@ -290,8 +290,8 @@ export const Courses: React.FC = () => {
             />
 
             <div style={{ overflowY: 'auto', paddingRight: '4px', paddingBottom: '32px' }}>
-                <div style={{ marginBottom: '16px' }}>
-                    <h1 style={{ fontSize: '1.5rem', margin: 0 }}>
+                <div style={{ marginBottom: isMobile ? '12px' : '16px' }}>
+                    <h1 style={{ fontSize: isMobile ? '1.25rem' : '1.5rem', margin: 0, fontWeight: 700 }}>
                         {searchTerm.trim() !== '' || statusFilter !== 'all' ? t('label.search_results') :
                             selectedSemester === 'all' ? t('label.all_semesters') :
                                 (() => {
@@ -323,32 +323,39 @@ export const Courses: React.FC = () => {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                         {hierarchy.map(hYear => (
                             <div key={hYear.year}>
-                                <h2 style={{ fontSize: '1.3rem', marginBottom: '12px', color: 'var(--color-text-primary)' }}>
+                                <h2 style={{ fontSize: isMobile ? '1.15rem' : '1.3rem', marginBottom: '12px', color: 'var(--color-text-primary)' }}>
                                     {t('label.year' as any) || 'Year'} {hYear.year}
                                 </h2>
                                 <div style={{ paddingLeft: isMobile ? '8px' : '16px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
                                     {hYear.terms.map(hTerm => (
                                         <div key={hTerm.term}>
-                                            <h3 style={{ fontSize: '1.1rem', marginBottom: '12px', color: 'var(--color-text-secondary)' }}>
+                                            <h3 style={{ fontSize: isMobile ? '1rem' : '1.1rem', marginBottom: '12px', color: 'var(--color-text-secondary)' }}>
                                                 {t(`term.${hTerm.term.toLowerCase()}` as any) || `Term ${hTerm.term}`}
                                             </h3>
-                                            <div style={{ paddingLeft: isMobile ? '8px' : '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                                                {hTerm.semesters.map(hSem => (
-                                                    <div key={hSem.id}>
-                                                        <h4 style={{ fontSize: '1rem', marginBottom: '8px', color: 'var(--color-accent)' }}>
-                                                            {hSem.name}
-                                                        </h4>
-                                                        <CourseList
-                                                            courses={hSem.courses}
-                                                            onEdit={handleEdit}
-                                                            onDelete={handleDelete}
-                                                            onNavigate={(id) => navigate(`/courses/${id}`)}
-                                                            showSemesterLabel={false}
-                                                            semesterLabels={semesterLabels}
-                                                            isMobile={isMobile}
-                                                        />
-                                                    </div>
-                                                ))}
+                                            <div style={{ paddingLeft: isMobile ? '4px' : '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                                {hTerm.semesters.map(hSem => {
+                                                    const isDefault = !hSem.name ||
+                                                        /^(Semester|סמסטר|Семестр)\s+\d+$/i.test(hSem.name);
+
+                                                    return (
+                                                        <div key={hSem.id}>
+                                                            {!isDefault && (
+                                                                <h4 style={{ fontSize: '1rem', marginBottom: '8px', color: 'var(--color-accent)' }}>
+                                                                    {hSem.name}
+                                                                </h4>
+                                                            )}
+                                                            <CourseList
+                                                                courses={hSem.courses}
+                                                                onEdit={handleEdit}
+                                                                onDelete={handleDelete}
+                                                                onNavigate={(id) => navigate(`/courses/${id}`)}
+                                                                showSemesterLabel={false}
+                                                                semesterLabels={semesterLabels}
+                                                                isMobile={isMobile}
+                                                            />
+                                                        </div>
+                                                    );
+                                                })}
                                             </div>
                                         </div>
                                     ))}
