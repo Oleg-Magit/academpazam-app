@@ -153,6 +153,55 @@ export const Courses: React.FC = () => {
         return courses.filter(filterFn);
     }, [courses, semesters, selectedSemester, searchTerm, statusFilter, yearFilter, termFilter]);
 
+    const hierarchy = useMemo(() => {
+        const yearMap = new Map<number, Map<string, Map<string, { name: string, courses: CourseWithTopics[] }>>>();
+
+        displayedCourses.forEach(course => {
+            const sem = semesters.find(s => s.id === course.semesterId);
+            if (!sem) return;
+
+            const y = sem.year ?? 1;
+            const t = sem.term ?? 'A';
+
+            if (!yearMap.has(y)) yearMap.set(y, new Map());
+            const termMap = yearMap.get(y)!;
+
+            if (!termMap.has(t)) termMap.set(t, new Map());
+            const semMap = termMap.get(t)!;
+
+            if (!semMap.has(sem.id)) semMap.set(sem.id, { name: sem.name, courses: [] });
+            semMap.get(sem.id)!.courses.push(course);
+        });
+
+        const sortedYears = Array.from(yearMap.keys()).sort((a, b) => a - b);
+        return sortedYears.map(year => {
+            const termMap = yearMap.get(year)!;
+            const termOrder = { 'A': 1, 'B': 2, 'SUMMER': 3 };
+            const sortedTerms = Array.from(termMap.keys()).sort((a, b) => (termOrder[a as keyof typeof termOrder] || 99) - (termOrder[b as keyof typeof termOrder] || 99));
+
+            return {
+                year,
+                terms: sortedTerms.map(term => {
+                    const semMap = termMap.get(term)!;
+                    const semArray = Array.from(semMap.keys()).map(semId => {
+                        const s = semesters.find(x => x.id === semId);
+                        return {
+                            id: semId,
+                            name: semMap.get(semId)!.name,
+                            orderIndex: s?.orderIndex || 0,
+                            courses: semMap.get(semId)!.courses as CourseWithTopics[]
+                        };
+                    }).sort((a, b) => a.orderIndex - b.orderIndex);
+
+                    return {
+                        term,
+                        semesters: semArray
+                    };
+                })
+            };
+        });
+    }, [displayedCourses, semesters]);
+
     const semesterLabels = useMemo(() => {
         const labels: Record<string, string> = {};
         semesters.forEach(s => {
@@ -245,23 +294,76 @@ export const Courses: React.FC = () => {
                 <div style={{ marginBottom: '16px' }}>
                     <h1 style={{ fontSize: '1.5rem', margin: 0 }}>
                         {searchTerm.trim() !== '' || statusFilter !== 'all' ? t('label.search_results') :
-                            (selectedSemester === 'all' ? (t('label.all_semesters' as any) || 'All Semesters') :
-                                (bySemester.find(s => s.semesterId === selectedSemester)?.semesterName || t('label.semester')))}
+                            selectedSemester === 'all' ? (t('label.all_semesters' as any) || 'All Semesters') :
+                                (() => {
+                                    const sem = semesters.find(s => s.id === selectedSemester);
+                                    if (!sem) return t('label.semester');
+                                    const y = sem.year ?? 1;
+                                    const tm = sem.term ?? 'A';
+                                    const yearStr = (t('label.year' as any) || 'Year') + ' ' + y;
+                                    const termStr = t(`term.${tm.toLowerCase()}` as any) || `Term ${tm}`;
+                                    return `${yearStr} / ${termStr} / ${sem.name}`;
+                                })()
+                        }
                     </h1>
                     <span style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)' }}>
                         {displayedCourses.length} {t('label.courses_found')}
                     </span>
                 </div>
 
-                <CourseList
-                    courses={displayedCourses}
-                    onEdit={handleEdit}
-                    onDelete={handleDelete}
-                    onNavigate={(id) => navigate(`/courses/${id}`)}
-                    showSemesterLabel={showSemesterLabels}
-                    semesterLabels={semesterLabels}
-                    isMobile={isMobile}
-                />
+                {selectedSemester === 'all' || isFiltering ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                        {hierarchy.map(hYear => (
+                            <div key={hYear.year}>
+                                <h2 style={{ fontSize: '1.3rem', marginBottom: '12px', color: 'var(--color-text-primary)' }}>
+                                    {t('label.year' as any) || 'Year'} {hYear.year}
+                                </h2>
+                                <div style={{ paddingLeft: isMobile ? '8px' : '16px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                                    {hYear.terms.map(hTerm => (
+                                        <div key={hTerm.term}>
+                                            <h3 style={{ fontSize: '1.1rem', marginBottom: '12px', color: 'var(--color-text-secondary)' }}>
+                                                {t(`term.${hTerm.term.toLowerCase()}` as any) || `Term ${hTerm.term}`}
+                                            </h3>
+                                            <div style={{ paddingLeft: isMobile ? '8px' : '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                                {hTerm.semesters.map(hSem => (
+                                                    <div key={hSem.id}>
+                                                        <h4 style={{ fontSize: '1rem', marginBottom: '8px', color: 'var(--color-accent)' }}>
+                                                            {hSem.name}
+                                                        </h4>
+                                                        <CourseList
+                                                            courses={hSem.courses}
+                                                            onEdit={handleEdit}
+                                                            onDelete={handleDelete}
+                                                            onNavigate={(id) => navigate(`/courses/${id}`)}
+                                                            showSemesterLabel={false}
+                                                            semesterLabels={semesterLabels}
+                                                            isMobile={isMobile}
+                                                        />
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                        {hierarchy.length === 0 && (
+                            <div style={{ textAlign: 'center', padding: '40px', color: 'var(--color-text-secondary)' }}>
+                                {t('label.no_courses_found')}
+                            </div>
+                        )}
+                    </div>
+                ) : (
+                    <CourseList
+                        courses={displayedCourses}
+                        onEdit={handleEdit}
+                        onDelete={handleDelete}
+                        onNavigate={(id) => navigate(`/courses/${id}`)}
+                        showSemesterLabel={false}
+                        semesterLabels={semesterLabels}
+                        isMobile={isMobile}
+                    />
+                )}
             </div>
         </div>
     );
