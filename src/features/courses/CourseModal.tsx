@@ -131,10 +131,10 @@ export const CourseModal: React.FC<CourseModalProps> = ({
                 <Input
                     id="course-code"
                     name="course-code"
-                    label={`${t('label.course_code')} (Optional)`}
+                    label={`${t('label.course_code')} ${t('label.optional')}`}
                     value={code}
                     onChange={e => setCode(e.target.value)}
-                    placeholder="e.g. CS101"
+                    placeholder={t('placeholder.course_code')}
                     autoComplete="off"
                 />
                 <Input
@@ -181,7 +181,7 @@ export const CourseModal: React.FC<CourseModalProps> = ({
                             options={STATUS_OPTIONS}
                         />
                         <small style={{ color: 'var(--color-text-secondary)', fontSize: '0.75rem' }}>
-                            {t('label.initial_status')} auto-calculated if topics added.
+                            {t('label.initial_status')} {t('msg.status_auto_calculated')}.
                         </small>
                     </div>
                 )}

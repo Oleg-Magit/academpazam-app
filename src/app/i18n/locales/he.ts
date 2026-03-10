@@ -100,6 +100,9 @@ export const he = {
     'modal.bulk_topic.instruction': 'הדבק נושאים, אחד בכל שורה.',
 
     'label.topic_title': 'כותרת הנושא',
+    'label.optional': '(אופציונלי)',
+    'placeholder.course_code': 'למשל CS101',
+    'msg.status_auto_calculated': 'מחושב אוטומטית אם נוספו נושאים',
     'label.description': 'תיאור',
 
     // Errors & Success

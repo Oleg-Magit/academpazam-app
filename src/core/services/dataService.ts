@@ -44,6 +44,8 @@ export const groupCoursesBySemester = (
             semesterId: sem.id,
             semesterName: sem.name,
             orderIndex: sem.orderIndex,
+            year: sem.year,
+            term: sem.term,
             courses: [],
             totalCredits: 0,
             completedCredits: 0

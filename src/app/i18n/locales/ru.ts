@@ -101,6 +101,9 @@ export const ru = {
     'modal.bulk_topic.instruction': 'Вставьте темы, по одной на строке.',
 
     'label.topic_title': 'Название темы',
+    'label.optional': '(Опционально)',
+    'placeholder.course_code': 'напр. CS101',
+    'msg.status_auto_calculated': 'вычисляется автоматически при добавлении тем',
     'label.description': 'Описание',
 
     // Errors & Success

@@ -301,6 +301,15 @@ export const Courses: React.FC = () => {
                                     const tm = sem.term ?? 'A';
                                     const yearStr = t('label.year') + ' ' + y;
                                     const termStr = t(`term.${tm.toLowerCase()}` as any);
+
+                                    const defaultPrefix = t('semester.semester');
+                                    const isDefault = !sem.name ||
+                                        sem.name.startsWith(defaultPrefix) ||
+                                        /^\d+$/.test(sem.name);
+
+                                    if (isDefault) {
+                                        return `${yearStr} / ${termStr}`;
+                                    }
                                     return `${yearStr} / ${termStr} / ${sem.name}`;
                                 })()
                         }

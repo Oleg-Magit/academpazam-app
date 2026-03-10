@@ -15,7 +15,7 @@ export const SemesterRoadmap: React.FC<SemesterRoadmapProps> = ({
     selectedSemester,
     onSelectSemester
 }) => {
-    const { language } = useTranslation();
+    const { t, language } = useTranslation();
     const isRtl = language === 'he';
 
     const semestersWithStatus = useMemo(() => {
@@ -58,7 +58,15 @@ export const SemesterRoadmap: React.FC<SemesterRoadmapProps> = ({
                 <React.Fragment key={sem.semesterId}>
                     <SemesterNode
                         semesterId={sem.semesterId}
-                        label={sem.semesterName}
+                        label={(() => {
+                            const termName = t(`term.${(sem.term || 'A').toLowerCase()}` as any);
+                            const defaultPrefix = t('semester.semester');
+                            const isDefault = !sem.semesterName ||
+                                sem.semesterName.startsWith(defaultPrefix) ||
+                                /^\d+$/.test(sem.semesterName);
+
+                            return isDefault ? termName : sem.semesterName;
+                        })()}
                         status={sem.status}
                         totalCredits={sem.totalCredits}
                         completedCredits={sem.completedCredits}

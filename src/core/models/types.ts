@@ -57,6 +57,8 @@ export interface SemesterGroup {
     semesterId: string;
     semesterName: string;
     orderIndex: number;
+    year?: number;
+    term?: 'A' | 'B' | 'SUMMER';
     courses: CourseWithTopics[];
     totalCredits: number;
     completedCredits: number;

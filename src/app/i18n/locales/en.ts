@@ -113,6 +113,9 @@ export const en = {
     'modal.bulk_topic.instruction': 'Paste topics, one per line.',
 
     'label.topic_title': 'Topic Title',
+    'label.optional': '(Optional)',
+    'placeholder.course_code': 'e.g. CS101',
+    'msg.status_auto_calculated': 'auto-calculated if topics added',
     'label.description': 'Description',
 
     // Errors & Success

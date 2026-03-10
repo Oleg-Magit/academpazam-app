@@ -162,7 +162,16 @@ export const SemesterNavigation: React.FC<SemesterNavigationProps> = ({
                                                     textOverflow: 'ellipsis',
                                                     marginLeft: '4px'
                                                 }}>
-                                                    {sem.semesterName}
+                                                    {(() => {
+                                                        const termName = t(`term.${(sem.term || 'A').toLowerCase()}` as any);
+                                                        const defaultPrefix = t('semester.semester');
+                                                        // Regex to match "Semester X" or "סמסטר X" etc.
+                                                        const isDefault = !sem.semesterName ||
+                                                            sem.semesterName.startsWith(defaultPrefix) ||
+                                                            /^\d+$/.test(sem.semesterName);
+
+                                                        return isDefault ? termName : sem.semesterName;
+                                                    })()}
                                                 </span>
                                                 {selectedSemester === sem.semesterId && (
                                                     <div style={{ display: 'flex', gap: '4px' }}>
