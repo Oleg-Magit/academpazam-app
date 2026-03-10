@@ -63,23 +63,27 @@ export const PlanSettings: React.FC<PlanSettingsProps> = ({ plan, onRefresh, onM
             </div>
 
             {isEditing && (
-                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr auto', gap: '12px', alignItems: 'end' }}>
-                    <Input
-                        id="plan-name"
-                        name="planName"
-                        label={t('settings.degree_name')}
-                        value={name}
-                        onChange={e => setName(e.target.value)}
-                    />
-                    <Input
-                        id="plan-threshold"
-                        name="planThreshold"
-                        label={t('settings.passing_grade')}
-                        type="number"
-                        value={threshold}
-                        onChange={e => setThreshold(Number(e.target.value))}
-                    />
-                    <div style={{ display: 'flex', gap: '8px', paddingBottom: '2px' }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'end' }}>
+                    <div style={{ flex: '2 1 200px' }}>
+                        <Input
+                            id="plan-name"
+                            name="planName"
+                            label={t('settings.degree_name')}
+                            value={name}
+                            onChange={e => setName(e.target.value)}
+                        />
+                    </div>
+                    <div style={{ flex: '1 1 120px' }}>
+                        <Input
+                            id="plan-threshold"
+                            name="planThreshold"
+                            label={t('settings.passing_grade')}
+                            type="number"
+                            value={threshold}
+                            onChange={e => setThreshold(Number(e.target.value))}
+                        />
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px', paddingBottom: '2px', flex: '0 0 auto' }}>
                         <Button variant="ghost" onClick={() => setIsEditing(false)} title="Cancel">
                             <X size={20} />
                         </Button>
