@@ -75,7 +75,9 @@ export const BulkAddCourseModal: React.FC<BulkAddCourseModalProps> = ({ isOpen, 
                     id: newId,
                     name: `${tWord} ${semNum}`,
                     orderIndex: targetIndex,
-                    createdAt: Date.now()
+                    createdAt: Date.now(),
+                    year: Math.floor(targetIndex / 2) + 1,
+                    term: targetIndex % 2 === 0 ? 'A' : 'B'
                 };
 
                 currentPending.push(newSem);

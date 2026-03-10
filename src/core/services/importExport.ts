@@ -1,5 +1,5 @@
-import { getAllData, savePlan, saveCourse, saveTopic, saveMeta, clearAllData } from '../db/db';
-import type { Plan, Course, Topic, Meta } from '../models/types';
+import { getAllData, savePlan, saveCourse, saveTopic, saveMeta, clearAllData, saveSemester } from '../db/db';
+import type { Plan, Course, Topic, Meta, Semester } from '../models/types';
 
 interface BackupData {
     version: number;
@@ -9,6 +9,7 @@ interface BackupData {
         courses: Course[];
         topics: Topic[];
         meta: Meta[];
+        semesters?: Semester[];
     };
 }
 
@@ -50,10 +51,13 @@ export const importDataFromJSON = async (
             await clearAllData();
         }
 
-        const { plans, courses, topics, meta } = backup.data;
+        const { plans, courses, topics, meta, semesters } = backup.data;
 
         // Sequence preservation: order of operations matters for foreign keys
         for (const plan of plans) await savePlan(plan);
+        if (semesters) {
+            for (const sem of semesters) await saveSemester(sem);
+        }
         for (const course of courses) await saveCourse(course);
         for (const topic of topics) await saveTopic(topic);
         for (const m of meta) await saveMeta(m.key, m.value);

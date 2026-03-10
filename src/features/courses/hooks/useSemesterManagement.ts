@@ -22,11 +22,14 @@ export const useSemesterManagement = (
     }, [courses, semesters]);
 
     const handleAddSemester = async () => {
+        const orderIndex = semesters.length > 0 ? Math.max(...semesters.map(s => s.orderIndex)) + 1 : 0;
         const newSemester: Semester = {
             id: uuidv4(),
             name: `${t('semester.semester')} ${semesters.length + 1}`,
             createdAt: Date.now(),
-            orderIndex: semesters.length > 0 ? Math.max(...semesters.map(s => s.orderIndex)) + 1 : 0
+            orderIndex,
+            year: Math.floor(orderIndex / 2) + 1,
+            term: orderIndex % 2 === 0 ? 'A' : 'B'
         };
         await saveSemester(newSemester);
         refresh();
