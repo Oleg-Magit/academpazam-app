@@ -97,11 +97,33 @@ export const CourseModal: React.FC<CourseModalProps> = ({
     };
 
     const SEMESTER_OPTIONS = React.useMemo(() => {
-        return semesters.map(s => ({
-            value: s.id,
-            label: s.name
-        }));
-    }, [semesters]);
+        // Sort semesters by year then by orderIndex to ensure logical order in dropdown
+        const sorted = [...semesters].sort((a, b) => {
+            const yearA = a.year || 1;
+            const yearB = b.year || 1;
+            if (yearA !== yearB) return yearA - yearB;
+            return a.orderIndex - b.orderIndex;
+        });
+
+        return sorted.map(s => {
+            const yearStr = `${t('label.year')} ${s.year || 1}`;
+            const termStr = t(`term.${(s.term || 'A').toLowerCase()}` as any);
+
+            const defaultPrefix = t('semester.semester');
+            const isDefault = !s.name ||
+                s.name.startsWith(defaultPrefix) ||
+                /^\d+$/.test(s.name);
+
+            const mainLabel = `${yearStr} > ${termStr}`;
+            // If custom name, append as secondary context
+            const label = isDefault ? mainLabel : `${mainLabel} (${s.name})`;
+
+            return {
+                value: s.id,
+                label
+            };
+        });
+    }, [semesters, t]);
 
     const STATUS_OPTIONS: { value: CourseStatus; label: string }[] = React.useMemo(() => [
         { value: 'not_started', label: t('status.not_started') },
