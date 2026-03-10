@@ -71,13 +71,39 @@ export const BulkAddCourseModal: React.FC<BulkAddCourseModalProps> = ({ isOpen, 
                 // Fetch the translated string for "Semester" if available, else fallback
                 const tWord = t('semester.semester') || 'Semester';
 
+                // Calculate next logical metadata
+                let nextYear = 1;
+                let nextTerm: 'A' | 'B' | 'SUMMER' = 'A';
+
+                const maxOrder = allSems.length > 0 ? Math.max(...allSems.map(s => s.orderIndex)) : -1;
+                const lastSem = allSems.find(s => s.orderIndex === maxOrder);
+
+                if (lastSem) {
+                    const lastYear = lastSem.year || 1;
+                    const lastTerm = lastSem.term || 'A';
+                    if (lastTerm === 'A') {
+                        nextYear = lastYear;
+                        nextTerm = 'B';
+                    } else if (lastTerm === 'B') {
+                        nextYear = lastYear;
+                        nextTerm = 'SUMMER';
+                    } else {
+                        nextYear = lastYear + 1;
+                        nextTerm = 'A';
+                    }
+                }
+
+                // Safeguard: Check if this Year/Term already exists under a different name
+                const duplicate = allSems.find(s => s.year === nextYear && s.term === nextTerm);
+                if (duplicate) return duplicate.id;
+
                 const newSem: Semester = {
                     id: newId,
                     name: `${tWord} ${semNum}`,
                     orderIndex: targetIndex,
                     createdAt: Date.now(),
-                    year: Math.floor(targetIndex / 2) + 1,
-                    term: targetIndex % 2 === 0 ? 'A' : 'B'
+                    year: nextYear,
+                    term: nextTerm
                 };
 
                 currentPending.push(newSem);

@@ -5,9 +5,10 @@ import { savePlan } from '@/core/db/db';
 import { v4 as uuidv4 } from 'uuid';
 import { exportDataToJSON, importDataFromJSON } from '@/core/services/importExport';
 import { useTranslation } from '@/app/i18n/useTranslation';
-import { DegreeSnapshot } from './components/DegreeSnapshot';
 import { SemesterRoadmap } from './components/SemesterRoadmap';
 import { SemesterDrawer } from './components/SemesterDrawer';
+import { YearSnapshot } from './components/YearSnapshot';
+import { DegreeSnapshot } from './components/DegreeSnapshot';
 import { CourseModal } from '@/features/courses/CourseModal';
 import { DashboardHeader } from './components/DashboardHeader';
 import { useDashboardData } from './hooks/useDashboardData';
@@ -53,7 +54,7 @@ export const Dashboard: React.FC = () => {
     };
 
     const { handleAddSemester } = useSemesterManagement(courses, semesters, refresh);
-    const { progress, bySemester, stats } = useDashboardData(courses, semesters);
+    const { progress, bySemester, stats, byYear } = useDashboardData(courses, semesters);
 
     const handleCreatePlan = async () => {
         const defaultPlan = {
@@ -224,6 +225,25 @@ export const Dashboard: React.FC = () => {
                 inProgressCount={stats.inProgressCount}
             />
 
+            {byYear && byYear.length > 0 && (
+                <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+                    gap: 'var(--space-md)'
+                }}>
+                    {byYear.map(y => (
+                        <YearSnapshot
+                            key={y.year}
+                            year={y.year}
+                            totalCredits={y.progress.totalCredits}
+                            completedCredits={y.progress.completedCredits}
+                            remainingCredits={Math.max(0, y.progress.totalCredits - y.progress.completedCredits)}
+                            percentage={y.progress.percentage}
+                        />
+                    ))}
+                </div>
+            )}
+
             <section style={{ flex: 1 }}>
                 {semesters.length === 0 ? (
                     <Card style={{
@@ -240,7 +260,7 @@ export const Dashboard: React.FC = () => {
                         <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-xl)', lineHeight: 1.5 }}>
                             {t('dashboard.empty_no_semesters_desc')}
                         </p>
-                        <Button onClick={handleAddSemester} variant="primary">
+                        <Button onClick={() => handleAddSemester()} variant="primary">
                             <Plus size={18} style={{ marginRight: '8px' }} />
                             {t('dashboard.add_first_semester')}
                         </Button>

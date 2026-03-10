@@ -3,6 +3,7 @@ import { usePlans, useCourses, useSemesters } from '@/core/hooks/useData';
 import { deleteCourse } from '@/core/db/db';
 import { CourseModal } from './CourseModal';
 import { BulkAddCourseModal } from './BulkAddCourseModal';
+import { AddSemesterModal } from './AddSemesterModal';
 import { DeleteSemesterModal } from './DeleteSemesterModal';
 import { ConfirmationModal } from '@/ui/ConfirmationModal';
 import { useTranslation } from '@/app/i18n/useTranslation';
@@ -40,6 +41,7 @@ export const Courses: React.FC = () => {
     const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
     const [editingCourse, setEditingCourse] = useState<CourseWithTopics | null>(null);
     const [selectedSemester, setSelectedSemester] = useState<string>('');
+    const [isAddSemesterModalOpen, setIsAddSemesterModalOpen] = useState(false);
     const [yearFilter, setYearFilter] = useState<string>('all');
     const [termFilter, setTermFilter] = useState<string>('all');
 
@@ -250,10 +252,7 @@ export const Courses: React.FC = () => {
             setEditingSemesterId={setEditingSemesterId}
             tempLabel={tempLabel}
             setTempLabel={setTempLabel}
-            onAddSemester={async () => {
-                const nextId = await handleAddSemester();
-                handleSelectSemester(nextId);
-            }}
+            onAddSemester={() => setIsAddSemesterModalOpen(true)}
             onStartRenaming={startRenaming}
             onSaveRename={saveRename}
             onPromptDelete={promptDeleteSemester}
@@ -294,14 +293,14 @@ export const Courses: React.FC = () => {
                 <div style={{ marginBottom: '16px' }}>
                     <h1 style={{ fontSize: '1.5rem', margin: 0 }}>
                         {searchTerm.trim() !== '' || statusFilter !== 'all' ? t('label.search_results') :
-                            selectedSemester === 'all' ? (t('label.all_semesters' as any) || 'All Semesters') :
+                            selectedSemester === 'all' ? t('label.all_semesters') :
                                 (() => {
                                     const sem = semesters.find(s => s.id === selectedSemester);
                                     if (!sem) return t('label.semester');
                                     const y = sem.year ?? 1;
                                     const tm = sem.term ?? 'A';
-                                    const yearStr = (t('label.year' as any) || 'Year') + ' ' + y;
-                                    const termStr = t(`term.${tm.toLowerCase()}` as any) || `Term ${tm}`;
+                                    const yearStr = t('label.year') + ' ' + y;
+                                    const termStr = t(`term.${tm.toLowerCase()}` as any);
                                     return `${yearStr} / ${termStr} / ${sem.name}`;
                                 })()
                         }
@@ -398,6 +397,17 @@ export const Courses: React.FC = () => {
                 onSave={handleSave}
                 planId={currentPlan.id}
                 semesters={semesters}
+            />
+
+            <AddSemesterModal
+                isOpen={isAddSemesterModalOpen}
+                onClose={() => setIsAddSemesterModalOpen(false)}
+                semesters={semesters}
+                onAdd={async (year, term) => {
+                    const nextId = await handleAddSemester(year, term);
+                    if (nextId) handleSelectSemester(nextId);
+                    return nextId;
+                }}
             />
 
             {semesterToDelete && (

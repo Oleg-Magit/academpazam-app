@@ -92,8 +92,8 @@ export const CoursesToolbar: React.FC<CoursesToolbarProps> = ({
                         fontSize: isMobile ? '1rem' : 'initial'
                     }}
                 >
-                    <option value="all">{t('label.all_years' as any) || 'All Years'}</option>
-                    {availableYears.map(y => <option key={y} value={y.toString()}>{t('label.year' as any) || 'Year'} {y}</option>)}
+                    <option value="all">{t('label.all_years')}</option>
+                    {availableYears.map(y => <option key={y} value={y.toString()}>{t('label.year')} {y}</option>)}
                 </select>
 
                 <select
@@ -112,8 +112,12 @@ export const CoursesToolbar: React.FC<CoursesToolbarProps> = ({
                         fontSize: isMobile ? '1rem' : 'initial'
                     }}
                 >
-                    <option value="all">{t('label.all_terms' as any) || 'All Terms'}</option>
-                    {availableTerms.map(tOption => <option key={tOption} value={tOption}>{tOption}</option>)}
+                    <option value="all">{t('label.all_terms')}</option>
+                    {availableTerms.map(tOption => (
+                        <option key={tOption} value={tOption}>
+                            {t(`term.${tOption.toLowerCase()}` as any)}
+                        </option>
+                    ))}
                 </select>
 
                 <select

@@ -69,7 +69,7 @@ export const SemesterNavigation: React.FC<SemesterNavigationProps> = ({
                 }}
             >
                 <span style={{ fontWeight: selectedSemester === 'all' ? 600 : 400, marginLeft: '4px' }}>
-                    {t('label.all_semesters' as any) || 'All Semesters'}
+                    {t('label.all_semesters')}
                 </span>
             </div>
 
@@ -78,7 +78,7 @@ export const SemesterNavigation: React.FC<SemesterNavigationProps> = ({
                 .map(year => (
                     <div key={year} style={{ marginBottom: '16px' }}>
                         <h3 style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)', marginBottom: '8px', paddingLeft: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                            {t('label.year' as any) || 'Year'} {year}
+                            {t('label.year')} {year}
                         </h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                             {bySemester.filter(g => (semesters.find(s => s.id === g.semesterId)?.year ?? 1) === year).map((sem) => (

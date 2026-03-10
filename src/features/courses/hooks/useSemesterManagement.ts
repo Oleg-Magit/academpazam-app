@@ -21,15 +21,47 @@ export const useSemesterManagement = (
         return groupCoursesBySemester(courses, semesters);
     }, [courses, semesters]);
 
-    const handleAddSemester = async () => {
-        const orderIndex = semesters.length > 0 ? Math.max(...semesters.map(s => s.orderIndex)) + 1 : 0;
+    const handleAddSemester = async (year?: number, term?: 'A' | 'B' | 'SUMMER') => {
+        // If year and term are provided, check for duplicates
+        if (year !== undefined && term !== undefined) {
+            const exists = semesters.find(s => s.year === year && s.term === term);
+            if (exists) return null;
+        }
+
+        const maxOrder = semesters.length > 0 ? Math.max(...semesters.map(s => s.orderIndex)) : -1;
+        const lastSem = semesters.find(s => s.orderIndex === maxOrder);
+
+        let newYear = year;
+        let newTerm = term;
+
+        if (newYear === undefined || newTerm === undefined) {
+            if (!lastSem) {
+                newYear = 1;
+                newTerm = 'A';
+            } else {
+                const lastYear = lastSem.year || 1;
+                const lastTerm = lastSem.term || 'A';
+
+                if (lastTerm === 'A') {
+                    newYear = lastYear;
+                    newTerm = 'B';
+                } else if (lastTerm === 'B') {
+                    newYear = lastYear;
+                    newTerm = 'SUMMER';
+                } else {
+                    newYear = lastYear + 1;
+                    newTerm = 'A';
+                }
+            }
+        }
+
         const newSemester: Semester = {
             id: uuidv4(),
             name: `${t('semester.semester')} ${semesters.length + 1}`,
             createdAt: Date.now(),
-            orderIndex,
-            year: Math.floor(orderIndex / 2) + 1,
-            term: orderIndex % 2 === 0 ? 'A' : 'B'
+            orderIndex: maxOrder + 1,
+            year: newYear!,
+            term: newTerm! as any
         };
         await saveSemester(newSemester);
         refresh();
