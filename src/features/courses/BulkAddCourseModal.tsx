@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Modal } from '@/ui/Modal';
 import { Button } from '@/ui/Button';
 import { Select } from '@/ui/Select';
-import { saveCourse } from '@/core/db/db';
+import { saveCourse, saveSemester } from '@/core/db/db';
 import { groupCoursesBySemester } from '@/core/services/dataService';
 import { v4 as uuidv4 } from 'uuid';
 import type { Course, Semester } from '@/core/models/types';
@@ -215,9 +215,6 @@ export const BulkAddCourseModal: React.FC<BulkAddCourseModalProps> = ({ isOpen, 
         // Save any pending semesters we dynamically created and actually used
         const usedPending = pendingSemesters.filter(ps => newPreview.some(course => course.semesterId === ps.id));
         if (usedPending.length > 0) {
-            // Because saveSemester is inside db.ts, but `import { saveCourse }` is already at the top. Let's dynamically import saveSemester if not imported, or just import at the top.
-            // I'll dynamically import to avoid touching the header blocks here.
-            const { saveSemester } = await import('@/core/db/db');
             for (const ps of usedPending) {
                 await saveSemester(ps);
             }

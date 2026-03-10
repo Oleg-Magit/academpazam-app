@@ -14,9 +14,15 @@ import { PASS_GRADE } from '@/core/constants/grades';
 import { Input } from '@/ui/Input';
 import { ConfirmationModal } from '@/ui/ConfirmationModal';
 
-export const CourseDetails: React.FC = () => {
+interface CourseDetailsProps {
+    id?: string;
+    onBack?: () => void;
+}
+
+export const CourseDetails: React.FC<CourseDetailsProps> = ({ id: propId, onBack }) => {
     const { t } = useTranslation();
-    const { id } = useParams<{ id: string }>();
+    const { id: paramId } = useParams<{ id: string }>();
+    const id = propId || paramId;
     const navigate = useNavigate();
     const [course, setCourse] = useState<Course | null>(null);
     const { topics, refresh: refreshTopics } = useTopics(id || null);
@@ -109,7 +115,7 @@ export const CourseDetails: React.FC = () => {
 
     return (
         <div>
-            <Button variant="ghost" onClick={() => navigate('/courses')} style={{ marginBottom: 'var(--space-md)' }}>
+            <Button variant="ghost" onClick={() => { if (onBack) onBack(); else navigate('/courses'); }} style={{ marginBottom: 'var(--space-md)' }}>
                 <ArrowLeft size={16} style={{ marginRight: '8px' }} aria-hidden="true" />
                 {t('action.back')}
             </Button>

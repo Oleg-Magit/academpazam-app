@@ -1,13 +1,14 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { usePlans, useCourses, useSemesters } from '@/core/hooks/useData';
 import { deleteCourse } from '@/core/db/db';
+import { CourseDetails } from './CourseDetails';
 import { CourseModal } from './CourseModal';
 import { BulkAddCourseModal } from './BulkAddCourseModal';
 import { AddSemesterModal } from './AddSemesterModal';
 import { DeleteSemesterModal } from './DeleteSemesterModal';
 import { ConfirmationModal } from '@/ui/ConfirmationModal';
 import { useTranslation } from '@/app/i18n/useTranslation';
-import { useNavigate } from 'react-router-dom';
+
 import { useMediaQuery } from '@/core/hooks/useMediaQuery';
 import { ChevronLeft, Trash2 } from 'lucide-react';
 import { Button } from '@/ui/Button';
@@ -23,7 +24,6 @@ import { useSemesterManagement } from './hooks/useSemesterManagement';
 
 export const Courses: React.FC = () => {
     const { t } = useTranslation();
-    const navigate = useNavigate();
     const { plans } = usePlans();
     const currentPlan = plans[0];
     const { courses, loading: coursesLoading, refresh: refreshCourses } = useCourses(currentPlan?.id || null);
@@ -40,6 +40,7 @@ export const Courses: React.FC = () => {
     const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
     const [editingCourse, setEditingCourse] = useState<CourseWithTopics | null>(null);
     const [selectedSemester, setSelectedSemester] = useState<string>('');
+    const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
     const [isAddSemesterModalOpen, setIsAddSemesterModalOpen] = useState(false);
     const [yearFilter, setYearFilter] = useState<string>('all');
     const [termFilter, setTermFilter] = useState<string>('all');
@@ -366,7 +367,7 @@ export const Courses: React.FC = () => {
                                                                         courses={hSem.courses}
                                                                         onEdit={handleEdit}
                                                                         onDelete={handleDelete}
-                                                                        onNavigate={(id) => navigate(`/courses/${id}`)}
+                                                                        onNavigate={(id) => setSelectedCourseId(id)}
                                                                         showSemesterLabel={false}
                                                                         semesterLabels={semesterLabels}
                                                                         isMobile={isMobile}
@@ -391,7 +392,7 @@ export const Courses: React.FC = () => {
                                 courses={displayedCourses}
                                 onEdit={handleEdit}
                                 onDelete={handleDelete}
-                                onNavigate={(id) => navigate(`/courses/${id}`)}
+                                onNavigate={(id) => setSelectedCourseId(id)}
                                 showSemesterLabel={false}
                                 semesterLabels={semesterLabels}
                                 isMobile={isMobile}
@@ -402,6 +403,10 @@ export const Courses: React.FC = () => {
             </div>
         </div>
     );
+
+    if (selectedCourseId) {
+        return <CourseDetails id={selectedCourseId} onBack={() => setSelectedCourseId(null)} />;
+    }
 
     return (
         <div style={{
@@ -441,7 +446,7 @@ export const Courses: React.FC = () => {
                 semesters={semesters}
                 onAdd={async (year, term) => {
                     const nextId = await handleAddSemester(year, term);
-                    if (nextId) handleSelectSemester(nextId);
+                    if (nextId && !isMobile) handleSelectSemester(nextId);
                     return nextId;
                 }}
             />
