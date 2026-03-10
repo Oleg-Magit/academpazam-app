@@ -136,10 +136,15 @@ export const generateDegreePDF = async (degreeName: string, courses: CourseWithT
         const isRtl = lang === 'he';
         const alignHeader = isRtl ? 'right' : 'left';
 
+        // Derive the real source of year and term safely instead of assuming it exists on group
+        const groupSemester = semestersData.find(s => s.id === group.semesterId);
+        const actualYear = groupSemester?.year ?? group.year;
+        const actualTerm = groupSemester?.term ?? group.term;
+
         // 1. Render Year Heading if available and new
-        if (group.year != null && group.year !== lastYear) {
+        if (actualYear != null && actualYear !== lastYear) {
             // New year resets the term tracking
-            lastYear = group.year;
+            lastYear = actualYear;
             lastTerm = undefined;
 
             if (currentY < 120) {
@@ -147,7 +152,7 @@ export const generateDegreePDF = async (degreeName: string, courses: CourseWithT
                 currentY = currentPage.getSize().height - 50;
             }
 
-            drawCellText(currentPage, customFont, `${t('label.year')} ${group.year}`, {
+            drawCellText(currentPage, customFont, `${t('label.year')} ${actualYear}`, {
                 x: margin,
                 y: currentY,
                 width: contentWidth,
@@ -159,8 +164,8 @@ export const generateDegreePDF = async (degreeName: string, courses: CourseWithT
         }
 
         // 2. Render Term Heading if available and new
-        if (group.term != null && group.term !== lastTerm && group.year != null) {
-            lastTerm = group.term;
+        if (actualTerm != null && actualTerm !== lastTerm && actualYear != null) {
+            lastTerm = actualTerm;
 
             if (currentY < 120) {
                 currentPage = pdfDoc.addPage();
@@ -168,10 +173,10 @@ export const generateDegreePDF = async (degreeName: string, courses: CourseWithT
             }
 
             // Derive translated term key safely
-            let termLabel: string = group.term;
-            if (group.term === 'A') termLabel = t('term.a' as TranslationKey);
-            else if (group.term === 'B') termLabel = t('term.b' as TranslationKey);
-            else if (group.term === 'SUMMER') termLabel = t('term.summer' as TranslationKey);
+            let termLabel: string = actualTerm;
+            if (actualTerm === 'A') termLabel = t('term.a' as TranslationKey);
+            else if (actualTerm === 'B') termLabel = t('term.b' as TranslationKey);
+            else if (actualTerm === 'SUMMER') termLabel = t('term.summer' as TranslationKey);
 
             // Slight indentation for terminology under year
             const termIndent = 12;
@@ -191,7 +196,7 @@ export const generateDegreePDF = async (degreeName: string, courses: CourseWithT
 
         // 3. Render Semester Label
         const semLabel = group.semesterName;
-        const semIndent = (group.year != null && group.term != null) ? 24 : 0;
+        const semIndent = (actualYear != null && actualTerm != null) ? 24 : 0;
         const semX = isRtl ? margin : margin + semIndent;
         const semWidth = isRtl ? contentWidth - semIndent : contentWidth - semIndent;
 
@@ -199,7 +204,7 @@ export const generateDegreePDF = async (degreeName: string, courses: CourseWithT
             x: semX,
             y: currentY,
             width: semWidth,
-            size: group.year != null ? 12 : 14,
+            size: actualYear != null ? 12 : 14,
             color: rgb(0, 0, 0.8),
             align: alignHeader,
         });
