@@ -147,12 +147,15 @@ const migrateToSemesterIds = async () => {
         const customLabel = labels[i - 1];
         const id = uuidv4();
         const name = customLabel || `${defaultSemesterStr} ${i}`;
+        const orderIndex = i - 1;
 
         await semesterStore.put({
             id,
             name,
             createdAt: Date.now(),
-            orderIndex: i - 1
+            orderIndex,
+            year: Math.floor(orderIndex / 2) + 1,
+            term: orderIndex % 2 === 0 ? 'A' : 'B'
         });
         semesterMap[legacyName] = id;
     }
@@ -163,11 +166,14 @@ const migrateToSemesterIds = async () => {
         const legacySem = course.semester;
         if (legacySem && !semesterMap[legacySem]) {
             const id = uuidv4();
+            const orderIndex = Object.keys(semesterMap).length;
             await semesterStore.put({
                 id,
                 name: legacySem,
                 createdAt: Date.now(),
-                orderIndex: Object.keys(semesterMap).length
+                orderIndex,
+                year: Math.floor(orderIndex / 2) + 1,
+                term: orderIndex % 2 === 0 ? 'A' : 'B'
             });
             semesterMap[legacySem] = id;
         }
@@ -312,12 +318,44 @@ export const saveSemesterConfig = async (count: number, labels: string[]) => {
 };
 
 /**
+ * Enrichment to safely hydrate Year and Term metadata.
+ */
+const enrichSemesters = (semesters: any[]): Semester[] => {
+    // Determine if any lack orderIndex
+    const needsSorting = semesters.some(s => s.orderIndex === undefined);
+
+    let sorted = semesters;
+    if (needsSorting) {
+        sorted = [...semesters].sort((a, b) => {
+            const indexA = a.orderIndex !== undefined ? a.orderIndex : 9999;
+            const indexB = b.orderIndex !== undefined ? b.orderIndex : 9999;
+            return indexA - indexB || (a.createdAt || 0) - (b.createdAt || 0);
+        });
+        sorted.forEach((s, idx) => {
+            if (s.orderIndex === undefined) s.orderIndex = idx;
+        });
+    }
+
+    return sorted.map(s => {
+        if (s.year === undefined || s.term === undefined) {
+            return {
+                ...s,
+                year: s.year ?? (Math.floor(s.orderIndex / 2) + 1),
+                term: s.term ?? (s.orderIndex % 2 === 0 ? 'A' : 'B')
+            };
+        }
+        return s;
+    });
+};
+
+/**
  * Semester Operations
  */
 export const getSemesters = async () => {
     const db = await initDB();
     const semesters = await db.getAll('semesters');
-    return semesters.sort((a, b) => a.orderIndex - b.orderIndex || a.createdAt - b.createdAt);
+    const enriched = enrichSemesters(semesters);
+    return enriched.sort((a, b) => a.orderIndex - b.orderIndex || a.createdAt - b.createdAt);
 };
 
 export const saveSemester = async (semester: Semester) => (await initDB()).put('semesters', semester);
@@ -352,7 +390,7 @@ export const getAllData = async () => {
         db.getAll('meta'),
         db.getAll('semesters'),
     ]);
-    return { plans, courses, topics, meta, semesters };
+    return { plans, courses, topics, meta, semesters: enrichSemesters(semesters) };
 };
 
 export const clearAllData = async () => {

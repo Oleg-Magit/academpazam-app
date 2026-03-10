@@ -14,6 +14,8 @@ export interface Semester {
     name: string;
     createdAt: number;
     orderIndex: number; // Controls display order
+    year?: number;
+    term?: 'A' | 'B' | 'SUMMER';
 }
 
 export interface Course {
