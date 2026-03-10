@@ -261,6 +261,8 @@ export const en = {
     'settings.restore_group': 'Restore Data',
     'settings.danger_zone': 'Danger Zone',
     'settings.danger_zone_desc': 'Irreversible actions. Be careful.',
+    'settings.dangerZone.title': 'Danger Zone',
+    'settings.dangerZone.description': 'Irreversible actions. Be careful.',
     'settings.merge': 'Merge',
     'settings.replace': 'Replace',
 

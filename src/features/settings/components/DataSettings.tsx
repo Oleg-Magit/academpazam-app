@@ -163,8 +163,8 @@ export const DataSettings: React.FC<DataSettingsProps> = ({ plan, courses, onRef
                     <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: '20px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
                             <div>
-                                <h3 style={{ fontSize: '0.85rem', color: 'var(--color-danger)', fontWeight: 600, margin: 0 }}>Danger Zone</h3>
-                                <p style={{ margin: '4px 0 0', fontSize: '0.8rem', color: 'var(--color-text-secondary)' }}>Irreversible actions. Be careful.</p>
+                                <h3 style={{ fontSize: '0.85rem', color: 'var(--color-danger)', fontWeight: 600, margin: 0 }}>{t('settings.dangerZone.title')}</h3>
+                                <p style={{ margin: '4px 0 0', fontSize: '0.8rem', color: 'var(--color-text-secondary)' }}>{t('settings.dangerZone.description')}</p>
                             </div>
                             <Button variant="danger" onClick={() => setShowResetConfirm(true)}>
                                 <Trash2 size={16} style={{ marginRight: '8px' }} />

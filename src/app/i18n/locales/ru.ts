@@ -247,6 +247,8 @@ export const ru = {
     'settings.restore_group': 'Восстановление данных',
     'settings.danger_zone': 'Опасная зона',
     'settings.danger_zone_desc': 'Необратимые действия. Будьте осторожны.',
+    'settings.dangerZone.title': 'Опасная зона',
+    'settings.dangerZone.description': 'Необратимые действия. Будьте осторожны.',
     'settings.merge': 'Объединить',
     'settings.replace': 'Заменить',
 

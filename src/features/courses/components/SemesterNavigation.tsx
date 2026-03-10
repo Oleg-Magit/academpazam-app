@@ -51,7 +51,7 @@ export const SemesterNavigation: React.FC<SemesterNavigationProps> = ({
             borderRight: isMobile ? 'none' : '1px solid var(--color-border)',
             paddingBottom: isMobile ? '16px' : '0'
         }}>
-            <h2 style={{ fontSize: '1.2rem', marginBottom: '16px', paddingLeft: '8px' }}>{t('label.semesters')}</h2>
+            {!isMobile && <h2 style={{ fontSize: '1.2rem', marginBottom: '16px', paddingLeft: '8px' }}>{t('label.semesters')}</h2>}
 
             <div
                 onClick={() => onSelectSemester('all')}

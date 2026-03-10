@@ -249,6 +249,8 @@ export const he = {
     'settings.restore_group': 'שחזור נתונים',
     'settings.danger_zone': 'אזור סכנה',
     'settings.danger_zone_desc': 'פעולות בלתי הפיכות. היזהר.',
+    'settings.dangerZone.title': 'אזור סכנה',
+    'settings.dangerZone.description': 'פעולות בלתי הפיכות. היזהר.',
     'settings.merge': 'מיזוג',
     'settings.replace': 'החלפה',
 
