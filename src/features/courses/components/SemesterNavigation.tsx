@@ -3,6 +3,7 @@ import { Button } from '@/ui/Button';
 import { Plus, Edit2, Trash2, Save, ChevronUp, ChevronDown } from 'lucide-react';
 import { useTranslation } from '@/app/i18n/useTranslation';
 import type { SemesterGroup, Semester } from '@/core/models/types';
+import { getSemesterTitle } from '@/core/utils/semesterUtils';
 
 interface SemesterNavigationProps {
     bySemester: SemesterGroup[];
@@ -170,14 +171,7 @@ export const SemesterNavigation: React.FC<SemesterNavigationProps> = ({
                                                         textOverflow: 'ellipsis',
                                                         marginLeft: '4px'
                                                     }}>
-                                                        {(() => {
-                                                            const termName = t(`term.${(sem.term || 'A').toLowerCase()}` as any);
-                                                            // Structural check: empty name or matches known default patterns
-                                                            const isDefault = !sem.semesterName ||
-                                                                /^(Semester|סמסטר|Семестр)\s+\d+$/i.test(sem.semesterName);
-
-                                                            return isDefault ? termName : `${termName} (${sem.semesterName})`;
-                                                        })()}
+                                                        {getSemesterTitle(sem, t)}
                                                     </span>
                                                     {selectedSemester === sem.semesterId && (
                                                         <div style={{ display: 'flex', gap: '4px' }}>

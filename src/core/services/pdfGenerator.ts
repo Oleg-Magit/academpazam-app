@@ -6,6 +6,7 @@ import { getPdfLib } from './getPdfLib';
 import { getFontKit } from './getFontKit';
 import { loadCustomFont } from './pdfFont';
 import { translate, type SupportedLang, type TranslationKey } from '../utils/translate';
+import { getSemesterTitle } from '../utils/semesterUtils';
 
 export const generateDegreePDF = async (degreeName: string, courses: CourseWithTopics[], lang: SupportedLang = 'en') => {
     const { PDFDocument, rgb } = await getPdfLib();
@@ -125,7 +126,6 @@ export const generateDegreePDF = async (degreeName: string, courses: CourseWithT
     }
 
     let lastYear: number | undefined = undefined;
-    let lastTerm: string | undefined = undefined;
 
     for (const group of groups) {
         if (currentY < 120) {
@@ -136,16 +136,14 @@ export const generateDegreePDF = async (degreeName: string, courses: CourseWithT
         const isRtl = lang === 'he';
         const alignHeader = isRtl ? 'right' : 'left';
 
-        // Derive the real source of year and term safely instead of assuming it exists on group
+        // Derive the real source of year safely instead of assuming it exists on group
         const groupSemester = semestersData.find(s => s.id === group.semesterId);
         const actualYear = groupSemester?.year ?? group.year;
-        const actualTerm = groupSemester?.term ?? group.term;
 
         // 1. Render Year Heading if available and new
         if (actualYear != null && actualYear !== lastYear) {
-            // New year resets the term tracking
+            // New year resets the tracking
             lastYear = actualYear;
-            lastTerm = undefined;
 
             if (currentY < 120) {
                 currentPage = pdfDoc.addPage();
@@ -163,52 +161,21 @@ export const generateDegreePDF = async (degreeName: string, courses: CourseWithT
             currentY -= 25;
         }
 
-        // 2. Render Term Heading if available and new
-        if (actualTerm != null && actualTerm !== lastTerm && actualYear != null) {
-            lastTerm = actualTerm;
-
-            if (currentY < 120) {
-                currentPage = pdfDoc.addPage();
-                currentY = currentPage.getSize().height - 50;
-            }
-
-            // Derive translated term key safely
-            let termLabel: string = actualTerm;
-            if (actualTerm === 'A') termLabel = t('term.a' as TranslationKey);
-            else if (actualTerm === 'B') termLabel = t('term.b' as TranslationKey);
-            else if (actualTerm === 'SUMMER') termLabel = t('term.summer' as TranslationKey);
-
-            // Slight indentation for terminology under year
-            const termIndent = 12;
-            const termX = isRtl ? margin : margin + termIndent;
-            const termWidth = isRtl ? contentWidth - termIndent : contentWidth - termIndent;
-
-            drawCellText(currentPage, customFont, termLabel, {
-                x: termX,
-                y: currentY,
-                width: termWidth,
-                size: 14,
-                color: rgb(0.3, 0.3, 0.3),
-                align: alignHeader,
-            });
-            currentY -= 20;
-        }
-
-        // 3. Render Semester Label
-        const semLabel = group.semesterName;
-        const semIndent = (actualYear != null && actualTerm != null) ? 24 : 0;
+        // 2. Render Semester Label (Exactly one title per semester)
+        const semTitle = getSemesterTitle(groupSemester || group, t);
+        const semIndent = (actualYear != null) ? 12 : 0;
         const semX = isRtl ? margin : margin + semIndent;
         const semWidth = isRtl ? contentWidth - semIndent : contentWidth - semIndent;
 
-        drawCellText(currentPage, customFont, semLabel, {
+        drawCellText(currentPage, customFont, semTitle, {
             x: semX,
             y: currentY,
             width: semWidth,
-            size: actualYear != null ? 12 : 14,
+            size: actualYear != null ? 14 : 16,
             color: rgb(0, 0, 0.8),
             align: alignHeader,
         });
-        currentY -= 25;
+        currentY -= 20;
 
         const headerSize = 10;
         const colAlignHeader = lang === 'he' ? 'right' : 'left';

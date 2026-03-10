@@ -21,6 +21,7 @@ import { CourseList } from './components/CourseList';
 
 // Hooks
 import { useSemesterManagement } from './hooks/useSemesterManagement';
+import { getSemesterTitle, getSemesterContext } from '@/core/utils/semesterUtils';
 
 export const Courses: React.FC = () => {
     const { t } = useTranslation();
@@ -301,20 +302,19 @@ export const Courses: React.FC = () => {
                                             (() => {
                                                 const sem = semesters.find(s => s.id === selectedSemester);
                                                 if (!sem) return t('label.semester');
-                                                const y = sem.year ?? 1;
-                                                const tm = sem.term ?? 'A';
-                                                const yearStr = t('label.year') + ' ' + y;
-                                                const termStr = t(`term.${tm.toLowerCase()}` as any);
-
-                                                const defaultPrefix = t('semester.semester');
-                                                const isDefault = !sem.name ||
-                                                    sem.name.startsWith(defaultPrefix) ||
-                                                    /^\d+$/.test(sem.name);
-
-                                                if (isDefault) {
-                                                    return `${yearStr} / ${termStr}`;
-                                                }
-                                                return `${yearStr} / ${termStr} / ${sem.name}`;
+                                                return (
+                                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                        <span>{getSemesterTitle(sem, t)}</span>
+                                                        <span style={{
+                                                            fontSize: isMobile ? '0.8rem' : '0.9rem',
+                                                            color: 'var(--color-text-secondary)',
+                                                            fontWeight: 400,
+                                                            marginTop: '2px'
+                                                        }}>
+                                                            {getSemesterContext(sem, t)}
+                                                        </span>
+                                                    </div>
+                                                );
                                             })()
                                     }
                                 </h1>

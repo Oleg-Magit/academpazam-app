@@ -6,6 +6,7 @@ import { useTranslation } from '@/app/i18n/useTranslation';
 import { X, Info, Plus } from 'lucide-react';
 import { Button } from '@/ui/Button';
 import { Link } from 'react-router-dom';
+import { getSemesterTitle, getSemesterContext } from '@/core/utils/semesterUtils';
 
 interface SemesterDrawerProps {
     isOpen: boolean;
@@ -95,20 +96,14 @@ export const SemesterDrawer: React.FC<SemesterDrawerProps> = ({
                     justifyContent: 'space-between',
                     alignItems: 'center'
                 }}>
-                    <h2 style={{ margin: 0, fontSize: '1.25rem' }}>
-                        {(() => {
-                            const y = semesterGroup.year || 1;
-                            const tm = semesterGroup.term || 'A';
-                            const yearStr = `${t('label.year')} ${y}`;
-                            const termStr = t(`term.${tm.toLowerCase()}` as any);
-                            const mainLabel = `${yearStr} / ${termStr}`;
-
-                            const isDefault = !semesterGroup.semesterName ||
-                                /^(Semester|סמסטר|Семестр)\s+\d+$/i.test(semesterGroup.semesterName);
-
-                            return isDefault ? mainLabel : `${mainLabel} (${semesterGroup.semesterName})`;
-                        })()}
-                    </h2>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <h2 style={{ margin: 0, fontSize: '1.25rem' }}>
+                            {getSemesterTitle(semesterGroup, t)}
+                        </h2>
+                        <span style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', fontWeight: 400 }}>
+                            {getSemesterContext(semesterGroup, t)}
+                        </span>
+                    </div>
                     <Button variant="ghost" size="sm" onClick={onClose} aria-label="Close">
                         <X size={24} />
                     </Button>

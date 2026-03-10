@@ -3,6 +3,7 @@ import type { SemesterGroup } from '@/core/models/types';
 import { SemesterNode } from './SemesterNode';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 import { useTranslation } from '@/app/i18n/useTranslation';
+import { getSemesterTitle } from '@/core/utils/semesterUtils';
 
 interface SemesterRoadmapProps {
     semesters: SemesterGroup[];
@@ -99,13 +100,7 @@ export const SemesterRoadmap: React.FC<SemesterRoadmapProps> = ({
                             <React.Fragment key={sem.semesterId}>
                                 <SemesterNode
                                     semesterId={sem.semesterId}
-                                    label={(() => {
-                                        const termName = t(`term.${(sem.term || 'A').toLowerCase()}` as any);
-                                        const isDefault = !sem.semesterName ||
-                                            /^(Semester|סמסטר|Семестр)\s+\d+$/i.test(sem.semesterName);
-
-                                        return isDefault ? termName : `${termName} (${sem.semesterName})`;
-                                    })()}
+                                    label={getSemesterTitle(sem, t)}
                                     status={sem.status}
                                     totalCredits={sem.totalCredits}
                                     completedCredits={sem.completedCredits}
