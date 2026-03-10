@@ -9,6 +9,7 @@ import { SemesterRoadmap } from './components/SemesterRoadmap';
 import { SemesterDrawer } from './components/SemesterDrawer';
 import { DegreeSnapshot } from './components/DegreeSnapshot';
 import { CourseModal } from '@/features/courses/CourseModal';
+import { DeleteSemesterModal } from '@/features/courses/DeleteSemesterModal';
 import { DashboardHeader } from './components/DashboardHeader';
 import { useDashboardData } from './hooks/useDashboardData';
 import { useSemesterManagement } from '@/features/courses/hooks/useSemesterManagement';
@@ -53,7 +54,20 @@ export const Dashboard: React.FC = () => {
         refreshSemesters();
     };
 
-    const { handleAddSemester } = useSemesterManagement(courses, semesters, refresh);
+    const {
+        handleAddSemester,
+        startRenaming,
+        saveRename,
+        editingSemesterId,
+        tempLabel,
+        setTempLabel,
+        setEditingSemesterId,
+        promptDeleteSemester,
+        deleteModalOpen,
+        setDeleteModalOpen,
+        semesterToDelete,
+        confirmDeleteSemester
+    } = useSemesterManagement(courses, semesters, refresh);
     const { progress, bySemester, stats } = useDashboardData(courses, semesters);
 
     const handleCreatePlan = async () => {
@@ -275,10 +289,32 @@ export const Dashboard: React.FC = () => {
 
             <SemesterDrawer
                 isOpen={!!selectedSemester}
-                onClose={() => setSelectedSemester(null)}
+                onClose={() => {
+                    setSelectedSemester(null);
+                    setEditingSemesterId(null);
+                }}
                 semesterGroup={selectedSemesterGroup}
                 onAddCourse={handleAddCourseFromDrawer}
+                onStartRenaming={startRenaming}
+                onSaveRename={saveRename}
+                editingSemesterId={editingSemesterId}
+                tempLabel={tempLabel}
+                setTempLabel={setTempLabel}
+                setEditingSemesterId={setEditingSemesterId}
+                onPromptDelete={promptDeleteSemester}
             />
+
+            {semesterToDelete && (
+                <DeleteSemesterModal
+                    isOpen={deleteModalOpen}
+                    onClose={() => setDeleteModalOpen(false)}
+                    semesterId={semesterToDelete.id}
+                    semesterName={semesterToDelete.name}
+                    courses={courses.filter(c => c.semesterId === semesterToDelete.id)}
+                    semesters={semesters}
+                    onDelete={confirmDeleteSemester}
+                />
+            )}
 
             {currentPlan && (
                 <CourseModal

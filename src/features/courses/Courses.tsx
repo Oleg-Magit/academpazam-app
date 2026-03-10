@@ -10,7 +10,7 @@ import { ConfirmationModal } from '@/ui/ConfirmationModal';
 import { useTranslation } from '@/app/i18n/useTranslation';
 
 import { useMediaQuery } from '@/core/hooks/useMediaQuery';
-import { ChevronLeft, Trash2 } from 'lucide-react';
+import { ChevronLeft, Trash2, Edit2, Save } from 'lucide-react';
 import { Button } from '@/ui/Button';
 import type { Course, CourseWithTopics } from '@/core/models/types';
 
@@ -295,34 +295,75 @@ export const Courses: React.FC = () => {
                 ) : (
                     <>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: isMobile ? '12px' : '16px' }}>
-                            <div>
-                                <h1 style={{ fontSize: isMobile ? '1.25rem' : '1.5rem', margin: 0, fontWeight: 700 }}>
-                                    {searchTerm.trim() !== '' || statusFilter !== 'all' ? t('label.search_results') :
-                                        selectedSemester === 'all' ? t('label.all_semesters') :
-                                            (() => {
-                                                const sem = semesters.find(s => s.id === selectedSemester);
-                                                if (!sem) return t('label.semester');
-                                                return (
-                                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                                        <span>{getSemesterTitle(sem, t)}</span>
-                                                        <span style={{
-                                                            fontSize: isMobile ? '0.8rem' : '0.9rem',
-                                                            color: 'var(--color-text-secondary)',
-                                                            fontWeight: 400,
-                                                            marginTop: '2px'
-                                                        }}>
-                                                            {getSemesterContext(sem, t)}
-                                                        </span>
-                                                    </div>
-                                                );
-                                            })()
-                                    }
-                                </h1>
-                                <span style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)' }}>
-                                    {displayedCourses.length} {t('label.courses_found')}
-                                </span>
+                            <div style={{ flex: 1 }}>
+                                {editingSemesterId === selectedSemester ? (
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%' }}>
+                                        <input
+                                            id="rename-semester-header"
+                                            name="renameSemesterHeader"
+                                            value={tempLabel}
+                                            onChange={e => setTempLabel(e.target.value)}
+                                            autoFocus
+                                            style={{
+                                                width: '100%',
+                                                padding: '8px 12px',
+                                                borderRadius: '6px',
+                                                border: '1px solid var(--color-accent)',
+                                                fontSize: '1rem',
+                                                backgroundColor: 'var(--color-bg-primary)',
+                                                color: 'var(--color-text-primary)'
+                                            }}
+                                            onKeyDown={e => {
+                                                if (e.key === 'Enter') saveRename();
+                                                if (e.key === 'Escape') setEditingSemesterId(null);
+                                            }}
+                                        />
+                                        <Button size="sm" variant="ghost" onClick={saveRename} style={{ padding: '8px' }}>
+                                            <Save size={20} />
+                                        </Button>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <h1 style={{ fontSize: isMobile ? '1.25rem' : '1.5rem', margin: 0, fontWeight: 700 }}>
+                                            {searchTerm.trim() !== '' || statusFilter !== 'all' ? t('label.search_results') :
+                                                selectedSemester === 'all' ? t('label.all_semesters') :
+                                                    (() => {
+                                                        const sem = semesters.find(s => s.id === selectedSemester);
+                                                        if (!sem) return t('label.semester');
+                                                        return (
+                                                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                                    <span>{getSemesterTitle(sem, t)}</span>
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        size="sm"
+                                                                        style={{ padding: '4px', height: 'auto' }}
+                                                                        onClick={() => startRenaming(sem.id, sem.name)}
+                                                                        aria-label={t('action.edit')}
+                                                                    >
+                                                                        <Edit2 size={18} style={{ opacity: 0.7 }} />
+                                                                    </Button>
+                                                                </div>
+                                                                <span style={{
+                                                                    fontSize: isMobile ? '0.8rem' : '0.9rem',
+                                                                    color: 'var(--color-text-secondary)',
+                                                                    fontWeight: 400,
+                                                                    marginTop: '2px'
+                                                                }}>
+                                                                    {getSemesterContext(sem, t)}
+                                                                </span>
+                                                            </div>
+                                                        );
+                                                    })()
+                                            }
+                                        </h1>
+                                        <span style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)' }}>
+                                            {displayedCourses.length} {t('label.courses_found')}
+                                        </span>
+                                    </>
+                                )}
                             </div>
-                            {isFocusedMode && semesters.length > 1 && (
+                            {isFocusedMode && semesters.length > 1 && !editingSemesterId && (
                                 <Button
                                     variant="ghost"
                                     size="sm"
