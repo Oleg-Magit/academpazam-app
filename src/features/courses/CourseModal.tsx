@@ -114,9 +114,9 @@ export const CourseModal: React.FC<CourseModalProps> = ({
                 s.name.startsWith(defaultPrefix) ||
                 /^\d+$/.test(s.name);
 
-            const mainLabel = `${yearStr} > ${termStr}`;
+            const mainLabel = `${yearStr} / ${termStr}`;
             // If custom name, append as secondary context
-            const label = isDefault ? mainLabel : `${mainLabel} (${s.name})`;
+            const label = isDefault ? mainLabel : `${mainLabel} — ${s.name}`;
 
             return {
                 value: s.id,
@@ -169,7 +169,7 @@ export const CourseModal: React.FC<CourseModalProps> = ({
                     required
                     autoComplete="off"
                 />
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-md)' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: 'var(--space-md)' }}>
                     <Input
                         id="course-credits"
                         name="course-credits"
