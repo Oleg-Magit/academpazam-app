@@ -124,20 +124,84 @@ export const generateDegreePDF = async (degreeName: string, courses: CourseWithT
         };
     }
 
+    let lastYear: number | undefined = undefined;
+    let lastTerm: string | undefined = undefined;
+
     for (const group of groups) {
         if (currentY < 120) {
             currentPage = pdfDoc.addPage();
             currentY = currentPage.getSize().height - 50;
         }
 
+        const isRtl = lang === 'he';
+        const alignHeader = isRtl ? 'right' : 'left';
+
+        // 1. Render Year Heading if available and new
+        if (group.year != null && group.year !== lastYear) {
+            // New year resets the term tracking
+            lastYear = group.year;
+            lastTerm = undefined;
+
+            if (currentY < 120) {
+                currentPage = pdfDoc.addPage();
+                currentY = currentPage.getSize().height - 50;
+            }
+
+            drawCellText(currentPage, customFont, `${t('label.year')} ${group.year}`, {
+                x: margin,
+                y: currentY,
+                width: contentWidth,
+                size: 16,
+                color: rgb(0, 0, 0),
+                align: alignHeader,
+            });
+            currentY -= 25;
+        }
+
+        // 2. Render Term Heading if available and new
+        if (group.term != null && group.term !== lastTerm && group.year != null) {
+            lastTerm = group.term;
+
+            if (currentY < 120) {
+                currentPage = pdfDoc.addPage();
+                currentY = currentPage.getSize().height - 50;
+            }
+
+            // Derive translated term key safely
+            let termLabel: string = group.term;
+            if (group.term === 'A') termLabel = t('term.a' as TranslationKey);
+            else if (group.term === 'B') termLabel = t('term.b' as TranslationKey);
+            else if (group.term === 'SUMMER') termLabel = t('term.summer' as TranslationKey);
+
+            // Slight indentation for terminology under year
+            const termIndent = 12;
+            const termX = isRtl ? margin : margin + termIndent;
+            const termWidth = isRtl ? contentWidth - termIndent : contentWidth - termIndent;
+
+            drawCellText(currentPage, customFont, termLabel, {
+                x: termX,
+                y: currentY,
+                width: termWidth,
+                size: 14,
+                color: rgb(0.3, 0.3, 0.3),
+                align: alignHeader,
+            });
+            currentY -= 20;
+        }
+
+        // 3. Render Semester Label
         const semLabel = group.semesterName;
+        const semIndent = (group.year != null && group.term != null) ? 24 : 0;
+        const semX = isRtl ? margin : margin + semIndent;
+        const semWidth = isRtl ? contentWidth - semIndent : contentWidth - semIndent;
+
         drawCellText(currentPage, customFont, semLabel, {
-            x: margin,
+            x: semX,
             y: currentY,
-            width: contentWidth,
-            size: 14,
+            width: semWidth,
+            size: group.year != null ? 12 : 14,
             color: rgb(0, 0, 0.8),
-            align: lang === 'he' ? 'right' : 'left',
+            align: alignHeader,
         });
         currentY -= 25;
 
