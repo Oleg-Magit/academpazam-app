@@ -27,39 +27,41 @@ export const DegreeSnapshot: React.FC<DegreeSnapshotProps> = memo(({
     const { t } = useTranslation();
 
     return (
-        <Card style={{ padding: 'var(--space-lg)', position: 'relative' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
+        <Card className="degree-snapshot-card" style={{ padding: 'var(--space-lg)', position: 'relative' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-lg)' }}>
                 {/* Header: Name + Percentage */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ flex: 1 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <h1 style={{
+                <div className="snapshot-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 'var(--space-md)' }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                            <h1 className="degree-title" style={{
                                 fontSize: '1.25rem',
                                 fontWeight: 700,
                                 margin: 0,
-                                color: 'var(--color-text-primary)'
+                                color: 'var(--color-text-primary)',
+                                lineHeight: 1.2
                             }}>
                                 {degreeName}
                             </h1>
                             <Link to="/settings" style={{
                                 color: 'var(--color-text-secondary)',
                                 transition: 'color 0.2s',
-                                display: 'flex'
-                            }} className="edit-plan-link">
-                                <Edit2 size={14} />
+                                display: 'flex',
+                                padding: '4px'
+                            }} className="edit-plan-link" aria-label={t('action.edit')}>
+                                <Edit2 size={16} />
                             </Link>
                         </div>
 
                         {/* Inline Chips Stat Row */}
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '12px' }}>
+                        <div className="stats-chips" style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '16px' }}>
                             <StatChip label={t('status.completed')} value={completedCount} color="var(--color-success)" />
                             <StatChip label={t('status.in_progress')} value={inProgressCount} color="var(--color-warning)" />
                             <StatChip label={t('label.remaining')} value={`${remainingCredits} ${t('label.pts')}`} color="var(--color-text-secondary)" />
                         </div>
                     </div>
 
-                    <div style={{ textAlign: 'right' }}>
-                        <span style={{
+                    <div className="percentage-container" style={{ textAlign: 'right', flexShrink: 0 }}>
+                        <span className="percentage-text" style={{
                             fontSize: '2.5rem',
                             fontWeight: 800,
                             color: 'var(--color-accent)',
@@ -71,8 +73,8 @@ export const DegreeSnapshot: React.FC<DegreeSnapshotProps> = memo(({
                 </div>
 
                 <div style={{ marginTop: 'var(--space-xs)' }}>
-                    <ProgressBar value={percentage} height={8} showValue={false} />
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '6px', fontSize: '0.8rem', color: 'var(--color-text-secondary)', fontWeight: 500 }}>
+                    <ProgressBar value={percentage} height={10} showValue={false} />
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px', fontSize: '0.85rem', color: 'var(--color-text-secondary)', fontWeight: 500 }}>
                         <span>{completedCredits} / {totalCredits} {t('label.total_credits')}</span>
                     </div>
                 </div>
@@ -80,6 +82,37 @@ export const DegreeSnapshot: React.FC<DegreeSnapshotProps> = memo(({
             <style>{`
                 .edit-plan-link:hover {
                     color: var(--color-accent) !important;
+                }
+                
+                @media (max-width: 640px) {
+                    .degree-snapshot-card {
+                        padding: var(--space-xl) !important;
+                    }
+                    
+                    .snapshot-header {
+                        flex-direction: column !important;
+                        align-items: flex-start !important;
+                        gap: var(--space-lg) !important;
+                    }
+                    
+                    .percentage-container {
+                        text-align: inherit !important;
+                        order: -1;
+                        margin-bottom: -8px;
+                    }
+                    
+                    .percentage-text {
+                        font-size: 3rem !important;
+                    }
+                    
+                    .degree-title {
+                        font-size: 1.4rem !important;
+                    }
+                    
+                    .stats-chips {
+                        gap: 12px !important;
+                        margin-top: 20px !important;
+                    }
                 }
             `}</style>
         </Card>
