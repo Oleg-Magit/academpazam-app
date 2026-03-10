@@ -95,7 +95,22 @@ export const SemesterDrawer: React.FC<SemesterDrawerProps> = ({
                     justifyContent: 'space-between',
                     alignItems: 'center'
                 }}>
-                    <h2 style={{ margin: 0 }}>{semesterGroup.semesterName}</h2>
+                    <h2 style={{ margin: 0, fontSize: '1.25rem' }}>
+                        {(() => {
+                            const y = semesterGroup.year || 1;
+                            const tm = semesterGroup.term || 'A';
+                            const yearStr = `${t('label.year')} ${y}`;
+                            const termStr = t(`term.${tm.toLowerCase()}` as any);
+                            const mainLabel = `${yearStr} / ${termStr}`;
+
+                            const defaultPrefix = t('semester.semester');
+                            const isDefault = !semesterGroup.semesterName ||
+                                semesterGroup.semesterName.startsWith(defaultPrefix) ||
+                                /^\d+$/.test(semesterGroup.semesterName);
+
+                            return isDefault ? mainLabel : `${mainLabel} (${semesterGroup.semesterName})`;
+                        })()}
+                    </h2>
                     <Button variant="ghost" size="sm" onClick={onClose} aria-label="Close">
                         <X size={24} />
                     </Button>

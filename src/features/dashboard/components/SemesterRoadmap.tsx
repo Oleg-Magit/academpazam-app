@@ -65,19 +65,33 @@ export const SemesterRoadmap: React.FC<SemesterRoadmapProps> = ({
             scrollbarWidth: 'none',
             msOverflowStyle: 'none'
         }} className="roadmap-scroller">
-            {groupedByYear.map(({ year, yearSemesters }, yearIndex) => (
-                <div key={year} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {groupedByYear.map(({ year, yearSemesters }) => (
+                <div key={year} style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '12px',
+                    padding: 'var(--space-md)',
+                    backgroundColor: 'var(--color-bg-secondary)',
+                    borderRadius: 'var(--radius-lg)',
+                    border: '1px solid var(--color-border)',
+                    minWidth: 'fit-content'
+                }}>
                     <div style={{
-                        fontSize: '0.8rem',
-                        fontWeight: 700,
-                        color: 'var(--color-text-secondary)',
+                        fontSize: '0.85rem',
+                        fontWeight: 800,
+                        color: 'var(--color-accent)',
                         textTransform: 'uppercase',
-                        letterSpacing: '1px',
-                        paddingLeft: '4px',
-                        marginBottom: '4px',
-                        borderBottom: '1px solid var(--color-border)',
-                        paddingBottom: '4px'
+                        letterSpacing: '1.2px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px'
                     }}>
+                        <span style={{
+                            width: '4px',
+                            height: '14px',
+                            backgroundColor: 'var(--color-accent)',
+                            borderRadius: '2px'
+                        }} />
                         {t('label.year')} {year}
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -100,7 +114,7 @@ export const SemesterRoadmap: React.FC<SemesterRoadmapProps> = ({
                                     isSelected={selectedSemester === sem.semesterId}
                                     onClick={() => onSelectSemester(sem.semesterId)}
                                 />
-                                {(index < yearSemesters.length - 1 || yearIndex < groupedByYear.length - 1) && (
+                                {index < yearSemesters.length - 1 && (
                                     <div style={{
                                         flex: '0 0 16px',
                                         display: 'flex',
