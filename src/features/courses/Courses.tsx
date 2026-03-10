@@ -285,6 +285,7 @@ export const Courses: React.FC = () => {
                 availableYears={availableYears}
                 availableTerms={availableTerms}
                 onAddCourse={() => setIsModalOpen(true)}
+                onAddSemester={() => setIsAddSemesterModalOpen(true)}
                 onBulkAdd={() => setIsBulkModalOpen(true)}
                 isMobile={isMobile}
             />

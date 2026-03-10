@@ -15,6 +15,7 @@ interface CoursesToolbarProps {
     availableYears: number[];
     availableTerms: string[];
     onAddCourse: () => void;
+    onAddSemester: () => void;
     onBulkAdd: () => void;
     isMobile?: boolean;
 }
@@ -31,6 +32,7 @@ export const CoursesToolbar: React.FC<CoursesToolbarProps> = ({
     availableYears,
     availableTerms,
     onAddCourse,
+    onAddSemester,
     onBulkAdd,
     isMobile = false
 }) => {
@@ -171,6 +173,16 @@ export const CoursesToolbar: React.FC<CoursesToolbarProps> = ({
                 order: isMobile ? 2 : 3,
                 marginTop: isMobile ? '4px' : '0'
             }}>
+                {isMobile && (
+                    <Button
+                        variant="secondary"
+                        onClick={onAddSemester}
+                        title={t('action.add_semester')}
+                        style={{ height: '42px', flex: isMobile ? 1 : 'none' }}
+                    >
+                        <Plus size={20} />
+                    </Button>
+                )}
                 <Button
                     variant="secondary"
                     onClick={onBulkAdd}

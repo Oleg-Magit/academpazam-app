@@ -131,6 +131,7 @@ const migrateToSemesterIds = async () => {
     const metaStore = tx.objectStore('meta');
 
     const courses = await courseStore.getAll();
+    const existingSemesters = await semesterStore.getAll();
 
     // BUG 2 FIX: If this is a fresh setup and the user hasn't selected their language yet,
     // delay the default semester creation so that the hardcoded labels match their chosen locale.
@@ -142,22 +143,32 @@ const migrateToSemesterIds = async () => {
     const semesterMap: Record<string, string> = {}; // legacyName -> newId
 
     // 1. Create Semesters based on legacy config or course data
-    for (let i = 1; i <= count; i++) {
-        const legacyName = i.toString();
-        const customLabel = labels[i - 1];
-        const id = uuidv4();
-        const name = customLabel || `${defaultSemesterStr} ${i}`;
-        const orderIndex = i - 1;
+    // ONLY if no semesters exist yet to avoid duplication on re-run or race conditions
+    if (existingSemesters.length === 0) {
+        console.log('[Migration] Creating initial default semesters...');
+        for (let i = 1; i <= count; i++) {
+            const legacyName = i.toString();
+            const customLabel = labels[i - 1];
+            const id = uuidv4();
+            const name = customLabel || `${defaultSemesterStr} ${i}`;
+            const orderIndex = i - 1;
 
-        await semesterStore.put({
-            id,
-            name,
-            createdAt: Date.now(),
-            orderIndex,
-            year: Math.floor(orderIndex / 2) + 1,
-            term: orderIndex % 2 === 0 ? 'A' : 'B'
+            await semesterStore.put({
+                id,
+                name,
+                createdAt: Date.now(),
+                orderIndex,
+                year: Math.floor(orderIndex / 2) + 1,
+                term: orderIndex % 2 === 0 ? 'A' : 'B'
+            });
+            semesterMap[legacyName] = id;
+        }
+    } else {
+        console.log('[Migration] Semesters already exist, skipping default creation.');
+        // Map legacy numbers to existing semesters by orderIndex if possible
+        existingSemesters.forEach(s => {
+            semesterMap[(s.orderIndex + 1).toString()] = s.id;
         });
-        semesterMap[legacyName] = id;
     }
 
     // 2. Handle any courses with non-numeric semester strings if they exist
