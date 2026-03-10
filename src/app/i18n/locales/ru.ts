@@ -42,6 +42,7 @@ export const ru = {
     'settings.title': 'Настройки',
     'settings.language': 'Язык',
     'settings.degree_name': 'Название степени',
+    'degree.defaultName': 'Моя степень (Проходной > {{pass}})',
     'settings.passing_grade': 'Проходной балл',
     'settings.theme': 'Тема',
 

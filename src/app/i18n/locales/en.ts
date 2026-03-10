@@ -42,6 +42,7 @@ export const en = {
     'settings.title': 'Settings',
     'settings.language': 'Language',
     'settings.degree_name': 'Degree Name',
+    'degree.defaultName': 'My Degree (Pass > {{pass}})',
     'settings.passing_grade': 'Passing Grade',
     'settings.theme': 'Theme',
 

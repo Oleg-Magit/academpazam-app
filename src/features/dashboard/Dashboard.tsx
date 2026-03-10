@@ -17,6 +17,7 @@ import { Button } from '@/ui/Button';
 import { ConfirmationModal } from '@/ui/ConfirmationModal';
 import { Card } from '@/ui/Card';
 import { GraduationCap, Info, Plus } from 'lucide-react';
+import { getLocalizedDegreeName } from '@/core/utils/degreeName';
 
 export const Dashboard: React.FC = () => {
     const { t, language } = useTranslation();
@@ -81,7 +82,8 @@ export const Dashboard: React.FC = () => {
         setShowActions(false);
         try {
             const { generateDegreePDF } = await import('@/core/services/pdfGenerator');
-            const pdfBytes = await generateDegreePDF(currentPlan.name, courses, language);
+            const localizedName = getLocalizedDegreeName(currentPlan, t as any);
+            const pdfBytes = await generateDegreePDF(localizedName, courses, language);
 
             const header = String.fromCharCode(...pdfBytes.slice(0, 5));
             if (!header.startsWith('%PDF-')) {
@@ -215,7 +217,7 @@ export const Dashboard: React.FC = () => {
             <input id="dashboard-import-json" name="dashboardImportJson" type="file" ref={importInputRef} style={{ display: 'none' }} onChange={handleImportJSON} accept=".json" />
 
             <DegreeSnapshot
-                degreeName={currentPlan.name}
+                degreeName={getLocalizedDegreeName(currentPlan, t as any)}
                 totalCredits={progress.totalCredits}
                 completedCredits={progress.completedCredits}
                 remainingCredits={stats.totalRemainingCredits}

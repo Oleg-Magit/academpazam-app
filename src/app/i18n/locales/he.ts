@@ -42,6 +42,7 @@ export const he = {
     'settings.title': 'הגדרות',
     'settings.language': 'שפה',
     'settings.degree_name': 'שם התואר',
+    'degree.defaultName': 'התואר שלי (מעבר > {{pass}})',
     'settings.passing_grade': 'ציון עובר',
     'settings.theme': 'ערכת נושא',
 

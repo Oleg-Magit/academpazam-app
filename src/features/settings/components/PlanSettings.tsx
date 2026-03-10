@@ -3,6 +3,7 @@ import { Card } from '@/ui/Card';
 import { Button } from '@/ui/Button';
 import { Input } from '@/ui/Input';
 import { Edit2, Save, X } from 'lucide-react';
+import { getLocalizedDegreeName, isLegacyDefaultDegreeName } from '@/core/utils/degreeName';
 import { useTranslation } from '@/app/i18n/useTranslation';
 import { savePlan } from '@/core/db/db';
 import type { Plan } from '@/core/models/types';
@@ -46,7 +47,11 @@ export const PlanSettings: React.FC<PlanSettingsProps> = ({ plan, onRefresh, onM
                     <h2 style={{ fontSize: '1rem', margin: 0 }}>{t('settings.degree_name')}</h2>
                     {!isEditing && (
                         <p style={{ margin: '4px 0 0', fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
-                            {plan?.name} (Pass &gt; {plan?.passing_exam_threshold})
+                            {plan ? (
+                                isLegacyDefaultDegreeName(plan.name)
+                                    ? getLocalizedDegreeName(plan, t as any)
+                                    : `${plan.name} (${t('settings.passing_grade')} > ${plan.passing_exam_threshold})`
+                            ) : ''}
                         </p>
                     )}
                 </div>
