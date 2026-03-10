@@ -1,5 +1,6 @@
 import { getAllData, savePlan, saveCourse, saveTopic, saveMeta, clearAllData, saveSemester } from '../db/db';
 import type { Plan, Course, Topic, Meta, Semester } from '../models/types';
+import { normalizeImportedPayload } from '../utils/semesterNormalization';
 
 interface BackupData {
     version: number;
@@ -51,7 +52,8 @@ export const importDataFromJSON = async (
             await clearAllData();
         }
 
-        const { plans, courses, topics, meta, semesters } = backup.data;
+        const { plans, topics, meta } = backup.data;
+        const { courses, semesters } = normalizeImportedPayload(backup.data);
 
         // Sequence preservation: order of operations matters for foreign keys
         for (const plan of plans) await savePlan(plan);

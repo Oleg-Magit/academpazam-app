@@ -2,6 +2,7 @@ import { openDB } from 'idb';
 import type { DBSchema, IDBPDatabase } from 'idb';
 import type { Plan, Course, Topic, Meta, Semester } from '../models/types';
 import { v4 as uuidv4 } from 'uuid';
+import { enrichSemesters } from '../utils/semesterNormalization';
 
 interface AcademPazamDB extends DBSchema {
     plans: {
@@ -326,37 +327,6 @@ export const getSemesterConfig = async () => {
 export const saveSemesterConfig = async (count: number, labels: string[]) => {
     await saveMeta('semesterCount', count);
     await saveMeta('semesterLabels', labels);
-};
-
-/**
- * Enrichment to safely hydrate Year and Term metadata.
- */
-const enrichSemesters = (semesters: any[]): Semester[] => {
-    // Determine if any lack orderIndex
-    const needsSorting = semesters.some(s => s.orderIndex === undefined);
-
-    let sorted = semesters;
-    if (needsSorting) {
-        sorted = [...semesters].sort((a, b) => {
-            const indexA = a.orderIndex !== undefined ? a.orderIndex : 9999;
-            const indexB = b.orderIndex !== undefined ? b.orderIndex : 9999;
-            return indexA - indexB || (a.createdAt || 0) - (b.createdAt || 0);
-        });
-        sorted.forEach((s, idx) => {
-            if (s.orderIndex === undefined) s.orderIndex = idx;
-        });
-    }
-
-    return sorted.map(s => {
-        if (s.year === undefined || s.term === undefined) {
-            return {
-                ...s,
-                year: s.year ?? (Math.floor(s.orderIndex / 2) + 1),
-                term: s.term ?? (s.orderIndex % 2 === 0 ? 'A' : 'B')
-            };
-        }
-        return s;
-    });
 };
 
 /**
