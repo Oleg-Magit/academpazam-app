@@ -35,7 +35,6 @@ export const Courses: React.FC = () => {
     };
 
     const isMobile = useMediaQuery('(max-width: 768px)');
-    const [mobileView, setMobileView] = useState<'list' | 'details'>('list');
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
@@ -86,13 +85,10 @@ export const Courses: React.FC = () => {
         handleReorder
     } = useSemesterManagement(courses, semesters, refresh);
 
-    // Sync mobileView with selectedSemester
-    useEffect(() => {
-        if (isMobile && selectedSemester && selectedSemester !== 'all' && mobileView === 'list') {
-            // Only auto-switch to details if we are actually selecting a specific semester
-            setMobileView('details');
-        }
-    }, [selectedSemester, isMobile, mobileView]);
+    // Mobile modes detection
+    const isSearching = searchTerm.trim() !== '' || statusFilter !== 'all';
+    const isFocusedMode = isMobile && selectedSemester !== 'all' && selectedSemester !== '';
+    const isOverviewMode = isMobile && (selectedSemester === 'all' || selectedSemester === '');
 
     const availableYears = useMemo(() => {
         const years = new Set<number>();
@@ -235,9 +231,6 @@ export const Courses: React.FC = () => {
 
     const handleSelectSemester = (semId: string) => {
         setSelectedSemester(semId);
-        if (isMobile) {
-            setMobileView('details');
-        }
     };
 
     if (!currentPlan) return <div>{t('msg.no_plan_found')}</div>;
@@ -264,9 +257,9 @@ export const Courses: React.FC = () => {
 
     const renderCourseContent = () => (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'var(--space-md)', overflow: 'hidden' }}>
-            {isMobile && mobileView === 'details' && !isFiltering && (
+            {isFocusedMode && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                    <Button variant="ghost" size="sm" onClick={() => setMobileView('list')} style={{ padding: '4px' }}>
+                    <Button variant="ghost" size="sm" onClick={() => setSelectedSemester('all')} style={{ padding: '4px' }}>
                         <ChevronLeft size={20} />
                         {t('action.back')}
                     </Button>
@@ -392,8 +385,8 @@ export const Courses: React.FC = () => {
             height: 'calc(100vh - 100px)',
             overflow: 'hidden'
         }}>
-            {(!isMobile || (isMobile && mobileView === 'list' && !isFiltering)) && renderSemesterNav()}
-            {(!isMobile || (isMobile && (mobileView === 'details' || isFiltering))) && renderCourseContent()}
+            {(!isMobile || (isOverviewMode && !isSearching)) && renderSemesterNav()}
+            {(!isMobile || isFocusedMode || isSearching || isOverviewMode) && renderCourseContent()}
 
             <CourseModal
                 isOpen={isModalOpen}
