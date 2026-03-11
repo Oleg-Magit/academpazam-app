@@ -1,4 +1,4 @@
-export const APP_VERSION = '1.3.5';
+export const APP_VERSION = '1.5.0';
 export const BREAKING_DATA_VERSION = 2;
 
 /**
