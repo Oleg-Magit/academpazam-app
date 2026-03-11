@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isAttemptPassed, createRepeatCourse, calculateAcademicMetrics } from './courseLifecycle';
+import { isAttemptPassed, createRepeatCourse, calculateAcademicMetrics, buildLineageMetadata } from './courseLifecycle';
 import type { Course, Topic } from '../models/types';
 
 describe('courseLifecycle', () => {
@@ -135,6 +135,37 @@ describe('courseLifecycle', () => {
                 56
             );
             expect(metrics.needsRepeatCount).toBe(0);
+        });
+    });
+
+    describe('buildLineageMetadata', () => {
+        const c1: any = { id: 'c1', credits: 3, attemptStatus: 'failed', updatedAt: 100 };
+        const c2: any = { id: 'c2', credits: 3, repeatedFromCourseId: 'c1', attemptStatus: 'passed', updatedAt: 200 };
+        const c3: any = { id: 'c3', credits: 4, attemptStatus: 'failed', updatedAt: 300 };
+
+        it('assigns passed_req to all attempts in a passed lineage', () => {
+            const metadata = buildLineageMetadata([c1, c2], 56);
+            expect(metadata['c1']).toBe('passed_req');
+            expect(metadata['c2']).toBe('passed_req');
+        });
+
+        it('assigns needs_repeat to all attempts in a failed lineage', () => {
+            const metadata = buildLineageMetadata([c3], 56);
+            expect(metadata['c3']).toBe('needs_repeat');
+        });
+
+        it('assigns none to planned courses with no history', () => {
+            const c4: any = { id: 'c4', credits: 3, attemptStatus: 'planned' };
+            const metadata = buildLineageMetadata([c4], 56);
+            expect(metadata['c4']).toBe('none');
+        });
+
+        it('handles complex lineages correctly', () => {
+            const c5: any = { id: 'c5', credits: 3, attemptStatus: 'failed' };
+            const c6: any = { id: 'c6', credits: 3, repeatedFromCourseId: 'c5', attemptStatus: 'failed' };
+            const metadata = buildLineageMetadata([c5, c6], 56);
+            expect(metadata['c5']).toBe('needs_repeat');
+            expect(metadata['c6']).toBe('needs_repeat');
         });
     });
 });

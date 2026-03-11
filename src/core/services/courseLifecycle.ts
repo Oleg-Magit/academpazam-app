@@ -140,3 +140,50 @@ export function createRepeatCourse(
 
     return { course: newCourse, topics: newTopics };
 }
+
+/**
+ * Constructs a lookup record of academic status for all attempts in a set of courses.
+ * Map: courseId -> 'passed_req' | 'needs_repeat' | 'none'
+ */
+export const buildLineageMetadata = (
+    courses: CourseWithTopics[],
+    passingThreshold: number
+): Record<string, 'passed_req' | 'needs_repeat' | 'none'> => {
+    const courseMap = new Map<string, CourseWithTopics>();
+    for (const c of courses) {
+        courseMap.set(c.id, c);
+    }
+
+    const lineages = new Map<string, CourseWithTopics[]>();
+    for (const c of courses) {
+        const rootId = getRootCourseId(c.id, courseMap);
+        if (!lineages.has(rootId)) {
+            lineages.set(rootId, []);
+        }
+        lineages.get(rootId)!.push(c);
+    }
+
+    const metadata: Record<string, 'passed_req' | 'needs_repeat' | 'none'> = {};
+
+    for (const lineageCourses of lineages.values()) {
+        const hasPassedAttempt = lineageCourses.some(c => isAttemptPassed(c, passingThreshold));
+        const hasFailedAttempt = lineageCourses.some(c =>
+            c.attemptStatus === 'failed' ||
+            (c.grade !== null && c.grade !== undefined && c.grade < passingThreshold)
+        );
+
+        let status: 'passed_req' | 'needs_repeat' | 'none' = 'none';
+
+        if (hasPassedAttempt) {
+            status = 'passed_req';
+        } else if (hasFailedAttempt) {
+            status = 'needs_repeat';
+        }
+
+        for (const c of lineageCourses) {
+            metadata[c.id] = status;
+        }
+    }
+
+    return metadata;
+};

@@ -23,7 +23,7 @@ import { CourseList } from './components/CourseList';
 import { useSemesterManagement } from './hooks/useSemesterManagement';
 import { getSemesterTitle, getSemesterContext } from '@/core/utils/semesterUtils';
 import { DEFAULT_PASSING_THRESHOLD } from '@/core/constants/grades';
-import { isAttemptPassed, getRootCourseId } from '@/core/services/courseLifecycle';
+import { isAttemptPassed, getRootCourseId, buildLineageMetadata } from '@/core/services/courseLifecycle';
 
 export const Courses: React.FC = () => {
     const { t } = useTranslation();
@@ -313,6 +313,11 @@ export const Courses: React.FC = () => {
         setSelectedSemester(semId);
     };
 
+    const lineageMetadata = useMemo(() => {
+        const threshold = currentPlan?.passing_exam_threshold ?? DEFAULT_PASSING_THRESHOLD;
+        return buildLineageMetadata(courses || [], threshold);
+    }, [courses, currentPlan]);
+
     if (!currentPlan) return <div>{t('msg.no_plan_found')}</div>;
     if (coursesLoading || semestersLoading) return <div>{t('msg.loading_courses')}</div>;
 
@@ -486,6 +491,7 @@ export const Courses: React.FC = () => {
                                                                         showSemesterLabel={false}
                                                                         semesterLabels={semesterLabels}
                                                                         isMobile={isMobile}
+                                                                        lineageMetadata={lineageMetadata}
                                                                     />
                                                                 </div>
                                                             );
@@ -511,6 +517,7 @@ export const Courses: React.FC = () => {
                                 showSemesterLabel={false}
                                 semesterLabels={semesterLabels}
                                 isMobile={isMobile}
+                                lineageMetadata={lineageMetadata}
                             />
                         )}
                     </>
@@ -518,6 +525,8 @@ export const Courses: React.FC = () => {
             </div>
         </div>
     );
+
+
 
     if (selectedCourseId) {
         return <CourseDetails id={selectedCourseId} onBack={() => setSelectedCourseId(null)} onRefresh={refresh} />;
