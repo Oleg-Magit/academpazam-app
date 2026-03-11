@@ -28,6 +28,9 @@ export interface Course {
     notes?: string;
     grade?: number | null;
     manualStatus?: CourseStatus; // Only used if topics.length === 0
+    attemptStatus?: 'passed' | 'failed' | 'in_progress' | 'planned';
+    repeatedFromCourseId?: string;
+    attemptNumber?: number;
     createdAt: number;
     updatedAt: number;
 }

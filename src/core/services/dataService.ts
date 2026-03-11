@@ -1,5 +1,6 @@
 import type { Course, Topic, CourseStatus, CourseWithTopics, SemesterGroup, Semester } from '../models/types';
 import { getTopicsByCourse } from '../db/db';
+import { isAttemptPassed, calculateLineageEarnedCredits } from './courseLifecycle';
 
 /**
  * Determines the display status of a course based on its topics.
@@ -34,7 +35,8 @@ export const enrichCourses = async (courses: Course[]): Promise<CourseWithTopics
  */
 export const groupCoursesBySemester = (
     courses: CourseWithTopics[],
-    semesters: Semester[]
+    semesters: Semester[],
+    passingThreshold: number
 ): SemesterGroup[] => {
     const groups: Record<string, SemesterGroup> = {};
 
@@ -67,7 +69,7 @@ export const groupCoursesBySemester = (
         }
         groups[semId].courses.push(course);
         groups[semId].totalCredits += course.credits;
-        if (course.effectiveStatus === 'completed') {
+        if (isAttemptPassed(course, passingThreshold)) {
             groups[semId].completedCredits += course.credits;
         }
     });
@@ -79,11 +81,9 @@ export const groupCoursesBySemester = (
 /**
  * Calculates high-level degree progress metrics.
  */
-export const calculateDegreeProgress = (courses: CourseWithTopics[]) => {
+export const calculateDegreeProgress = (courses: CourseWithTopics[], passingThreshold: number) => {
     const totalCredits = courses.reduce((sum, c) => sum + c.credits, 0);
-    const completedCredits = courses
-        .filter(c => c.effectiveStatus === 'completed')
-        .reduce((sum, c) => sum + c.credits, 0);
+    const completedCredits = calculateLineageEarnedCredits(courses, passingThreshold);
 
     return {
         totalCredits,

@@ -1,5 +1,6 @@
 import type { CourseWithTopics } from '../models/types';
 import { groupCoursesBySemester, calculateDegreeProgress } from './dataService';
+import { DEFAULT_PASSING_THRESHOLD } from '../constants/grades';
 import { getSemesters } from '../db/db';
 import { drawCellText } from '../../features/pdf/pdfText';
 import { getPdfLib } from './getPdfLib';
@@ -8,7 +9,7 @@ import { loadCustomFont } from './pdfFont';
 import { translate, type SupportedLang, type TranslationKey } from '../utils/translate';
 import { getSemesterTitle } from '../utils/semesterUtils';
 
-export const generateDegreePDF = async (degreeName: string, courses: CourseWithTopics[], lang: SupportedLang = 'en') => {
+export const generateDegreePDF = async (degreeName: string, courses: CourseWithTopics[], lang: SupportedLang = 'en', passingThreshold: number = DEFAULT_PASSING_THRESHOLD) => {
     const { PDFDocument, rgb } = await getPdfLib();
     const fontkit = await getFontKit();
 
@@ -53,7 +54,7 @@ export const generateDegreePDF = async (degreeName: string, courses: CourseWithT
         align: 'center'
     });
 
-    const progress = calculateDegreeProgress(courses);
+    const progress = calculateDegreeProgress(courses, passingThreshold);
     const summaryY = height - 110;
 
     const summaryColWidth = contentWidth / 4;
@@ -103,7 +104,7 @@ export const generateDegreePDF = async (degreeName: string, courses: CourseWithT
 
     let currentY = summaryY - 40;
     const semestersData = await getSemesters();
-    const groups = groupCoursesBySemester(courses, semestersData);
+    const groups = groupCoursesBySemester(courses, semestersData, passingThreshold);
 
     // Columns config - adjusted for RTL
     interface ColConfig { x: number; width: number }

@@ -4,6 +4,7 @@ import { Button } from '@/ui/Button';
 import { Select } from '@/ui/Select';
 import { saveCourse, saveSemester } from '@/core/db/db';
 import { groupCoursesBySemester } from '@/core/services/dataService';
+import { DEFAULT_PASSING_THRESHOLD } from '@/core/constants/grades';
 import { v4 as uuidv4 } from 'uuid';
 import type { Course, Semester } from '@/core/models/types';
 import { useTranslation } from '@/app/i18n/useTranslation';
@@ -288,7 +289,7 @@ export const BulkAddCourseModal: React.FC<BulkAddCourseModalProps> = ({ isOpen, 
             ) : (
                 <div style={{ minHeight: 0, display: 'flex', flexDirection: 'column' }}>
                     <div style={{ overflowX: 'auto', marginBottom: 'var(--space-md)' }}>
-                        {groupCoursesBySemester(preview.map(p => ({ id: p.id, degreePlanId: planId, name: p.name, credits: p.credits, semesterId: p.semesterId, createdAt: 0, updatedAt: 0, topics: [], effectiveStatus: 'not_started' as any })), [...semesters, ...pendingSemesters]).filter(g => g.courses.length > 0).map(group => (
+                        {groupCoursesBySemester(preview.map(p => ({ id: p.id, degreePlanId: planId, name: p.name, credits: p.credits, semesterId: p.semesterId, createdAt: 0, updatedAt: 0, topics: [], effectiveStatus: 'not_started' as any })), [...semesters, ...pendingSemesters], DEFAULT_PASSING_THRESHOLD).filter(g => g.courses.length > 0).map(group => (
                             <div key={group.semesterId} style={{ marginBottom: '16px' }}>
                                 <h3 style={{ margin: '0 0 8px 0', fontSize: '1rem' }}>{group.semesterName}</h3>
                                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem', minWidth: '400px' }}>

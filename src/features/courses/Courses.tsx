@@ -22,6 +22,7 @@ import { CourseList } from './components/CourseList';
 // Hooks
 import { useSemesterManagement } from './hooks/useSemesterManagement';
 import { getSemesterTitle, getSemesterContext } from '@/core/utils/semesterUtils';
+import { DEFAULT_PASSING_THRESHOLD } from '@/core/constants/grades';
 
 export const Courses: React.FC = () => {
     const { t } = useTranslation();
@@ -85,7 +86,7 @@ export const Courses: React.FC = () => {
         promptDeleteSemester,
         confirmDeleteSemester,
         handleReorder
-    } = useSemesterManagement(courses, semesters, refresh);
+    } = useSemesterManagement(courses, semesters, refresh, currentPlan?.passing_exam_threshold ?? DEFAULT_PASSING_THRESHOLD);
 
     // Mobile modes detection
     const isSearching = searchTerm.trim() !== '' || statusFilter !== 'all';

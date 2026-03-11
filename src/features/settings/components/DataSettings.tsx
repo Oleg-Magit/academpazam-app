@@ -39,7 +39,7 @@ export const DataSettings: React.FC<DataSettingsProps> = ({ plan, courses, onRef
 
         try {
             const { generateDegreePDF } = await import('@/core/services/pdfGenerator');
-            const pdfBytes = await generateDegreePDF(plan.name, courses, language);
+            const pdfBytes = await generateDegreePDF(plan.name, courses, language, plan.passing_exam_threshold);
 
             const header = String.fromCharCode(...pdfBytes.slice(0, 5));
             if (!header.startsWith('%PDF-')) {

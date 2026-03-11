@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { usePlans, useCourses, useSemesters } from '@/core/hooks/useData';
 import type { Course } from '@/core/models/types';
+import { DEFAULT_PASSING_THRESHOLD } from '@/core/constants/grades';
 import { savePlan } from '@/core/db/db';
 import { v4 as uuidv4 } from 'uuid';
 import { exportDataToJSON, importDataFromJSON } from '@/core/services/importExport';
@@ -67,8 +68,8 @@ export const Dashboard: React.FC = () => {
         setDeleteModalOpen,
         semesterToDelete,
         confirmDeleteSemester
-    } = useSemesterManagement(courses, semesters, refresh);
-    const { progress, bySemester, stats } = useDashboardData(courses, semesters);
+    } = useSemesterManagement(courses, semesters, refresh, currentPlan?.passing_exam_threshold ?? DEFAULT_PASSING_THRESHOLD);
+    const { progress, bySemester, stats } = useDashboardData(courses, semesters, currentPlan?.passing_exam_threshold ?? DEFAULT_PASSING_THRESHOLD);
 
     const handleCreatePlan = async () => {
         const defaultPlan = {
@@ -97,7 +98,7 @@ export const Dashboard: React.FC = () => {
         try {
             const { generateDegreePDF } = await import('@/core/services/pdfGenerator');
             const localizedName = getLocalizedDegreeName(currentPlan, t as any);
-            const pdfBytes = await generateDegreePDF(localizedName, courses, language);
+            const pdfBytes = await generateDegreePDF(localizedName, courses, language, currentPlan?.passing_exam_threshold ?? DEFAULT_PASSING_THRESHOLD);
 
             const header = String.fromCharCode(...pdfBytes.slice(0, 5));
             if (!header.startsWith('%PDF-')) {

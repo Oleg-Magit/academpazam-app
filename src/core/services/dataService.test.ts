@@ -39,19 +39,19 @@ describe('dataService', () => {
     describe('calculateDegreeProgress', () => {
         it('should calculate percentage correctly', () => {
             const courses = [
-                { credits: 3, effectiveStatus: 'completed' },
+                { credits: 3, effectiveStatus: 'completed', grade: 80 },
                 { credits: 4, effectiveStatus: 'in_progress' },
                 { credits: 3, effectiveStatus: 'not_started' }
             ] as CourseWithTopics[];
 
-            const result = calculateDegreeProgress(courses);
+            const result = calculateDegreeProgress(courses, 56);
             expect(result.totalCredits).toBe(10);
             expect(result.completedCredits).toBe(3);
             expect(result.percentage).toBe(30);
         });
 
         it('should handle zero credits', () => {
-            const result = calculateDegreeProgress([]);
+            const result = calculateDegreeProgress([], 56);
             expect(result.percentage).toBe(0);
         });
     });

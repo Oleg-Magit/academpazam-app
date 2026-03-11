@@ -8,7 +8,8 @@ import { v4 as uuidv4 } from 'uuid';
 export const useSemesterManagement = (
     courses: CourseWithTopics[],
     semesters: Semester[],
-    refresh: () => void
+    refresh: () => void,
+    passingThreshold: number
 ) => {
     const { t } = useTranslation();
     const [editingSemesterId, setEditingSemesterId] = useState<string | null>(null);
@@ -18,8 +19,8 @@ export const useSemesterManagement = (
     const [errorMsg, setErrorMsg] = useState('');
 
     const bySemester = useMemo(() => {
-        return groupCoursesBySemester(courses, semesters);
-    }, [courses, semesters]);
+        return groupCoursesBySemester(courses, semesters, passingThreshold);
+    }, [courses, semesters, passingThreshold]);
 
     const handleAddSemester = async (year?: number, term?: 'A' | 'B' | 'SUMMER') => {
         // If year and term are provided, check for duplicates
