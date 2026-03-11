@@ -27,3 +27,8 @@
     background-color: #dbeafe;
     color: #1e40af;
 }
+
+.error {
+    background-color: #fee2e2;
+    color: #991b1b;
+}

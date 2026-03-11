@@ -27,6 +27,14 @@ export const ru = {
     'status.failed': 'Не сдал',
     'status.manual': 'Вручную',
     'status.all': 'Все статусы',
+    'status.repeated': 'Повтор',
+    'status.planned': 'Запланировано',
+    'status.passed_academic': 'Пройдено (Академ.)',
+    'status.not_completed': 'Не завершено',
+    'status.passed_academic_badge': 'ПРОЙДЕНО',
+    'status.failed_badge': 'НЕ СДАЛ',
+    'status.repeat_badge': 'ПОВТОР',
+    'status.needs_repeat_badge': 'НУЖЕН ПОВТОР',
 
     // Actions
     'action.save': 'Сохранить',
@@ -281,6 +289,9 @@ export const ru = {
     'msg.error_general': 'Произошла ошибка. Пожалуйста, попробуйте еще раз.',
     'label.select_year': 'Учебный год',
     'label.select_term': 'Семестр',
+    'label.attempt_x': 'Попытка {{num}}',
+    'filter.group_attempts': 'История попыток',
+    'filter.group_academic': 'Академический статус',
     'modal.add_semester.title': 'Добавить семестр',
     'msg.semester_exists': 'Семестр для этого Года и Семестра уже существует.',
 

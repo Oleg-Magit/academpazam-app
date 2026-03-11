@@ -104,6 +104,7 @@ export const SemesterRoadmap: React.FC<SemesterRoadmapProps> = ({
                                     status={sem.status}
                                     totalCredits={sem.totalCredits}
                                     completedCredits={sem.completedCredits}
+                                    attemptFailedCount={sem.attemptFailedCount}
                                     isSelected={selectedSemester === sem.semesterId}
                                     onClick={() => onSelectSemester(sem.semesterId)}
                                 />

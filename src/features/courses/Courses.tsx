@@ -23,6 +23,7 @@ import { CourseList } from './components/CourseList';
 import { useSemesterManagement } from './hooks/useSemesterManagement';
 import { getSemesterTitle, getSemesterContext } from '@/core/utils/semesterUtils';
 import { DEFAULT_PASSING_THRESHOLD } from '@/core/constants/grades';
+import { isAttemptPassed, getRootCourseId } from '@/core/services/courseLifecycle';
 
 export const Courses: React.FC = () => {
     const { t } = useTranslation();
@@ -128,22 +129,94 @@ export const Courses: React.FC = () => {
     const isFiltering = showSemesterLabels;
 
     const displayedCourses = useMemo(() => {
+        // 1. Core Logic: Domain Selection
+        const isAcademicFilter = ['passed_academic', 'needs_repeat', 'not_completed'].includes(statusFilter);
+
+        // If academic filter, we must group by lineage first
+        if (isAcademicFilter) {
+            const passingThreshold = currentPlan?.passing_exam_threshold ?? DEFAULT_PASSING_THRESHOLD;
+            const courseMap = new Map<string, CourseWithTopics>();
+            for (const c of courses) courseMap.set(c.id, c);
+
+            const lineages = new Map<string, CourseWithTopics[]>();
+            for (const c of courses) {
+                const rootId = getRootCourseId(c.id, courseMap);
+                if (!lineages.has(rootId)) lineages.set(rootId, []);
+                lineages.get(rootId)!.push(c);
+            }
+
+            const representatives: CourseWithTopics[] = [];
+
+            for (const lineageCourses of lineages.values()) {
+                const hasPassed = lineageCourses.some(lc => isAttemptPassed(lc, passingThreshold));
+                const hasFailed = lineageCourses.some(lc => lc.attemptStatus === 'failed' || (lc.grade !== null && lc.grade !== undefined && lc.grade < passingThreshold));
+
+                let match = false;
+                let rep: CourseWithTopics | undefined;
+
+                if (statusFilter === 'passed_academic' && hasPassed) {
+                    match = true;
+                    // Rep: Latest passed implementation
+                    rep = [...lineageCourses]
+                        .filter(lc => isAttemptPassed(lc, passingThreshold))
+                        .sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0))[0];
+                } else if (statusFilter === 'needs_repeat' && !hasPassed && hasFailed) {
+                    match = true;
+                    // Rep: Latest attempt
+                    rep = [...lineageCourses].sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0))[0];
+                } else if (statusFilter === 'not_completed' && !hasPassed) {
+                    match = true;
+                    // Rep: Latest attempt
+                    rep = [...lineageCourses].sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0))[0];
+                }
+
+                if (match && rep) {
+                    representatives.push(rep);
+                }
+            }
+
+            // Finally, filter the representatives by common criteria (search, semester, year/term)
+            return representatives.filter(c => {
+                const sem = semesters.find(s => s.id === c.semesterId);
+                if (selectedSemester === 'all' && yearFilter !== 'all' && sem?.year !== parseInt(yearFilter)) return false;
+                if (selectedSemester === 'all' && termFilter !== 'all' && sem?.term !== termFilter) return false;
+                if (selectedSemester !== 'all' && c.semesterId !== selectedSemester) return false;
+                if (searchTerm.trim() !== '') {
+                    const searchLower = searchTerm.toLowerCase();
+                    return c.name.toLowerCase().includes(searchLower) ||
+                        (c.code && c.code.toLowerCase().includes(searchLower)) ||
+                        (c.topics && c.topics.some(t => t.title.toLowerCase().includes(searchLower)));
+                }
+                return true;
+            });
+        }
+
+        // 2. Normal / Attempt-level filtering
         const filterFn = (c: CourseWithTopics) => {
             const sem = semesters.find(s => s.id === c.semesterId);
 
-            // 1. Year Filter (Ignored if a specific semester is picked)
+            // Year / Term / Semester
             if (selectedSemester === 'all' && yearFilter !== 'all' && sem?.year !== parseInt(yearFilter)) return false;
-
-            // 2. Term Filter (Ignored if a specific semester is picked)
             if (selectedSemester === 'all' && termFilter !== 'all' && sem?.term !== termFilter) return false;
-
-            // 3. Semester Filter
             if (selectedSemester !== 'all' && c.semesterId !== selectedSemester) return false;
 
-            // 4. Status Filter
-            if (statusFilter !== 'all' && c.effectiveStatus !== statusFilter) return false;
+            // Attempt Status Filter logic
+            if (statusFilter !== 'all') {
+                if (statusFilter === 'failed') {
+                    if (c.attemptStatus !== 'failed') return false;
+                } else if (statusFilter === 'in_progress') {
+                    if (c.attemptStatus !== 'in_progress') return false;
+                } else if (statusFilter === 'repeated') {
+                    if (!c.repeatedFromCourseId) return false;
+                } else if (statusFilter === 'planned') {
+                    if (c.attemptStatus !== 'planned') return false;
+                } else {
+                    // Fallback for any other specific attempt filter if added
+                    if (c.effectiveStatus !== statusFilter) return false;
+                }
+            }
 
-            // 5. Search
+            // Search
             if (searchTerm.trim() !== '') {
                 const searchLower = searchTerm.toLowerCase();
                 const matchesSearch = c.name.toLowerCase().includes(searchLower) ||
@@ -156,7 +229,7 @@ export const Courses: React.FC = () => {
         };
 
         return courses.filter(filterFn);
-    }, [courses, semesters, selectedSemester, searchTerm, statusFilter, yearFilter, termFilter]);
+    }, [courses, semesters, selectedSemester, searchTerm, statusFilter, yearFilter, termFilter, currentPlan]);
 
     const hierarchy = useMemo(() => {
         const yearMap = new Map<number, Map<string, Map<string, { name: string, courses: CourseWithTopics[] }>>>();

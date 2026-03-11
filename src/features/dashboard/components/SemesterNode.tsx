@@ -10,6 +10,7 @@ interface SemesterNodeProps {
     completedCredits: number;
     isSelected: boolean;
     onClick: () => void;
+    attemptFailedCount?: number;
 }
 
 export const SemesterNode: React.FC<SemesterNodeProps> = memo(({
@@ -19,7 +20,8 @@ export const SemesterNode: React.FC<SemesterNodeProps> = memo(({
     totalCredits,
     completedCredits,
     isSelected,
-    onClick
+    onClick,
+    attemptFailedCount = 0
 }) => {
     const { t } = useTranslation();
     const progress = totalCredits > 0 ? (completedCredits / totalCredits) * 100 : 0;
@@ -78,9 +80,28 @@ export const SemesterNode: React.FC<SemesterNodeProps> = memo(({
                 justifyContent: 'space-between',
                 alignItems: 'center'
             }}>
-                <span>
-                    {label || `${t('label.semester')} ${semesterId}`}
-                </span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span>
+                        {label || `${t('label.semester')} ${semesterId}`}
+                    </span>
+                    {attemptFailedCount > 0 && (
+                        <div 
+                            title={t('status.failed')}
+                            style={{
+                                width: '14px',
+                                height: '14px',
+                                borderRadius: '50%',
+                                backgroundColor: 'var(--color-danger)',
+                                color: 'white',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontSize: '10px',
+                                fontWeight: 800
+                            }}
+                        >!</div>
+                    )}
+                </div>
                 {status === 'completed' && (
                     <div style={{
                         width: '18px',

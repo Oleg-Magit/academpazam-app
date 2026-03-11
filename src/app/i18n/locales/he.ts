@@ -27,6 +27,14 @@ export const he = {
     'status.failed': 'נכשל',
     'status.manual': 'ידני',
     'status.all': 'כל הסטטוסים',
+    'status.repeated': 'חוזר',
+    'status.planned': 'מתוכנן',
+    'status.passed_academic': 'עבר (אקדמי)',
+    'status.not_completed': 'טרם הושלם',
+    'status.passed_academic_badge': 'עבר דרישה',
+    'status.failed_badge': 'נכשל',
+    'status.repeat_badge': 'קורס חוזר',
+    'status.needs_repeat_badge': 'דרוש חוזר',
 
     // Actions
     'action.save': 'שמור',
@@ -283,6 +291,9 @@ export const he = {
     'msg.error_general': 'אירעה שגיאה. נא לנסות שוב.',
     'label.select_year': 'שנה אקדמית',
     'label.select_term': 'סמסטר',
+    'label.attempt_x': 'ניסיון {{num}}',
+    'filter.group_attempts': 'היסטוריית ניסיונות',
+    'filter.group_academic': 'סטטוס אקדמי',
     'modal.add_semester.title': 'הוספת סמסטר',
     'msg.semester_exists': 'סמסטר לשנה וסמסטר אלו כבר קיים.',
 

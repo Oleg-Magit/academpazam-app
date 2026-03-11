@@ -27,6 +27,14 @@ export const en = {
     'status.failed': 'Failed',
     'status.manual': 'Manual',
     'status.all': 'All Statuses',
+    'status.repeated': 'Repeated',
+    'status.planned': 'Planned',
+    'status.passed_academic': 'Passed (Academic)',
+    'status.not_completed': 'Not Completed',
+    'status.passed_academic_badge': 'PASSED REQ',
+    'status.failed_badge': 'FAILED',
+    'status.repeat_badge': 'REPEAT',
+    'status.needs_repeat_badge': 'NEEDS REPEAT',
 
     // Actions
     'action.save': 'Save',
@@ -295,6 +303,9 @@ export const en = {
     'msg.error_general': 'An error occurred. Please try again.',
     'label.select_year': 'Academic Year',
     'label.select_term': 'Term',
+    'label.attempt_x': 'Attempt {{num}}',
+    'filter.group_attempts': 'Attempt History',
+    'filter.group_academic': 'Academic Requirements',
 
     // Bulk Add
     'modal.bulk_topic.placeholder': 'Topic 1\nTopic 2\nTopic 3...',

@@ -157,9 +157,17 @@ export const CoursesToolbar: React.FC<CoursesToolbarProps> = ({
                         }}
                     >
                         <option value="all">{t('status.all')}</option>
-                        <option value="completed">{t('status.completed')}</option>
-                        <option value="in_progress">{t('status.in_progress')}</option>
-                        <option value="not_started">{t('status.not_started')}</option>
+                        <optgroup label={t('filter.group_attempts')}>
+                            <option value="failed">{t('status.failed')}</option>
+                            <option value="in_progress">{t('status.in_progress')}</option>
+                            <option value="repeated">{t('status.repeated')}</option>
+                            <option value="planned">{t('status.planned')}</option>
+                        </optgroup>
+                        <optgroup label={t('filter.group_academic')}>
+                            <option value="passed_academic">{t('status.passed_academic')}</option>
+                            <option value="not_completed">{t('status.not_completed')}</option>
+                            <option value="needs_repeat">{t('status.needs_repeat')}</option>
+                        </optgroup>
                     </select>
                 </div>
             </div>

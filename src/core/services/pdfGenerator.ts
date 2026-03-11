@@ -2,6 +2,7 @@ import type { CourseWithTopics } from '../models/types';
 import { groupCoursesBySemester, calculateDegreeProgress } from './dataService';
 import { DEFAULT_PASSING_THRESHOLD } from '../constants/grades';
 import { getSemesters } from '../db/db';
+import { isAttemptPassed } from './courseLifecycle';
 import { drawCellText } from '../../features/pdf/pdfText';
 import { getPdfLib } from './getPdfLib';
 import { getFontKit } from './getFontKit';
@@ -226,13 +227,24 @@ export const generateDegreePDF = async (degreeName: string, courses: CourseWithT
             });
 
             // Draw Expected Status
-            // Since we don't calculate row status logic here yet, default to 'not_started' or the derived status
-            let courseStatusKey: TranslationKey = 'status.not_started';
-            if (course.effectiveStatus === 'completed') courseStatusKey = 'status.completed';
-            else if (course.effectiveStatus === 'in_progress') courseStatusKey = 'status.in_progress';
+            let statusText = '';
+            const isPassed = isAttemptPassed(course, passingThreshold);
+            if (isPassed) {
+                statusText = t('status.passed_academic_badge');
+            } else if (course.attemptStatus === 'failed' || (course.grade !== null && course.grade !== undefined && course.grade < passingThreshold)) {
+                statusText = t('status.failed_badge');
+            } else if (course.effectiveStatus === 'in_progress') {
+                statusText = t('status.in_progress');
+            }
 
-            drawCellText(currentPage, customFont, t(courseStatusKey), {
-                x: cols.status.x, y: currentY, width: cols.status.width, size: 10, color: black,
+            // Append Repeat indicator if applicable
+            if (course.repeatedFromCourseId) {
+                const repeatLabel = t('status.repeat_badge');
+                statusText = statusText ? `${statusText} (${repeatLabel})` : repeatLabel;
+            }
+
+            drawCellText(currentPage, customFont, statusText, {
+                x: cols.status.x, y: currentY, width: cols.status.width, size: 8, color: black,
                 align: lang === 'he' ? 'right' : 'left'
             });
 
