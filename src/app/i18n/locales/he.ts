@@ -90,6 +90,7 @@ export const he = {
     'label.overview_by_semester': 'מבט על לפי סמסטר',
     'label.no_courses_found': 'לא נמצאו קורסים.',
     'label.add_some': 'הוסף!',
+    'label.search_results': 'תוצאות חיפוש',
     'label.pts': 'נק׳',
     'label.more_options': 'אפשרויות נוספות',
     'label.more': 'עוד',

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from '@/app/i18n/useTranslation';
+import { getPlans } from '@/core/db/db';
 import { BREAKING_DATA_VERSION, APP_VERSION } from '@/core/config/version';
 import { exportDataToJSON } from '@/core/services/importExport';
 import { clearAllData, closeDB } from '@/core/db/db';
@@ -17,12 +18,38 @@ export const UpgradeGuard: React.FC = () => {
     const [isExporting, setIsExporting] = useState(false);
 
     useEffect(() => {
-        const lastVersion = localStorage.getItem(LAST_VERSION_KEY);
-        const currentVersion = BREAKING_DATA_VERSION.toString();
+        let cancelled = false;
 
-        if (lastVersion !== currentVersion) {
-            setShowModal(true);
-        }
+        const checkVersion = async () => {
+            const lastVersion = localStorage.getItem(LAST_VERSION_KEY);
+            const currentVersion = BREAKING_DATA_VERSION.toString();
+
+            if (lastVersion !== currentVersion) {
+                // Task 2: Fix UpgradeGuard showing on fresh install
+                // Check if user has any stored data (plans)
+                try {
+                    const plans = await getPlans();
+                    if (plans.length === 0) {
+                        // Fresh install - no data to migrate. Set version and don't show modal.
+                        localStorage.setItem(LAST_VERSION_KEY, currentVersion);
+                        return;
+                    }
+                } catch (error) {
+                    console.error('[UpgradeGuard] Failed to check plans:', error);
+                    // Fallback to showing the modal if check fails, to be safe
+                }
+
+                if (!cancelled) {
+                    setShowModal(true);
+                }
+            }
+        };
+
+        checkVersion();
+
+        return () => {
+            cancelled = true;
+        };
     }, []);
 
     const handleExport = async () => {
@@ -86,7 +113,7 @@ export const UpgradeGuard: React.FC = () => {
                     position: 'fixed',
                     bottom: '20px',
                     right: '20px',
-                    zIndex: 900,
+                    zIndex: 400,
                     backgroundColor: 'var(--color-warning)',
                     color: 'var(--color-white)',
                     padding: '12px 20px',
