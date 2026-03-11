@@ -139,6 +139,17 @@ export const en = {
     'msg.grade_help': 'Complete all topics to unlock grade input.',
     'msg.grade_invalid': 'Grade must be 0-100.',
 
+    // Phase B2 - Failed Course UX
+    'modal.failed_course.title': 'Course Failed',
+    'modal.failed_course.desc': 'This grade is below the passing threshold. Choose what to do:',
+    'action.keep_failed': 'Keep as Failed',
+    'action.create_repeat': 'Create Repeat Attempt',
+    'label.target_semester': 'Target Semester',
+    'label.init_mode': 'Initialization',
+    'option.copy_topics_reset': 'Copy Topics (Structure only)',
+    'option.empty_repeat': 'Empty Course (No Topics)',
+    'msg.no_target_semesters': 'No other semesters available to repeat. Please add a future semester first.',
+
     // Missing Keys
     'msg.cannot_delete_only_semester': 'Cannot delete the only semester.',
     'msg.delete_course_confirm': 'Are you sure you want to delete this course?',

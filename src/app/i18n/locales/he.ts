@@ -126,6 +126,17 @@ export const he = {
     'msg.grade_help': 'השלם את כל הנושאים כדי להזין ציון.',
     'msg.grade_invalid': 'הציון חייב להיות בין 0 ל-100.',
 
+    // Phase B2 - Failed Course UX
+    'modal.failed_course.title': 'נכשלת בקורס',
+    'modal.failed_course.desc': 'ציון זה נמצא מתחת לסף המעבר. בחר מה לעשות:',
+    'action.keep_failed': 'השאר כנכשל',
+    'action.create_repeat': 'צור ניסיון חוזר',
+    'label.target_semester': 'סמסטר יעד',
+    'label.init_mode': 'אתחול',
+    'option.copy_topics_reset': 'העתק נושאים (אתחול התקדמות)',
+    'option.empty_repeat': 'קורס ריק (ללא נושאים)',
+    'msg.no_target_semesters': 'אין סמסטרים אחרים זמינים לניסיון חוזר. אנא הוסף סמסטר עתידי קודם.',
+
     // Missing Keys
     'msg.cannot_delete_only_semester': 'לא ניתן למחוק את הסמסטר היחיד.',
     'msg.delete_course_confirm': 'האם אתה בטוח שברצונך למחוק את הקורס הזה?',

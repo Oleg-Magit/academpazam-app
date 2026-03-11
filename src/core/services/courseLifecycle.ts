@@ -1,4 +1,5 @@
-import type { Course, CourseWithTopics } from '../models/types';
+import type { Course, CourseWithTopics, Topic } from '../models/types';
+import { v4 as uuidv4 } from 'uuid';
 
 /**
  * Encapsulates the B0 legacy compatibility rules and B1 explicit lifecycle rules
@@ -72,3 +73,46 @@ export const calculateLineageEarnedCredits = (courses: CourseWithTopics[], passi
 
     return totalEarnedCredits;
 };
+
+/**
+ * Pure helper to construct a new repeat course record.
+ * Does NOT persist to DB.
+ */
+export function createRepeatCourse(
+    source: Course,
+    topics: Topic[],
+    targetSemesterId: string,
+    newAttemptNumber: number,
+    initMode: 'copy_structure' | 'empty'
+): { course: Course; topics: Topic[] } {
+    const now = Date.now();
+    const newCourseId = uuidv4();
+
+    const newCourse: Course = {
+        ...source,
+        id: newCourseId,
+        semesterId: targetSemesterId,
+        repeatedFromCourseId: source.id,
+        attemptStatus: 'planned',
+        attemptNumber: newAttemptNumber,
+        grade: null,
+        manualStatus: 'not_started',
+        createdAt: now,
+        updatedAt: now,
+    };
+
+    let newTopics: Topic[] = [];
+    if (initMode === 'copy_structure') {
+        newTopics = topics.map((t) => ({
+            id: uuidv4(),
+            courseId: newCourseId,
+            title: t.title,
+            description: t.description,
+            status: 'not_started',
+            createdAt: now,
+            updatedAt: now,
+        }));
+    }
+
+    return { course: newCourse, topics: newTopics };
+}

@@ -8,11 +8,14 @@ import { TopicModal } from '@/features/topics/TopicModal';
 import { BulkAddTopicModal } from '@/features/topics/BulkAddTopicModal';
 import type { Topic, TopicStatus, Course } from '@/core/models/types';
 import { saveTopic, deleteTopic, saveCourse, initDB } from '@/core/db/db';
-import { Plus, ArrowLeft, Trash2, Edit2, CheckCircle, Circle, Clock, FileText } from 'lucide-react';
+import { Plus, ArrowLeft, Trash2, Edit2, CheckCircle, Circle, Clock, FileText, Save } from 'lucide-react';
 import { useTranslation } from '@/app/i18n/useTranslation';
-import { PASS_GRADE } from '@/core/constants/grades';
+import { DEFAULT_PASSING_THRESHOLD } from '@/core/constants/grades';
 import { Input } from '@/ui/Input';
 import { ConfirmationModal } from '@/ui/ConfirmationModal';
+import { usePlan } from '@/core/hooks/useData';
+import { FailedCourseModal } from './FailedCourseModal';
+import { createRepeatCourse } from '@/core/services/courseLifecycle';
 
 interface CourseDetailsProps {
     id?: string;
@@ -32,7 +35,10 @@ export const CourseDetails: React.FC<CourseDetailsProps> = ({ id: propId, onBack
     const [editingTopic, setEditingTopic] = useState<Topic | null>(null);
     const [gradeInput, setGradeInput] = useState<string>('');
     const [topicToDelete, setTopicToDelete] = useState<Topic | null>(null);
+    const [isFailedModalOpen, setIsFailedModalOpen] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
+    const { plan } = usePlan(course?.degreePlanId || null);
+    const passingThreshold = plan?.passing_exam_threshold ?? DEFAULT_PASSING_THRESHOLD;
 
     // Fetch course effect
     React.useEffect(() => {
@@ -75,7 +81,7 @@ export const CourseDetails: React.FC<CourseDetailsProps> = ({ id: propId, onBack
         setEditingTopic(null);
     };
 
-    const handleGradeBlur = async () => {
+    const handleGradeSave = async () => {
         if (!course) return;
 
         // If empty, save as null
@@ -89,18 +95,80 @@ export const CourseDetails: React.FC<CourseDetailsProps> = ({ id: propId, onBack
         }
 
         const num = parseFloat(gradeInput);
-        if (!isNaN(num) && num >= 0 && num <= 100) {
-            if (course.grade !== num) {
-                const updated = { ...course, grade: num, updatedAt: Date.now() };
-                await saveCourse(updated);
-                setCourse(updated);
-            }
-        } else {
-            // Revert if invalid
+        if (isNaN(num) || num < 0 || num > 100) {
             setGradeInput(course.grade?.toString() || '');
             setErrorMsg(t('msg.grade_invalid'));
             setTimeout(() => setErrorMsg(''), 3000);
+            return;
         }
+
+        // Logic Check: Failing grade?
+        if (num < passingThreshold) {
+            setIsFailedModalOpen(true);
+            return;
+        }
+
+        // Passing or same grade
+        if (course.grade !== num) {
+            const updated: Course = {
+                ...course,
+                grade: num,
+                attemptStatus: 'passed',
+                updatedAt: Date.now()
+            };
+            await saveCourse(updated);
+            setCourse(updated);
+        }
+    };
+
+    const handleConfirmKeepFailed = async () => {
+        if (!course) return;
+        const num = parseFloat(gradeInput);
+        const updated: Course = {
+            ...course,
+            grade: num,
+            attemptStatus: 'failed',
+            updatedAt: Date.now()
+        };
+        await saveCourse(updated);
+        setCourse(updated);
+        setIsFailedModalOpen(false);
+    };
+
+    const handleConfirmCreateRepeat = async (targetSemesterId: string, initMode: 'copy_structure' | 'empty') => {
+        if (!course) return;
+        const num = parseFloat(gradeInput);
+
+        // 1. Normalize/Save original first
+        const currentAttemptNumber = course.attemptNumber ?? 1;
+        const updatedSource: Course = {
+            ...course,
+            grade: num,
+            attemptStatus: 'failed',
+            attemptNumber: currentAttemptNumber,
+            updatedAt: Date.now()
+        };
+        await saveCourse(updatedSource);
+        setCourse(updatedSource);
+
+        // 2. Create repeat
+        const { course: repeatCourse, topics: repeatTopics } = createRepeatCourse(
+            updatedSource,
+            topics,
+            targetSemesterId,
+            currentAttemptNumber + 1,
+            initMode
+        );
+
+        await saveCourse(repeatCourse);
+        for (const rt of repeatTopics) {
+            await saveTopic(rt);
+        }
+
+        // 3. UI Feedback
+        setIsFailedModalOpen(false);
+        // Refresh topics/course
+        refreshTopics();
     };
 
     if (!course) return <div>{t('msg.loading_courses')}</div>;
@@ -111,7 +179,7 @@ export const CourseDetails: React.FC<CourseDetailsProps> = ({ id: propId, onBack
     const isGradeEnabled = effectiveStatus === 'completed';
 
     const gradeStatus = course.grade === null || course.grade === undefined ? 'ungraded' :
-        (course.grade >= PASS_GRADE ? 'passed' : 'failed');
+        (course.grade >= passingThreshold ? 'passed' : 'failed');
 
     return (
         <div>
@@ -146,11 +214,21 @@ export const CourseDetails: React.FC<CourseDetailsProps> = ({ id: propId, onBack
                                     type="number"
                                     value={gradeInput}
                                     onChange={(e) => setGradeInput(e.target.value)}
-                                    onBlur={handleGradeBlur}
                                     placeholder={isGradeEnabled ? "0-100" : "-"}
                                     disabled={!isGradeEnabled}
                                 />
                             </div>
+                            {isGradeEnabled && (
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={handleGradeSave}
+                                    aria-label={t('action.save')}
+                                    style={{ paddingTop: '10px' }}
+                                >
+                                    <Save size={20} />
+                                </Button>
+                            )}
                             {course.grade !== null && course.grade !== undefined && (
                                 <div style={{ paddingTop: '10px' }}>
                                     <Badge variant={gradeStatus === 'passed' ? 'success' : 'error'} aria-label={t(gradeStatus === 'ungraded' ? 'label.ungraded' : `status.${gradeStatus}`)}>
@@ -272,6 +350,18 @@ export const CourseDetails: React.FC<CourseDetailsProps> = ({ id: propId, onBack
                 )
             }
 
+            {
+                course && (
+                    <FailedCourseModal
+                        isOpen={isFailedModalOpen}
+                        onClose={() => setIsFailedModalOpen(false)}
+                        onKeepFailed={handleConfirmKeepFailed}
+                        onCreateRepeat={handleConfirmCreateRepeat}
+                        semesters={semesters}
+                        sourceSemesterId={course.semesterId}
+                    />
+                )
+            }
             {
                 errorMsg && (
                     <div style={{
