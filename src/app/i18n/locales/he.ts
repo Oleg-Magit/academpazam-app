@@ -21,6 +21,7 @@ export const he = {
     'status.not_started': 'טרם התחיל',
     'status.in_progress': 'בתהליך',
     'status.completed': 'הושלם',
+    'status.needs_repeat': 'דרוש שיפור',
     'status.done': 'הושלם',
     'status.passed': 'עבר',
     'status.failed': 'נכשל',

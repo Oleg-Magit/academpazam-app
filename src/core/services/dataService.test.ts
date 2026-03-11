@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { calculateEffectiveStatus, calculateDegreeProgress } from './dataService';
-import type { Course, Topic, CourseWithTopics } from '../models/types';
+import type { Course, Topic } from '../models/types';
 
 describe('dataService', () => {
     describe('calculateEffectiveStatus', () => {
@@ -37,17 +37,30 @@ describe('dataService', () => {
     });
 
     describe('calculateDegreeProgress', () => {
-        it('should calculate percentage correctly', () => {
+        it('should calculate percentage correctly for unique courses', () => {
             const courses = [
-                { credits: 3, effectiveStatus: 'completed', grade: 80 },
-                { credits: 4, effectiveStatus: 'in_progress' },
-                { credits: 3, effectiveStatus: 'not_started' }
-            ] as CourseWithTopics[];
+                { id: 'c1', credits: 3, attemptStatus: 'passed', grade: 80 },
+                { id: 'c2', credits: 4, attemptStatus: 'in_progress' },
+                { id: 'c3', credits: 3, attemptStatus: 'planned' }
+            ] as any[];
 
             const result = calculateDegreeProgress(courses, 56);
             expect(result.totalCredits).toBe(10);
             expect(result.completedCredits).toBe(3);
             expect(result.percentage).toBe(30);
+        });
+
+        it('should deduplicate credits for repeats and use root credits', () => {
+            const courses = [
+                { id: 'c1', credits: 3, attemptStatus: 'failed', grade: 40 },
+                { id: 'c2', credits: 5, attemptStatus: 'passed', grade: 90, repeatedFromCourseId: 'c1' }
+            ] as any[];
+
+            const result = calculateDegreeProgress(courses, 56);
+            expect(result.totalCredits).toBe(3); // Root credits (3) used, not repeat credits (5)
+            expect(result.completedCredits).toBe(3); // Lineage passed
+            expect(result.percentage).toBe(100);
+            expect(result.academicCompletedCount).toBe(1);
         });
 
         it('should handle zero credits', () => {

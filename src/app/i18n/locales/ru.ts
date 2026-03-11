@@ -21,6 +21,7 @@ export const ru = {
     'status.not_started': 'Не начато',
     'status.in_progress': 'В процессе',
     'status.completed': 'Завершено',
+    'status.needs_repeat': 'Пересдача',
     'status.done': 'Завершено',
     'status.passed': 'Пройдено',
     'status.failed': 'Не сдал',
@@ -138,6 +139,17 @@ export const ru = {
     'label.no_courses_in_semester': 'Нет курсов в семестре',
     'action.add_course_manually': 'Добавить курс вручную',
     'msg.add_topics_hint': 'Добавьте темы для авторасчета прогресса',
+
+    // Phase B2 - Failed Course UX
+    'modal.failed_course.title': 'Курс не пройден',
+    'modal.failed_course.desc': 'Эта оценка ниже проходного балла. Выберите действие:',
+    'action.keep_failed': 'Оставить как "не сдал"',
+    'action.create_repeat': 'Создать повторную попытку',
+    'label.target_semester': 'Целевой семестр',
+    'label.init_mode': 'Инициализация',
+    'option.copy_topics_reset': 'Копировать темы (только структуру)',
+    'option.empty_repeat': 'Пустой курс (без тем)',
+    'msg.no_target_semesters': 'Нет других семестров для повторной попытки. Пожалуйста, сначала добавьте будущий семестр.',
 
 
     // Footer

@@ -1,6 +1,6 @@
 import type { Course, Topic, CourseStatus, CourseWithTopics, SemesterGroup, Semester } from '../models/types';
 import { getTopicsByCourse } from '../db/db';
-import { isAttemptPassed, calculateLineageEarnedCredits } from './courseLifecycle';
+import { isAttemptPassed, calculateAcademicMetrics } from './courseLifecycle';
 
 /**
  * Determines the display status of a course based on its topics.
@@ -49,8 +49,10 @@ export const groupCoursesBySemester = (
             year: sem.year,
             term: sem.term,
             courses: [],
-            totalCredits: 0,
-            completedCredits: 0
+            totalCredits: 0, // Semester attempts total weight
+            completedCredits: 0, // Semester attempts earned credits
+            semesterLoad: 0, // Alias for totalCredits for clarity
+            attemptFailedCount: 0 // Count of failed attempts in this semester
         };
     });
 
@@ -69,8 +71,16 @@ export const groupCoursesBySemester = (
         }
         groups[semId].courses.push(course);
         groups[semId].totalCredits += course.credits;
+        
+        // Semester-level stats (Attempt-based)
         if (isAttemptPassed(course, passingThreshold)) {
             groups[semId].completedCredits += course.credits;
+        } else {
+            // Check for explicit failure or grade failure
+            const isFailed = course.attemptStatus === 'failed' || (course.grade !== null && course.grade !== undefined && course.grade < passingThreshold);
+            if (isFailed) {
+                (groups[semId] as any).attemptFailedCount = ((groups[semId] as any).attemptFailedCount || 0) + 1;
+            }
         }
     });
 
@@ -82,12 +92,13 @@ export const groupCoursesBySemester = (
  * Calculates high-level degree progress metrics.
  */
 export const calculateDegreeProgress = (courses: CourseWithTopics[], passingThreshold: number) => {
-    const totalCredits = courses.reduce((sum, c) => sum + c.credits, 0);
-    const completedCredits = calculateLineageEarnedCredits(courses, passingThreshold);
+    const metrics = calculateAcademicMetrics(courses, passingThreshold);
 
     return {
-        totalCredits,
-        completedCredits,
-        percentage: totalCredits > 0 ? (completedCredits / totalCredits) * 100 : 0
+        totalCredits: metrics.totalRequiredCredits,
+        completedCredits: metrics.earnedCredits,
+        percentage: metrics.totalRequiredCredits > 0 ? (metrics.earnedCredits / metrics.totalRequiredCredits) * 100 : 0,
+        academicCompletedCount: metrics.completedCount,
+        academicNeedsRepeatCount: metrics.needsRepeatCount
     };
 };

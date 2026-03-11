@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isAttemptPassed, createRepeatCourse } from './courseLifecycle';
+import { isAttemptPassed, createRepeatCourse, calculateAcademicMetrics } from './courseLifecycle';
 import type { Course, Topic } from '../models/types';
 
 describe('courseLifecycle', () => {
@@ -79,6 +79,62 @@ describe('courseLifecycle', () => {
             );
 
             expect(topics).toHaveLength(0);
+        });
+    });
+
+    describe('calculateAcademicMetrics', () => {
+        const rootCourse: Course = { ...mockCourse, id: 'root', credits: 3 };
+        const repeatCourse: Course = { ...mockCourse, id: 'repeat', credits: 4, repeatedFromCourseId: 'root' };
+
+        it('deduplicates lineages and uses root credits as canonical', () => {
+            const metrics = calculateAcademicMetrics(
+                [
+                    { ...rootCourse, attemptStatus: 'failed' } as any,
+                    { ...repeatCourse, attemptStatus: 'planned' } as any
+                ],
+                56
+            );
+
+            expect(metrics.totalRequiredCredits).toBe(3); // From root
+            expect(metrics.earnedCredits).toBe(0);
+            expect(metrics.completedCount).toBe(0);
+        });
+
+        it('marks lineage as completed if any attempt passed', () => {
+            const metrics = calculateAcademicMetrics(
+                [
+                    { ...rootCourse, attemptStatus: 'failed' } as any,
+                    { ...repeatCourse, attemptStatus: 'passed' } as any
+                ],
+                56
+            );
+
+            expect(metrics.totalRequiredCredits).toBe(3);
+            expect(metrics.earnedCredits).toBe(3);
+            expect(metrics.completedCount).toBe(1);
+            expect(metrics.needsRepeatCount).toBe(0);
+        });
+
+        it('counts as needsRepeat if no pass exists but at least one fail exists', () => {
+            // Case: Failed -> In Progress
+            const metrics = calculateAcademicMetrics(
+                [
+                    { ...rootCourse, attemptStatus: 'failed' } as any,
+                    { ...repeatCourse, attemptStatus: 'in_progress' } as any
+                ],
+                56
+            );
+
+            expect(metrics.needsRepeatCount).toBe(1);
+            expect(metrics.completedCount).toBe(0);
+        });
+
+        it('does NOT count as needsRepeat if no failure exists (even if planned)', () => {
+            const metrics = calculateAcademicMetrics(
+                [{ ...rootCourse, attemptStatus: 'planned' } as any],
+                56
+            );
+            expect(metrics.needsRepeatCount).toBe(0);
         });
     });
 });

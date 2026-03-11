@@ -21,57 +21,81 @@ export const isAttemptPassed = (course: Course | CourseWithTopics, passingThresh
 };
 
 /**
+ * Utility to identify the root course ID in a lineage.
+ */
+export const getRootCourseId = (courseId: string, courseMap: Map<string, Course>): string => {
+    let current = courseId;
+    const visited = new Set<string>();
+
+    while (true) {
+        visited.add(current);
+        const c = courseMap.get(current);
+        if (!c || !c.repeatedFromCourseId) return current;
+
+        // Cycle prevention
+        if (visited.has(c.repeatedFromCourseId)) return current;
+
+        current = c.repeatedFromCourseId;
+    }
+};
+
+/**
  * Resolves explicit repeat lineages backwards to group attempts.
  * Ensures passed attempts count only once per explicit lineage.
  */
 export const calculateLineageEarnedCredits = (courses: CourseWithTopics[], passingThreshold: number): number => {
-    // Map to quickly lookup course by id
+    return calculateAcademicMetrics(courses, passingThreshold).earnedCredits;
+};
+
+export interface AcademicMetrics {
+    totalRequiredCredits: number;
+    earnedCredits: number;
+    completedCount: number;
+    needsRepeatCount: number;
+}
+
+/**
+ * Unified calculation of academic-level metrics.
+ * Deduplicates by lineage and uses root-attempt canonical weights.
+ */
+export const calculateAcademicMetrics = (courses: CourseWithTopics[], passingThreshold: number): AcademicMetrics => {
     const courseMap = new Map<string, CourseWithTopics>();
     for (const c of courses) {
         courseMap.set(c.id, c);
     }
 
-    // Identify the "root" attempt for each course traversing repeatedFromCourseId backwards
-    const getRootCourseId = (courseId: string): string => {
-        let current = courseId;
-        const visited = new Set<string>();
-        
-        while (true) {
-            visited.add(current);
-            const c = courseMap.get(current);
-            if (!c || !c.repeatedFromCourseId) return current;
-            
-            // Cycle prevention
-            if (visited.has(c.repeatedFromCourseId)) return current;
-            
-            current = c.repeatedFromCourseId;
-        }
-    };
-
-    // Group courses by their lineage root
     const lineages = new Map<string, CourseWithTopics[]>();
     for (const c of courses) {
-        const rootId = getRootCourseId(c.id);
+        const rootId = getRootCourseId(c.id, courseMap);
         if (!lineages.has(rootId)) {
             lineages.set(rootId, []);
         }
         lineages.get(rootId)!.push(c);
     }
 
-    // Calculate sum: 1 time per lineage if at least one attempt is passed
-    let totalEarnedCredits = 0;
-    
-    for (const [_, lineageCourses] of lineages.entries()) {
+    let totalRequiredCredits = 0;
+    let earnedCredits = 0;
+    let completedCount = 0;
+    let needsRepeatCount = 0;
+
+    for (const [rootId, lineageCourses] of lineages.entries()) {
+        // Canonical Credits: from the root attempt
+        const rootCourse = courseMap.get(rootId);
+        const canonicalCredits = rootCourse?.credits ?? lineageCourses[0].credits;
+        totalRequiredCredits += canonicalCredits;
+
         const hasPassedAttempt = lineageCourses.some(c => isAttemptPassed(c, passingThreshold));
-        
+        const hasFailedAttempt = lineageCourses.some(c => c.attemptStatus === 'failed' || (c.grade !== null && c.grade !== undefined && c.grade < passingThreshold));
+
         if (hasPassedAttempt) {
-            // Take the credits of the passed attempt (fallback to first in array)
-            const passedCourse = lineageCourses.find(c => isAttemptPassed(c, passingThreshold));
-            totalEarnedCredits += (passedCourse?.credits ?? lineageCourses[0].credits);
+            earnedCredits += canonicalCredits;
+            completedCount += 1;
+        } else if (hasFailedAttempt) {
+            needsRepeatCount += 1;
         }
     }
 
-    return totalEarnedCredits;
+    return { totalRequiredCredits, earnedCredits, completedCount, needsRepeatCount };
 };
 
 /**

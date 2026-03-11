@@ -7,7 +7,7 @@ export const useDashboardData = (courses: CourseWithTopics[] | null, semesters: 
         if (!courses || semesters.length === 0) return {
             progress: { totalCredits: 0, completedCredits: 0, percentage: 0 },
             bySemester: [],
-            stats: { completedCount: 0, inProgressCount: 0, totalRemainingCredits: 0 },
+            stats: { completedCount: 0, inProgressCount: 0, needsRepeatCount: 0, totalRemainingCredits: 0 },
             byYear: [] // added
         };
 
@@ -15,8 +15,9 @@ export const useDashboardData = (courses: CourseWithTopics[] | null, semesters: 
         const grouped = groupCoursesBySemester(courses, semesters, passingThreshold);
 
         const stats = {
-            completedCount: courses.filter(c => c.effectiveStatus === 'completed').length,
+            completedCount: prog.academicCompletedCount,
             inProgressCount: courses.filter(c => c.effectiveStatus === 'in_progress').length,
+            needsRepeatCount: prog.academicNeedsRepeatCount,
             totalRemainingCredits: Math.max(0, prog.totalCredits - prog.completedCredits)
         };
 
@@ -44,8 +45,9 @@ export const useDashboardData = (courses: CourseWithTopics[] | null, semesters: 
             const yearCourses = yearMap.get(year)!;
             const yearProg = calculateDegreeProgress(yearCourses, passingThreshold);
             const yearStats = {
-                completedCount: yearCourses.filter(c => c.effectiveStatus === 'completed').length,
+                completedCount: yearProg.academicCompletedCount,
                 inProgressCount: yearCourses.filter(c => c.effectiveStatus === 'in_progress').length,
+                needsRepeatCount: yearProg.academicNeedsRepeatCount,
                 totalRemainingCredits: Math.max(0, yearProg.totalCredits - yearProg.completedCredits)
             };
             return {

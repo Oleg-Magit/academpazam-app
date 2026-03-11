@@ -21,6 +21,7 @@ export const en = {
     'status.not_started': 'Not Started',
     'status.in_progress': 'In Progress',
     'status.completed': 'Completed',
+    'status.needs_repeat': 'Needs Repeat',
     'status.done': 'Completed',
     'status.passed': 'Passed',
     'status.failed': 'Failed',

@@ -13,6 +13,7 @@ interface DegreeSnapshotProps {
     percentage: number;
     completedCount: number;
     inProgressCount: number;
+    needsRepeatCount: number;
 }
 
 export const DegreeSnapshot: React.FC<DegreeSnapshotProps> = memo(({
@@ -22,7 +23,8 @@ export const DegreeSnapshot: React.FC<DegreeSnapshotProps> = memo(({
     remainingCredits,
     percentage,
     completedCount,
-    inProgressCount
+    inProgressCount,
+    needsRepeatCount
 }) => {
     const { t } = useTranslation();
 
@@ -86,6 +88,9 @@ export const DegreeSnapshot: React.FC<DegreeSnapshotProps> = memo(({
                 <div className="stats-row" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '4px' }}>
                     <StatChip label={t('status.completed')} value={completedCount} color="var(--color-success)" />
                     <StatChip label={t('status.in_progress')} value={inProgressCount} color="var(--color-warning)" />
+                    {needsRepeatCount > 0 && (
+                        <StatChip label={t('status.needs_repeat')} value={needsRepeatCount} color="var(--color-danger)" />
+                    )}
                     <StatChip label={t('label.remaining')} value={remainingCredits} color="var(--color-text-secondary)" />
                 </div>
             </div>

@@ -65,4 +65,6 @@ export interface SemesterGroup {
     courses: CourseWithTopics[];
     totalCredits: number;
     completedCredits: number;
+    semesterLoad?: number;
+    attemptFailedCount?: number;
 }

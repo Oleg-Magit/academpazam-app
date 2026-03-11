@@ -239,6 +239,7 @@ export const Dashboard: React.FC = () => {
                 percentage={progress.percentage}
                 completedCount={stats.completedCount}
                 inProgressCount={stats.inProgressCount}
+                needsRepeatCount={stats.needsRepeatCount}
             />
 
             <section style={{ flex: 1 }}>
