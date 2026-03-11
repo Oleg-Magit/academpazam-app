@@ -20,9 +20,10 @@ import { createRepeatCourse } from '@/core/services/courseLifecycle';
 interface CourseDetailsProps {
     id?: string;
     onBack?: () => void;
+    onRefresh?: () => void;
 }
 
-export const CourseDetails: React.FC<CourseDetailsProps> = ({ id: propId, onBack }) => {
+export const CourseDetails: React.FC<CourseDetailsProps> = ({ id: propId, onBack, onRefresh }) => {
     const { t } = useTranslation();
     const { id: paramId } = useParams<{ id: string }>();
     const id = propId || paramId;
@@ -118,6 +119,7 @@ export const CourseDetails: React.FC<CourseDetailsProps> = ({ id: propId, onBack
             };
             await saveCourse(updated);
             setCourse(updated);
+            if (onRefresh) onRefresh();
         }
     };
 
@@ -133,6 +135,7 @@ export const CourseDetails: React.FC<CourseDetailsProps> = ({ id: propId, onBack
         await saveCourse(updated);
         setCourse(updated);
         setIsFailedModalOpen(false);
+        if (onRefresh) onRefresh();
     };
 
     const handleConfirmCreateRepeat = async (targetSemesterId: string, initMode: 'copy_structure' | 'empty') => {
@@ -169,6 +172,7 @@ export const CourseDetails: React.FC<CourseDetailsProps> = ({ id: propId, onBack
         setIsFailedModalOpen(false);
         // Refresh topics/course
         refreshTopics();
+        if (onRefresh) onRefresh();
     };
 
     if (!course) return <div>{t('msg.loading_courses')}</div>;

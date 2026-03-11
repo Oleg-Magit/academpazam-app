@@ -520,7 +520,7 @@ export const Courses: React.FC = () => {
     );
 
     if (selectedCourseId) {
-        return <CourseDetails id={selectedCourseId} onBack={() => setSelectedCourseId(null)} />;
+        return <CourseDetails id={selectedCourseId} onBack={() => setSelectedCourseId(null)} onRefresh={refresh} />;
     }
 
     return (
