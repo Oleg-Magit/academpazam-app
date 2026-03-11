@@ -18,7 +18,6 @@ interface DashboardHeaderProps {
 }
 
 export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
-    title,
     showExportSuccess,
     showActions,
     setShowActions,
@@ -70,8 +69,13 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
     );
 
     return (
-        <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>{title}</h1>
+        <header style={{ 
+            display: 'flex', 
+            justifyContent: 'flex-end', 
+            alignItems: 'center',
+            minHeight: '40px',
+            marginBottom: 'var(--space-sm)'
+        }}>
 
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center', position: 'relative' }}>
                 {showExportSuccess && (

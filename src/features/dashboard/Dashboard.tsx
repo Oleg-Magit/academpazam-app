@@ -12,6 +12,7 @@ import { DegreeSnapshot } from './components/DegreeSnapshot';
 import { CourseModal } from '@/features/courses/CourseModal';
 import { DeleteSemesterModal } from '@/features/courses/DeleteSemesterModal';
 import { DashboardHeader } from './components/DashboardHeader';
+import { AddSemesterModal } from '@/features/courses/AddSemesterModal';
 import { useDashboardData } from './hooks/useDashboardData';
 import { useSemesterManagement } from '@/features/courses/hooks/useSemesterManagement';
 import { DashboardSkeleton } from './components/DashboardSkeleton';
@@ -28,6 +29,7 @@ export const Dashboard: React.FC = () => {
     const [selectedSemester, setSelectedSemester] = useState<string | null>(null);
     const [showActions, setShowActions] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isAddSemesterModalOpen, setIsAddSemesterModalOpen] = useState(false);
     const [initialModalData, setInitialModalData] = useState<Partial<Course>>({});
     const [showExportSuccess, setShowExportSuccess] = useState(false);
     const [exportError, setExportError] = useState<string | null>(null);
@@ -285,6 +287,7 @@ export const Dashboard: React.FC = () => {
                         semesters={bySemester}
                         selectedSemester={selectedSemester}
                         onSelectSemester={setSelectedSemester}
+                        onAddSemester={() => setIsAddSemesterModalOpen(true)}
                     />
                 )}
             </section>
@@ -331,6 +334,17 @@ export const Dashboard: React.FC = () => {
                     semesters={semesters}
                 />
             )}
+
+            <AddSemesterModal
+                isOpen={isAddSemesterModalOpen}
+                onClose={() => setIsAddSemesterModalOpen(false)}
+                semesters={semesters}
+                onAdd={async (year, term) => {
+                    const nextId = await handleAddSemester(year, term);
+                    setIsAddSemesterModalOpen(false);
+                    return nextId;
+                }}
+            />
 
             {exportError && (
                 <div style={{

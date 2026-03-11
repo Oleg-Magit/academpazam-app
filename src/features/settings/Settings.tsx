@@ -8,7 +8,7 @@ import { PlanSettings } from './components/PlanSettings';
 import { DataSettings } from './components/DataSettings';
 
 export const Settings: React.FC = () => {
-    const { t, language } = useTranslation();
+    const { language } = useTranslation();
     const { plans, refresh: refreshPlans } = usePlans();
     const currentPlan = plans[0];
     const { courses } = useCourses(currentPlan?.id || null);
@@ -20,8 +20,7 @@ export const Settings: React.FC = () => {
     };
 
     return (
-        <div style={{ maxWidth: '800px', margin: '0 auto', paddingBottom: '80px' }}>
-            <h1 style={{ marginBottom: '24px', fontSize: '1.75rem' }}>{t('settings.title')}</h1>
+        <div style={{ maxWidth: '800px', margin: '0 auto', paddingBottom: '80px', paddingTop: 'var(--space-md)' }}>
 
             {message && (
                 <div style={{

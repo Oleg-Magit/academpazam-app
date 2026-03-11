@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import type { SemesterGroup } from '@/core/models/types';
 import { SemesterNode } from './SemesterNode';
-import { ChevronRight, ChevronLeft } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Plus } from 'lucide-react';
 import { useTranslation } from '@/app/i18n/useTranslation';
 import { getSemesterTitle } from '@/core/utils/semesterUtils';
 
@@ -9,12 +9,14 @@ interface SemesterRoadmapProps {
     semesters: SemesterGroup[];
     selectedSemester: string | null;
     onSelectSemester: (semesterId: string) => void;
+    onAddSemester: () => void;
 }
 
 export const SemesterRoadmap: React.FC<SemesterRoadmapProps> = ({
     semesters,
     selectedSemester,
-    onSelectSemester
+    onSelectSemester,
+    onAddSemester
 }) => {
     const { t, language } = useTranslation();
     const isRtl = language === 'he';
@@ -124,6 +126,54 @@ export const SemesterRoadmap: React.FC<SemesterRoadmapProps> = ({
                     </div>
                 </div>
             ))}
+
+            {/* Trailing Action Node */}
+            <button
+                onClick={onAddSemester}
+                style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '12px',
+                    padding: 'var(--space-lg) var(--space-xl)',
+                    backgroundColor: 'transparent',
+                    borderRadius: 'var(--radius-lg)',
+                    border: '2px dashed var(--color-border)',
+                    minWidth: '160px',
+                    height: '110px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    color: 'var(--color-text-secondary)',
+                    flexShrink: 0,
+                    alignSelf: 'center'
+                }}
+                onMouseOver={(e) => {
+                    e.currentTarget.style.borderColor = 'var(--color-accent)';
+                    e.currentTarget.style.color = 'var(--color-accent)';
+                    e.currentTarget.style.backgroundColor = 'rgba(var(--color-accent-rgb), 0.05)';
+                }}
+                onMouseOut={(e) => {
+                    e.currentTarget.style.borderColor = 'var(--color-border)';
+                    e.currentTarget.style.color = 'var(--color-text-secondary)';
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                }}
+            >
+                <div style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    border: '1px solid currentColor',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                }}>
+                    <Plus size={18} />
+                </div>
+                <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>
+                    {t('action.add_semester')}
+                </span>
+            </button>
             <style>{`
                 .roadmap-scroller::-webkit-scrollbar {
                     display: none;
