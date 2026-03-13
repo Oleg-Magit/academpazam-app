@@ -420,10 +420,12 @@ export const Dashboard: React.FC = () => {
                 </div>
             </ConfirmationModal>
 
-            <FAB 
-                onAddCourse={() => setIsModalOpen(true)}
-                onAddSemester={() => setIsAddSemesterModalOpen(true)}
-            />
+            {bySemester.length > 0 && (
+                <FAB 
+                    onAddCourse={() => setIsModalOpen(true)}
+                    onAddSemester={() => setIsAddSemesterModalOpen(true)}
+                />
+            )}
         </div>
     );
 };
