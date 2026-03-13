@@ -31,7 +31,7 @@ export const generateDegreePDF = async (degreeName: string, courses: CourseWithT
     const txt = (text: string) => text;
 
     const translatedProgress = t('dashboard.degree_progress');
-    // For RTL layout, put Number/English after Hebrew
+    // For RTL layout, ensuring natural Hebrew order: "התקדמות בתואר: <degreeName>"
     const headerTitle = lang === 'he'
         ? `${translatedProgress}: ${degreeName}`
         : `${degreeName}: ${translatedProgress}`;
@@ -59,20 +59,25 @@ export const generateDegreePDF = async (degreeName: string, courses: CourseWithT
     const progress = calculateDegreeProgress(courses, passingThreshold);
     const summaryY = height - 110;
 
-    const summaryColWidth = contentWidth / 4;
+    // Rebalanced summary metrics: 22% for credits, 28% for progress/remaining
+    const colWidths = [0.22, 0.22, 0.28, 0.28].map(w => contentWidth * w);
+    
     const getX = (col: number) => {
         if (lang === 'he') {
-            return margin + (3 - col) * summaryColWidth;
+            // In RTL, we sum the widths of columns that come "after" (to the left of) the current one
+            const widthsBefore = colWidths.slice(col + 1).reduce((sum, w) => sum + w, 0);
+            return margin + widthsBefore;
         }
-        return margin + col * summaryColWidth;
+        const widthsBefore = colWidths.slice(0, col).reduce((sum, w) => sum + w, 0);
+        return margin + widthsBefore;
     };
     const colAlign = lang === 'he' ? 'right' : 'left';
 
     drawCellText(currentPage, customFont, `${t('label.total_credits')}: ${progress.totalCredits}`, {
         x: getX(0),
         y: summaryY,
-        width: summaryColWidth,
-        size: 12,
+        width: colWidths[0],
+        size: 11,
         color: black,
         align: colAlign
     });
@@ -80,8 +85,8 @@ export const generateDegreePDF = async (degreeName: string, courses: CourseWithT
     drawCellText(currentPage, customFont, `${t('label.completed')}: ${progress.completedCredits}`, {
         x: getX(1),
         y: summaryY,
-        width: summaryColWidth,
-        size: 12,
+        width: colWidths[1],
+        size: 11,
         color: black,
         align: colAlign
     });
@@ -89,8 +94,8 @@ export const generateDegreePDF = async (degreeName: string, courses: CourseWithT
     drawCellText(currentPage, customFont, `${t('label.remaining')}: ${progress.totalCredits - progress.completedCredits}`, {
         x: getX(2),
         y: summaryY,
-        width: summaryColWidth,
-        size: 12,
+        width: colWidths[2],
+        size: 11,
         color: black,
         align: colAlign
     });
@@ -98,8 +103,8 @@ export const generateDegreePDF = async (degreeName: string, courses: CourseWithT
     drawCellText(currentPage, customFont, `${t('dashboard.degree_progress')}: ${progress.percentage.toFixed(1)}%`, {
         x: getX(3),
         y: summaryY,
-        width: summaryColWidth,
-        size: 12,
+        width: colWidths[3],
+        size: 11,
         color: black,
         align: colAlign
     });
@@ -116,16 +121,16 @@ export const generateDegreePDF = async (degreeName: string, courses: CourseWithT
     if (lang === 'he') {
         cols = {
             status: { x: margin, width: 100 },
-            credits: { x: margin + 100, width: 50 },
-            name: { x: margin + 150, width: 260 },
+            credits: { x: margin + 100, width: 80 }, // Increased from 50
+            name: { x: margin + 180, width: 230 }, // Reduced from 260
             code: { x: margin + 410, width: 80 }
         };
     } else {
         cols = {
             code: { x: margin, width: 80 },
-            name: { x: margin + 80, width: 270 },
-            credits: { x: margin + 350, width: 50 },
-            status: { x: margin + 400, width: 100 }
+            name: { x: margin + 80, width: 230 }, // Reduced from 270
+            credits: { x: margin + 310, width: 80 }, // Increased from 50
+            status: { x: margin + 390, width: 110 }
         };
     }
 
@@ -253,6 +258,16 @@ export const generateDegreePDF = async (degreeName: string, courses: CourseWithT
 
             currentY -= 20;
         }
+
+        // Add subtlety watermark to bottom-right of current page
+        drawCellText(currentPage, customFont, 'Exported from AcademPazam', {
+            x: width - 150,
+            y: 20,
+            width: 130,
+            size: 7,
+            color: rgb(0.7, 0.7, 0.7),
+            align: 'right'
+        });
         currentY -= 30; // Solid spacing between semesters
     }
 
