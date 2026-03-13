@@ -1,11 +1,7 @@
 // @ts-ignore
 import type { PDFPage, PDFFont, Color } from 'pdf-lib';
 
-export const hasHebrew = (text: string): boolean => {
-    return /[\u0590-\u05FF]/.test(text);
-};
-
-import { visualizeBiDiText } from '../../core/utils/rtl';
+import { hasHebrew, visualizeBiDiText } from '../../core/utils/rtl';
 
 /**
  * Modern browser PDF viewers (Chrome, etc.) handle Hebrew BiDi automatically 
@@ -14,6 +10,8 @@ import { visualizeBiDiText } from '../../core/utils/rtl';
  */
 export const toPdfVisualText = (text: string, _dir: 'ltr' | 'rtl' = 'ltr'): string => {
     if (!text) return '';
+    // If explicitly LTR, bypass BiDi transformation
+    if (_dir === 'ltr') return text;
     return visualizeBiDiText(text);
 };
 

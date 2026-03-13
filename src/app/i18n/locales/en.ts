@@ -57,7 +57,7 @@ export const en = {
 
     // Modals
     'modal.add_course.title': 'Add New Course',
-    'modal.paste_courses.title': 'Paste Courses',
+    'modal.paste_courses.title': 'Bulk Add Courses',
     'modal.paste_courses.placeholder': 'Paste your course list here...',
     'modal.paste_courses.instruction': 'Paste copied text from university portal',
 

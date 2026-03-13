@@ -2,7 +2,7 @@ import type { CourseWithTopics } from '../models/types';
 import { groupCoursesBySemester, calculateDegreeProgress } from './dataService';
 import { DEFAULT_PASSING_THRESHOLD } from '../constants/grades';
 import { getSemesters } from '../db/db';
-import { isAttemptPassed } from './courseLifecycle';
+import { buildLineageMetadata } from './courseLifecycle';
 import { drawCellText } from '../../features/pdf/pdfText';
 import { getPdfLib } from './getPdfLib';
 import { getFontKit } from './getFontKit';
@@ -42,7 +42,8 @@ export const generateDegreePDF = async (degreeName: string, courses: CourseWithT
         width: contentWidth,
         size: 20,
         align: 'center',
-        color: black
+        color: black,
+        dir: lang === 'he' ? 'rtl' : 'ltr'
     });
 
     const dateStr = new Date().toLocaleDateString(lang === 'he' ? 'he-IL' : (lang === 'ru' ? 'ru-RU' : 'en-US'));
@@ -106,6 +107,7 @@ export const generateDegreePDF = async (degreeName: string, courses: CourseWithT
     let currentY = summaryY - 40;
     const semestersData = await getSemesters();
     const groups = groupCoursesBySemester(courses, semestersData, passingThreshold);
+    const lineageMetadata = buildLineageMetadata(courses, passingThreshold);
 
     // Columns config - adjusted for RTL
     interface ColConfig { x: number; width: number }
@@ -113,8 +115,8 @@ export const generateDegreePDF = async (degreeName: string, courses: CourseWithT
 
     if (lang === 'he') {
         cols = {
-            status: { x: margin, width: 90 },
-            credits: { x: margin + 90, width: 60 },
+            status: { x: margin, width: 100 },
+            credits: { x: margin + 100, width: 50 },
             name: { x: margin + 150, width: 260 },
             code: { x: margin + 410, width: 80 }
         };
@@ -122,8 +124,8 @@ export const generateDegreePDF = async (degreeName: string, courses: CourseWithT
         cols = {
             code: { x: margin, width: 80 },
             name: { x: margin + 80, width: 270 },
-            credits: { x: margin + 350, width: 60 },
-            status: { x: margin + 410, width: 80 }
+            credits: { x: margin + 350, width: 50 },
+            status: { x: margin + 400, width: 100 }
         };
     }
 
@@ -226,21 +228,22 @@ export const generateDegreePDF = async (degreeName: string, courses: CourseWithT
                 align: lang === 'he' ? 'right' : 'left'
             });
 
-            // Draw Expected Status
+            // Draw Expected Status (Lineage-aware Priority)
             let statusText = '';
-            const isPassed = isAttemptPassed(course, passingThreshold);
-            if (isPassed) {
+            const academicStatus = lineageMetadata[course.id];
+            
+            if (academicStatus === 'passed_req') {
                 statusText = t('status.passed_academic_badge');
             } else if (course.attemptStatus === 'failed' || (course.grade !== null && course.grade !== undefined && course.grade < passingThreshold)) {
                 statusText = t('status.failed_badge');
+            } else if (course.repeatedFromCourseId) {
+                statusText = t('status.repeat_badge');
+            } else if (course.effectiveStatus === 'completed') {
+                statusText = t('status.completed');
             } else if (course.effectiveStatus === 'in_progress') {
                 statusText = t('status.in_progress');
-            }
-
-            // Append Repeat indicator if applicable
-            if (course.repeatedFromCourseId) {
-                const repeatLabel = t('status.repeat_badge');
-                statusText = statusText ? `${statusText} (${repeatLabel})` : repeatLabel;
+            } else {
+                statusText = t('status.not_started');
             }
 
             drawCellText(currentPage, customFont, statusText, {
