@@ -21,6 +21,7 @@ import { ConfirmationModal } from '@/ui/ConfirmationModal';
 import { Card } from '@/ui/Card';
 import { GraduationCap, Info, Plus } from 'lucide-react';
 import { getLocalizedDegreeName } from '@/core/utils/degreeName';
+import { FAB } from '@/ui/FAB/FAB';
 
 export const Dashboard: React.FC = () => {
     const { t, language } = useTranslation();
@@ -403,7 +404,7 @@ export const Dashboard: React.FC = () => {
                 isOpen={importModeModal.isOpen}
                 onClose={() => setImportModeModal({ isOpen: false, file: null })}
                 onConfirm={() => processImport('replace')}
-                title={t('action.import_json')}
+                title={t('settings.replace')}
                 message={t('msg.replace_confirm')}
                 variant="danger"
                 confirmLabel={t('settings.replace')}
@@ -418,6 +419,11 @@ export const Dashboard: React.FC = () => {
                     </Button>
                 </div>
             </ConfirmationModal>
+
+            <FAB 
+                onAddCourse={() => setIsModalOpen(true)}
+                onAddSemester={() => setIsAddSemesterModalOpen(true)}
+            />
         </div>
     );
 };
