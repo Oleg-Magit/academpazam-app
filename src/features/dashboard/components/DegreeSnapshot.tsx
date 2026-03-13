@@ -66,21 +66,46 @@ export const DegreeSnapshot: React.FC<DegreeSnapshotProps> = memo(({
                     </div>
                 </div>
 
-                {/* 2 & 3. Mobile Percentage + Progress Bar */}
-                <div className="progress-section" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                    <div className="percentage-mobile" style={{ display: 'none', alignItems: 'baseline', gap: '4px' }}>
+                {/* 2 & 3. Progress Section */}
+                <div className="degree-progress-block" style={{ marginTop: 'var(--space-sm)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                        <h2 style={{ fontSize: '0.85rem', fontWeight: 600, margin: 0, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                            {t('dashboard.degree_progress')}
+                        </h2>
                         <span style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-accent)' }}>
                             {percentage.toFixed(0)}%
                         </span>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', fontWeight: 500 }}>
-                            {t('label.completed')}
-                        </span>
                     </div>
 
-                    <ProgressBar value={percentage} height={8} showValue={false} />
+                    <ProgressBar value={percentage} height={12} showValue={false} />
 
-                    <div className="credits-summary" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: 'var(--color-text-secondary)', fontWeight: 500 }}>
-                        <span>{completedCredits} / {totalCredits} {t('label.total_credits')}</span>
+                    <div style={{ 
+                        marginTop: '12px', 
+                        display: 'flex', 
+                        flexDirection: 'column', 
+                        gap: '6px'
+                    }}>
+                        <div style={{ 
+                            display: 'flex', 
+                            justifyContent: 'space-between', 
+                            alignItems: 'baseline',
+                            fontSize: '0.95rem',
+                            fontWeight: 600,
+                            color: 'var(--color-text-primary)'
+                        }}>
+                            <span>{t('label.completed')}</span>
+                            <span>{completedCredits} / {totalCredits} <span style={{ fontSize: '0.8rem', fontWeight: 500, color: 'var(--color-text-secondary)' }}>({t('label.credits')})</span></span>
+                        </div>
+                        <div style={{ 
+                            display: 'flex', 
+                            justifyContent: 'space-between', 
+                            alignItems: 'baseline',
+                            fontSize: '0.85rem',
+                            color: 'var(--color-text-secondary)'
+                        }}>
+                            <span>{t('label.remaining')}</span>
+                            <span style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>{remainingCredits} {t('label.credits')}</span>
+                        </div>
                     </div>
                 </div>
 
@@ -109,12 +134,8 @@ export const DegreeSnapshot: React.FC<DegreeSnapshotProps> = memo(({
                         gap: 10px !important;
                     }
                     
-                    .percentage-desktop {
+                    .percentage-desktop, .percentage-mobile {
                         display: none !important;
-                    }
-                    
-                    .percentage-mobile {
-                        display: flex !important;
                     }
                     
                     .degree-title {
