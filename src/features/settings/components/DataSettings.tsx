@@ -1,12 +1,13 @@
 import React, { useRef, useState } from 'react';
 import { Card } from '@/ui/Card';
 import { Button } from '@/ui/Button';
-import { Download, Upload, Trash2, FileDown } from 'lucide-react';
+import { Download, Upload, Trash2, FileDown, Share2, ExternalLink } from 'lucide-react';
 import { useTranslation } from '@/app/i18n/useTranslation';
 import { exportDataToJSON, importDataFromJSON } from '@/core/services/importExport';
 import { clearAllData } from '@/core/db/db';
 // Removed static import for performance: import { generateDegreePDF } from '@/core/services/pdfGenerator';
 import { ConfirmationModal } from '@/ui/ConfirmationModal';
+import { ShareModal } from '@/features/share/ShareModal';
 import type { Plan, CourseWithTopics } from '@/core/models/types';
 import type { Language } from '@/app/i18n';
 
@@ -23,6 +24,7 @@ export const DataSettings: React.FC<DataSettingsProps> = ({ plan, courses, onRef
     const [importing, setImporting] = useState(false);
     const [pendingReplace, setPendingReplace] = useState<File | null>(null);
     const [showResetConfirm, setShowResetConfirm] = useState(false);
+    const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
     const mergeInputRef = useRef<HTMLInputElement>(null);
     const replaceInputRef = useRef<HTMLInputElement>(null);
@@ -55,7 +57,6 @@ export const DataSettings: React.FC<DataSettingsProps> = ({ plan, courses, onRef
             document.body.appendChild(a);
             a.click();
 
-            // Delayed revocation for better browser compatibility
             setTimeout(() => {
                 URL.revokeObjectURL(url);
                 document.body.removeChild(a);
@@ -161,6 +162,33 @@ export const DataSettings: React.FC<DataSettingsProps> = ({ plan, courses, onRef
                     </div>
 
                     <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: '20px' }}>
+                        <h3 style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                            {t('share.supportTitle')}
+                        </h3>
+                        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                            <Button variant="secondary" onClick={() => setIsShareModalOpen(true)} style={{ flex: '1 1 160px' }}>
+                                <Share2 size={16} style={{ marginRight: '8px' }} />
+                                {t('footer.shareLabel')}
+                            </Button>
+                            <Button 
+                                variant="ghost" 
+                                onClick={() => window.open('https://paypal.me/OlegMagit', '_blank', 'noopener,noreferrer')}
+                                style={{ 
+                                    flex: '1 1 160px', 
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    justifyContent: 'center', 
+                                    border: '1px dashed var(--color-accent)', 
+                                    color: 'var(--color-accent)' 
+                                }}
+                            >
+                                <ExternalLink size={16} style={{ marginRight: '8px' }} />
+                                {t('share.donateSecondary')}
+                            </Button>
+                        </div>
+                    </div>
+
+                    <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: '20px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
                             <div>
                                 <h3 style={{ fontSize: '0.85rem', color: 'var(--color-danger)', fontWeight: 600, margin: 0 }}>{t('settings.dangerZone.title')}</h3>
@@ -174,6 +202,11 @@ export const DataSettings: React.FC<DataSettingsProps> = ({ plan, courses, onRef
                     </div>
                 </div>
             </Card>
+
+            <ShareModal
+                isOpen={isShareModalOpen}
+                onClose={() => setIsShareModalOpen(false)}
+            />
 
             <ConfirmationModal
                 isOpen={!!pendingReplace}

@@ -4,15 +4,13 @@ import { BookOpen, Home, Settings, GraduationCap } from 'lucide-react';
 import styles from './Layout.module.css';
 import { useTranslation } from '@/app/i18n/useTranslation';
 import { Footer } from './Footer/Footer';
-import { ShareModal } from '@/features/share/ShareModal';
 import { LegalModal, type LegalPageType } from '@/features/legal/LegalModal';
 import { HelpModal } from '@/features/dashboard/components/HelpModal';
 
 export const Layout: React.FC = () => {
     const { t } = useTranslation();
-    const [openModal, setOpenModal] = React.useState<{ kind: 'share' } | { kind: 'legal', type: LegalPageType } | { kind: 'help' } | null>(null);
+    const [openModal, setOpenModal] = React.useState<{ kind: 'legal'; type: LegalPageType } | { kind: 'help' } | null>(null);
 
-    const handleOpenShare = () => setOpenModal({ kind: 'share' });
     const handleOpenLegal = (type: LegalPageType) => setOpenModal({ kind: 'legal', type });
     const handleOpenHelp = () => setOpenModal({ kind: 'help' });
     const handleCloseModal = () => setOpenModal(null);
@@ -43,22 +41,16 @@ export const Layout: React.FC = () => {
                 <Outlet />
             </main>
             <Footer
-                onOpenShare={handleOpenShare}
                 onOpenLegal={handleOpenLegal}
                 onOpenHelp={handleOpenHelp}
             />
 
-            <ShareModal
-                isOpen={openModal?.kind === 'share'}
+            <LegalModal
+                isOpen={openModal?.kind === 'legal'}
                 onClose={handleCloseModal}
+                type={openModal?.kind === 'legal' ? openModal.type : 'about'}
             />
-            {openModal?.kind === 'legal' && (
-                <LegalModal
-                    isOpen={true}
-                    onClose={handleCloseModal}
-                    type={openModal.type}
-                />
-            )}
+
             <HelpModal
                 isOpen={openModal?.kind === 'help'}
                 onClose={handleCloseModal}

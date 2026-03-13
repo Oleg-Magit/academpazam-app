@@ -8,12 +8,11 @@ const appVersion = __APP_VERSION__ || '0.0.0';
 const isDev = import.meta.env.DEV;
 
 interface FooterProps {
-    onOpenShare: () => void;
     onOpenLegal: (type: LegalPageType) => void;
     onOpenHelp: () => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onOpenShare, onOpenLegal, onOpenHelp }) => {
+export const Footer: React.FC<FooterProps> = ({ onOpenLegal, onOpenHelp }) => {
     const { t } = useTranslation();
     const currentYear = new Date().getFullYear();
 
@@ -46,11 +45,6 @@ export const Footer: React.FC<FooterProps> = ({ onOpenShare, onOpenLegal, onOpen
                     <li>
                         <button onClick={() => onOpenLegal('terms')} className={styles.linkButton} aria-label={t('footer.terms')}>
                             {t('footer.terms')}
-                        </button>
-                    </li>
-                    <li>
-                        <button onClick={onOpenShare} className={styles.linkButton} aria-label={t('footer.shareLabel')}>
-                            {t('footer.shareLabel')}
                         </button>
                     </li>
                 </ul>
