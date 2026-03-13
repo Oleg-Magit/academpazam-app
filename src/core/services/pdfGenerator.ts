@@ -109,6 +109,21 @@ export const generateDegreePDF = async (degreeName: string, courses: CourseWithT
         align: colAlign
     });
 
+    if (courses.length === 0) {
+        const emptyMsg = lang === 'he' ? 'אין קורסים להצגה' : 'No courses to display';
+        drawCellText(currentPage, customFont, emptyMsg, {
+            x: margin,
+            y: summaryY - 80,
+            width: contentWidth,
+            size: 14,
+            color: rgb(0.5, 0.5, 0.5),
+            align: 'center'
+        });
+        
+        const finalPdfBytes = await pdfDoc.save();
+        return finalPdfBytes;
+    }
+
     let currentY = summaryY - 40;
     const semestersData = await getSemesters();
     const groups = groupCoursesBySemester(courses, semestersData, passingThreshold);

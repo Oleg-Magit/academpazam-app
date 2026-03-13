@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isAttemptPassed, createRepeatCourse, calculateAcademicMetrics, buildLineageMetadata } from './courseLifecycle';
+import { isAttemptPassed, createRepeatCourse, calculateAcademicMetrics, buildLineageMetadata, validateCourseState, getRootCourseId } from './courseLifecycle';
 import type { Course, Topic } from '../models/types';
 
 describe('courseLifecycle', () => {
@@ -29,6 +29,60 @@ describe('courseLifecycle', () => {
 
         it('returns false if no grade and no status', () => {
             expect(isAttemptPassed(mockCourse, 56)).toBe(false);
+        });
+
+        it('returns false for planned/in_progress even if grade is accidentally set', () => {
+            expect(isAttemptPassed({ ...mockCourse, attemptStatus: 'planned', grade: 100 }, 56)).toBe(false);
+            expect(isAttemptPassed({ ...mockCourse, attemptStatus: 'in_progress', grade: 100 }, 56)).toBe(false);
+        });
+    });
+
+    describe('validateCourseState', () => {
+        it('identifies planned/in_progress courses with grades as invalid', () => {
+            const res = validateCourseState({ ...mockCourse, attemptStatus: 'planned', grade: 80 });
+            expect(res.valid).toBe(false);
+            expect(res.issues[0]).toContain('cannot have a grade');
+        });
+
+        it('identifies self-repeating courses as invalid', () => {
+            const res = validateCourseState({ ...mockCourse, repeatedFromCourseId: 'c1' });
+            expect(res.valid).toBe(false);
+            expect(res.issues[0]).toContain('cannot repeat itself');
+        });
+
+        it('passes valid courses', () => {
+            const res = validateCourseState({ ...mockCourse, attemptStatus: 'passed', grade: 80 });
+            expect(res.valid).toBe(true);
+        });
+    });
+
+    describe('getRootCourseId', () => {
+        it('detects simple cycles and returns current node as fallback', () => {
+            const map = new Map<string, Course>();
+            map.set('c1', { ...mockCourse, id: 'c1', repeatedFromCourseId: 'c2' });
+            map.set('c2', { ...mockCourse, id: 'c2', repeatedFromCourseId: 'c1' });
+            
+            expect(getRootCourseId('c1', map)).toBe('c1');
+            expect(getRootCourseId('c2', map)).toBe('c2');
+        });
+
+        it('handles self-repeating courses', () => {
+            const map = new Map<string, Course>();
+            map.set('c1', { ...mockCourse, id: 'c1', repeatedFromCourseId: 'c1' });
+            expect(getRootCourseId('c1', map)).toBe('c1');
+        });
+
+        it('handles orphan repeat references', () => {
+            const map = new Map<string, Course>();
+            map.set('c1', { ...mockCourse, id: 'c1', repeatedFromCourseId: 'non-existing' });
+            expect(getRootCourseId('c1', map)).toBe('c1');
+        });
+
+        it('traverses normal lineages correctly', () => {
+            const map = new Map<string, Course>();
+            map.set('c2', { ...mockCourse, id: 'c2', repeatedFromCourseId: 'c1' });
+            map.set('c1', { ...mockCourse, id: 'c1' });
+            expect(getRootCourseId('c2', map)).toBe('c1');
         });
     });
 

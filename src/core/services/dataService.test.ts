@@ -90,8 +90,18 @@ describe('dataService', () => {
             expect(result.academicCompletedCount).toBe(1);
         });
 
-        it('should handle zero credits', () => {
+        it('should return safe defaults for empty course lists (Wave 5 regression)', () => {
             const result = calculateDegreeProgress([], 56);
+            expect(result.totalCredits).toBe(0);
+            expect(result.completedCredits).toBe(0);
+            expect(result.percentage).toBe(0);
+            expect(result.academicCompletedCount).toBe(0);
+        });
+
+        it('should handle null/undefined entries safely (Wave 5 regression)', () => {
+            // Testing resilience to corrupted data structures
+            const result = calculateDegreeProgress([null as any, { id: 'valid', credits: 3 } as any], 56);
+            expect(result.totalCredits).toBe(3);
             expect(result.percentage).toBe(0);
         });
     });

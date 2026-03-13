@@ -6,6 +6,11 @@ import { v4 as uuidv4 } from 'uuid';
  * to determine if an attempt explicitly passed or failed.
  */
 export const isAttemptPassed = (course: Course | CourseWithTopics, passingThreshold: number): boolean => {
+    // Lightweight validation: Planned or In Progress attempts shouldn't have grades for credit counting
+    if (course.attemptStatus === 'planned' || course.attemptStatus === 'in_progress') {
+        return false;
+    }
+
     // 1. Explicit modern lifecycle state (B1)
     if (course.attemptStatus === 'passed') return true;
     if (course.attemptStatus === 'failed') return false;
@@ -16,26 +21,63 @@ export const isAttemptPassed = (course: Course | CourseWithTopics, passingThresh
     }
 
     // 3. If no grade and no explicit attemptStatus exists, do NOT assume passing.
-    // 'completed' effectiveStatus alone does not equal academic passing for credit counting.
     return false;
+};
+
+/**
+ * Validates a course for internal consistency.
+ * Pure and non-mutating.
+ */
+export const validateCourseState = (course: Course): { valid: boolean; issues: string[] } => {
+    const issues: string[] = [];
+    
+    if (course.attemptStatus === 'planned' || course.attemptStatus === 'in_progress') {
+        if (course.grade !== null && course.grade !== undefined) {
+            issues.push(`Course in ${course.attemptStatus} state cannot have a grade.`);
+        }
+    }
+
+    if (course.repeatedFromCourseId === course.id) {
+        issues.push('Course cannot repeat itself.');
+    }
+
+    return { valid: issues.length === 0, issues };
 };
 
 /**
  * Utility to identify the root course ID in a lineage.
  */
 export const getRootCourseId = (courseId: string, courseMap: Map<string, Course>): string => {
-    let current = courseId;
+    let currentId = courseId;
     const visited = new Set<string>();
 
     while (true) {
-        visited.add(current);
-        const c = courseMap.get(current);
-        if (!c || !c.repeatedFromCourseId) return current;
+        visited.add(currentId);
+        const course = courseMap.get(currentId);
+        
+        // 1. End of lineage or orphan reference
+        if (!course || !course.repeatedFromCourseId) {
+            return currentId;
+        }
 
-        // Cycle prevention
-        if (visited.has(c.repeatedFromCourseId)) return current;
+        const nextId = course.repeatedFromCourseId;
 
-        current = c.repeatedFromCourseId;
+        // 2. Self-reference check
+        if (nextId === currentId) {
+            return currentId;
+        }
+
+        // 3. Missing source (Orphan Repeat Guard)
+        if (!courseMap.has(nextId)) {
+            return currentId;
+        }
+
+        // 4. Cycle detection (Already visited)
+        if (visited.has(nextId)) {
+            return nextId;
+        }
+
+        currentId = nextId;
     }
 };
 
@@ -61,11 +103,14 @@ export interface AcademicMetrics {
 export const calculateAcademicMetrics = (courses: CourseWithTopics[], passingThreshold: number): AcademicMetrics => {
     const courseMap = new Map<string, CourseWithTopics>();
     for (const c of courses) {
-        courseMap.set(c.id, c);
+        if (c && c.id) {
+            courseMap.set(c.id, c);
+        }
     }
 
     const lineages = new Map<string, CourseWithTopics[]>();
     for (const c of courses) {
+        if (!c || !c.id) continue;
         const rootId = getRootCourseId(c.id, courseMap);
         if (!lineages.has(rootId)) {
             lineages.set(rootId, []);
@@ -151,11 +196,14 @@ export const buildLineageMetadata = (
 ): Record<string, 'passed_req' | 'needs_repeat' | 'none'> => {
     const courseMap = new Map<string, CourseWithTopics>();
     for (const c of courses) {
-        courseMap.set(c.id, c);
+        if (c && c.id) {
+            courseMap.set(c.id, c);
+        }
     }
 
     const lineages = new Map<string, CourseWithTopics[]>();
     for (const c of courses) {
+        if (!c || !c.id) continue;
         const rootId = getRootCourseId(c.id, courseMap);
         if (!lineages.has(rootId)) {
             lineages.set(rootId, []);
