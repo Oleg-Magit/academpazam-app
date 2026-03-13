@@ -1,6 +1,6 @@
 import type { Course, Topic, CourseStatus, CourseWithTopics, SemesterGroup, Semester } from '../models/types';
 import { getTopicsByCourse } from '../db/db';
-import { isAttemptPassed, calculateAcademicMetrics } from './courseLifecycle';
+import { getRootCourseId, calculateAcademicMetrics, buildLineageMetadata } from './courseLifecycle';
 
 /**
  * Determines the display status of a course based on its topics.
@@ -39,6 +39,13 @@ export const groupCoursesBySemester = (
     passingThreshold: number
 ): SemesterGroup[] => {
     const groups: Record<string, SemesterGroup> = {};
+    const lineageMetadata = buildLineageMetadata(courses, passingThreshold);
+    
+    // Course map for lineage traversal
+    const courseMap = new Map<string, Course>();
+    for (const c of courses) {
+        courseMap.set(c.id, c);
+    }
 
     // Initialize groups from canonical semesters list
     semesters.forEach(sem => {
@@ -72,9 +79,15 @@ export const groupCoursesBySemester = (
         groups[semId].courses.push(course);
         groups[semId].totalCredits += course.credits;
         
-        // Semester-level stats (Attempt-based)
-        if (isAttemptPassed(course, passingThreshold)) {
+        // Root-semester attribution policy
+        const rootId = getRootCourseId(course.id, courseMap);
+        const isRoot = course.id === rootId;
+
+        // If the lineage eventually passed, attribute the fulfillment to the ROOT attempt's semester
+        if (isRoot && lineageMetadata[course.id] === 'passed_req') {
             groups[semId].completedCredits += course.credits;
+        } else if (!isRoot && lineageMetadata[course.id] === 'passed_req') {
+            // No completedCredits for non-root attempts (already attributed to root)
         } else {
             // Check for explicit failure or grade failure
             const isFailed = course.attemptStatus === 'failed' || (course.grade !== null && course.grade !== undefined && course.grade < passingThreshold);

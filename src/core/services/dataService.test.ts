@@ -1,9 +1,36 @@
 import { describe, it, expect } from 'vitest';
-import { calculateEffectiveStatus, calculateDegreeProgress } from './dataService';
-import type { Course, Topic } from '../models/types';
+import { calculateEffectiveStatus, calculateDegreeProgress, groupCoursesBySemester } from './dataService';
+import type { Course, Topic, Semester } from '../models/types';
 
 describe('dataService', () => {
-    describe('calculateEffectiveStatus', () => {
+    // ... existing effectiveStatus tests ...
+    
+    describe('groupCoursesBySemester', () => {
+        it('should be lineage-aware (a failed course passed in another semester counts as completed)', () => {
+            const semesters: Semester[] = [
+                { id: 's1', name: 'Sem 1', orderIndex: 0, createdAt: 0 },
+                { id: 's2', name: 'Sem 2', orderIndex: 1, createdAt: 0 }
+            ];
+
+            const courses = [
+                { id: 'c1', credits: 3, semesterId: 's1', attemptStatus: 'failed', grade: 40 },
+                { id: 'c2', credits: 3, semesterId: 's2', attemptStatus: 'passed', grade: 90, repeatedFromCourseId: 'c1' }
+            ] as any[];
+
+            const groups = groupCoursesBySemester(courses, semesters, 56);
+            
+            const s1 = groups.find(g => g.semesterId === 's1')!;
+            const s2 = groups.find(g => g.semesterId === 's2')!;
+
+            // Corrected logic: only the ROOT semester (S1) gets the completedCredits rewards
+            expect(s1.completedCredits).toBe(3);
+            expect(s2.completedCredits).toBe(0); // Repeat semester does NOT gain credits for same lineage requirement
+            expect(s1.totalCredits).toBe(3);
+            expect(s2.totalCredits).toBe(3); // Load is still tracked locally
+        });
+    });
+
+    describe('calculateDegreeProgress', () => {
         const course: Course = {
             id: '1',
             degreePlanId: 'p1',

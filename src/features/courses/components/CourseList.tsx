@@ -94,9 +94,11 @@ export const CourseList: React.FC<CourseListProps> = ({
                                 )}
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
-                                <Badge variant={course.effectiveStatus === 'completed' ? 'success' : course.effectiveStatus === 'in_progress' ? 'warning' : 'neutral'}>
-                                    {t(`status.${course.effectiveStatus}`)}
-                                </Badge>
+                                {!(isFailed && course.effectiveStatus === 'completed') && (
+                                    <Badge variant={course.effectiveStatus === 'completed' ? 'success' : course.effectiveStatus === 'in_progress' ? 'warning' : 'neutral'}>
+                                        {t(`status.${course.effectiveStatus}`)}
+                                    </Badge>
+                                )}
                                 <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                                     {isFailed && (
                                         <Badge variant="error" className="tiny-badge">
