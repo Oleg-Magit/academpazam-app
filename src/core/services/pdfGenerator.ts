@@ -237,7 +237,11 @@ export const generateDegreePDF = async (degreeName: string, courses: CourseWithT
             });
 
             // Draw Course Name
-            drawCellText(currentPage, customFont, txt(course.name), {
+            const displayName = course.repeatedFromCourseId 
+                ? `${course.name} (${t('status.repeat_secondary')})` 
+                : course.name;
+
+            drawCellText(currentPage, customFont, txt(displayName), {
                 x: cols.name.x, y: currentY, width: cols.name.width, size: 10, color: black,
                 align: lang === 'he' ? 'right' : 'left'
             });
