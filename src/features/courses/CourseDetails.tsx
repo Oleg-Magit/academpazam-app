@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useTopics, useSemesters } from '@/core/hooks/useData';
+import { useTopics, useSemesters, useCourses, usePlan } from '@/core/hooks/useData';
 import { Button } from '@/ui/Button';
 import { Card } from '@/ui/Card';
 import { Badge } from '@/ui/Badge';
@@ -8,12 +8,11 @@ import { TopicModal } from '@/features/topics/TopicModal';
 import { BulkAddTopicModal } from '@/features/topics/BulkAddTopicModal';
 import type { Topic, TopicStatus, Course } from '@/core/models/types';
 import { saveTopic, deleteTopic, saveCourse, initDB } from '@/core/db/db';
-import { Plus, ArrowLeft, Trash2, Edit2, CheckCircle, Circle, Clock, FileText, Save } from 'lucide-react';
+import { Plus, ArrowLeft, Trash2, Edit2, CheckCircle, Circle, Clock, FileText, Save, RefreshCcw } from 'lucide-react';
 import { useTranslation } from '@/app/i18n/useTranslation';
 import { DEFAULT_PASSING_THRESHOLD } from '@/core/constants/grades';
 import { Input } from '@/ui/Input';
 import { ConfirmationModal } from '@/ui/ConfirmationModal';
-import { usePlan } from '@/core/hooks/useData';
 import { FailedCourseModal } from './FailedCourseModal';
 import { createRepeatCourse } from '@/core/services/courseLifecycle';
 
@@ -31,6 +30,7 @@ export const CourseDetails: React.FC<CourseDetailsProps> = ({ id: propId, onBack
     const [course, setCourse] = useState<Course | null>(null);
     const { topics, refresh: refreshTopics } = useTopics(id || null);
     const { semesters } = useSemesters();
+    const { courses } = useCourses(course?.degreePlanId || null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
     const [editingTopic, setEditingTopic] = useState<Topic | null>(null);
@@ -40,6 +40,12 @@ export const CourseDetails: React.FC<CourseDetailsProps> = ({ id: propId, onBack
     const [errorMsg, setErrorMsg] = useState('');
     const { plan } = usePlan(course?.degreePlanId || null);
     const passingThreshold = plan?.passing_exam_threshold ?? DEFAULT_PASSING_THRESHOLD;
+
+    const hasChildRepeat = React.useMemo(() => {
+        return courses.some(c => c.repeatedFromCourseId === course?.id);
+    }, [courses, course?.id]);
+
+    const showScheduleRepeat = course?.attemptStatus === 'failed' && !hasChildRepeat;
 
     // Fetch course effect
     React.useEffect(() => {
@@ -271,6 +277,23 @@ export const CourseDetails: React.FC<CourseDetailsProps> = ({ id: propId, onBack
                             <FileText size={18} style={{ marginRight: '8px' }} />
                             {t('modal.bulk_topic.title')}
                         </Button>
+                        {showScheduleRepeat && (
+                            <Button
+                                variant="ghost"
+                                style={{
+                                    flex: '1 1 100%',
+                                    minHeight: '44px',
+                                    justifyContent: 'center',
+                                    border: '1px solid var(--color-warning)',
+                                    color: 'var(--color-warning)',
+                                    marginTop: 'var(--space-xs)'
+                                }}
+                                onClick={() => setIsFailedModalOpen(true)}
+                            >
+                                <RefreshCcw size={18} style={{ marginRight: '8px' }} />
+                                {t('action.create_repeat')}
+                            </Button>
+                        )}
                     </div>
                 </div>
             </Card>

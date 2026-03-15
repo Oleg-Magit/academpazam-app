@@ -1,6 +1,6 @@
 import type { Course, Topic, CourseStatus, CourseWithTopics, SemesterGroup, Semester } from '../models/types';
 import { getTopicsByCourse } from '../db/db';
-import { getRootCourseId, calculateAcademicMetrics, buildLineageMetadata } from './courseLifecycle';
+import { calculateAcademicMetrics } from './courseLifecycle';
 
 /**
  * Determines the display status of a course based on its topics.
@@ -39,14 +39,7 @@ export const groupCoursesBySemester = (
     passingThreshold: number
 ): SemesterGroup[] => {
     const groups: Record<string, SemesterGroup> = {};
-    const lineageMetadata = buildLineageMetadata(courses, passingThreshold);
     
-    // Course map for lineage traversal
-    const courseMap = new Map<string, Course>();
-    for (const c of courses) {
-        courseMap.set(c.id, c);
-    }
-
     // Initialize groups from canonical semesters list
     semesters.forEach(sem => {
         groups[sem.id] = {
@@ -79,20 +72,20 @@ export const groupCoursesBySemester = (
         groups[semId].courses.push(course);
         groups[semId].totalCredits += course.credits;
         
-        // Root-semester attribution policy
-        const rootId = getRootCourseId(course.id, courseMap);
-        const isRoot = course.id === rootId;
+        // SEMANTIC MODEL FIX (v1.8):
+        // Semester-level accomplishment is based strictly on the attempt success IN THIS SEMESTER.
+        // Degree-level fulfillment (canonical credits) is handled separately in calculateDegreeProgress.
+        const isPassed = course.attemptStatus === 'passed' || 
+                         (course.grade !== null && course.grade !== undefined && course.grade >= passingThreshold);
 
-        // If the lineage eventually passed, attribute the fulfillment to the ROOT attempt's semester
-        if (isRoot && lineageMetadata[course.id] === 'passed_req') {
+        if (isPassed) {
             groups[semId].completedCredits += course.credits;
-        } else if (!isRoot && lineageMetadata[course.id] === 'passed_req') {
-            // No completedCredits for non-root attempts (already attributed to root)
         } else {
-            // Check for explicit failure or grade failure
-            const isFailed = course.attemptStatus === 'failed' || (course.grade !== null && course.grade !== undefined && course.grade < passingThreshold);
+            // Check for explicit failure or grade failure for the red badge count
+            const isFailed = course.attemptStatus === 'failed' || 
+                             (course.grade !== null && course.grade !== undefined && course.grade < passingThreshold);
             if (isFailed) {
-                (groups[semId] as any).attemptFailedCount = ((groups[semId] as any).attemptFailedCount || 0) + 1;
+                groups[semId].attemptFailedCount = (groups[semId].attemptFailedCount || 0) + 1;
             }
         }
     });

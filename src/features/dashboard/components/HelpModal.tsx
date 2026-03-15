@@ -24,25 +24,30 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
             body: t('help.workflow.step2_body')
         },
         {
-            icon: <Database size={20} className="text-accent" />,
+            icon: <Plus size={20} className="text-accent" />, // Keeping icon consistent for GPA
             title: t('help.workflow.step3'),
             body: t('help.workflow.step3_body')
         },
         {
-            icon: <ShieldCheck size={20} className="text-accent" />,
+            icon: <Database size={20} className="text-accent" />,
             title: t('help.workflow.step4'),
             body: t('help.workflow.step4_body')
         },
         {
-            icon: <Plus size={20} className="text-accent" />,
-            title: t('help.privacy.title'),
-            body: t('help.privacy.body')
+            icon: <ShieldCheck size={20} className="text-accent" />,
+            title: t('help.workflow.step5'),
+            body: t('help.workflow.step5_body')
+        },
+        {
+            icon: <Info size={20} className="text-accent" />,
+            title: t('help.workflow.step6'),
+            body: t('help.workflow.step6_body')
         }
     ];
 
     const troubleshooting = [
-        t('help.troubleshooting.no_add_course'),
-        t('help.troubleshooting.not_updating')
+        t('help.troubleshooting.q1'),
+        t('help.troubleshooting.q2')
     ];
 
     return (

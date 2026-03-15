@@ -6,7 +6,7 @@ describe('dataService', () => {
     // ... existing effectiveStatus tests ...
     
     describe('groupCoursesBySemester', () => {
-        it('should be lineage-aware (a failed course passed in another semester counts as completed)', () => {
+        it('should follow local-achievement semantics (only the semester where the attempt passed gets credits)', () => {
             const semesters: Semester[] = [
                 { id: 's1', name: 'Sem 1', orderIndex: 0, createdAt: 0 },
                 { id: 's2', name: 'Sem 2', orderIndex: 1, createdAt: 0 }
@@ -22,11 +22,11 @@ describe('dataService', () => {
             const s1 = groups.find(g => g.semesterId === 's1')!;
             const s2 = groups.find(g => g.semesterId === 's2')!;
 
-            // Corrected logic: only the ROOT semester (S1) gets the completedCredits rewards
-            expect(s1.completedCredits).toBe(3);
-            expect(s2.completedCredits).toBe(0); // Repeat semester does NOT gain credits for same lineage requirement
+            // SEMANTIC MODEL V1.8 Check:
+            expect(s1.completedCredits).toBe(0); // Historical failure remains failure
+            expect(s2.completedCredits).toBe(3); // Repeat semester shows local achievement
             expect(s1.totalCredits).toBe(3);
-            expect(s2.totalCredits).toBe(3); // Load is still tracked locally
+            expect(s2.totalCredits).toBe(3);
         });
     });
 
