@@ -34,6 +34,7 @@ export const he = {
     'status.passed_academic_badge': 'עבר דרישה',
     'status.failed_badge': 'נכשל',
     'status.repeat_badge': 'קורס חוזר',
+    'status.repeat_secondary': 'ניסיון חוזר',
     'status.needs_repeat_badge': 'דרוש חוזר',
 
     // Actions
@@ -174,8 +175,8 @@ export const he = {
     'semester.semester': 'סמסטר',
     'footer.devBadge': 'פיתוח',
     'footer.help': 'עזרה',
-    'dashboard.empty_no_semesters_title': 'התחילו בהוספת סמסטר',
-    'dashboard.empty_no_semesters_desc': 'כדי להוסיף קורסים ונושאים, הוסיפו קודם סמסטר.',
+    'dashboard.empty_no_semesters_title': 'בואו נצא לדרך עם תכנון התואר',
+    'dashboard.empty_no_semesters_desc': 'הצעד הראשון הוא הוספת סמסטר. לאחר מכן תוכלו להוסיף קורסים, לעקוב אחר נושאים ולראות את ההתקדמות שלכם.',
     'dashboard.add_first_semester': 'הוסף סמסטר ראשון',
     'dashboard.add_first_course': 'הוסף קורס ראשון',
     'help.welcome_title': 'עזרה ומדריך למשתמש',

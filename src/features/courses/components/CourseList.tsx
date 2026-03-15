@@ -98,6 +98,11 @@ export const CourseList: React.FC<CourseListProps> = ({
                                         {semesterLabels?.[course.semesterId] || t('label.semester')}
                                     </div>
                                 )}
+                                {isRepeat && (
+                                    <div style={{ fontSize: '0.7rem', color: 'var(--color-warning)', fontWeight: 600, marginTop: '2px' }}>
+                                         · {t('status.repeat_secondary')}
+                                    </div>
+                                )}
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
                                 {!(isFailed && course.effectiveStatus === 'completed') && (

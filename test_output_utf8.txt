@@ -1,0 +1,38 @@
+﻿
+[1m[46m RUN [49m[22m [36mv4.0.18 [39m[90mC:/Users/Oleg/Desktop/life/Project/AcademPazamApp[39m
+
+ [32mÔ£ô[39m src/core/services/gpaService.test.ts[2m > [22mgpaService - Lineage Aware[2m > [22mScenario 1: single standalone passed course (PASS)[32m 1[2mms[22m[39m
+ [32mÔ£ô[39m src/core/services/gpaService.test.ts[2m > [22mgpaService - Lineage Aware[2m > [22mScenario 2: single failed course (IGNORED)[32m 0[2mms[22m[39m
+ [32mÔ£ô[39m src/core/services/gpaService.test.ts[2m > [22mgpaService - Lineage Aware[2m > [22mScenario 3: failed then passed repeat -> GPA uses passing grade only (PASS)[32m 0[2mms[22m[39m
+ [32mÔ£ô[39m src/core/services/gpaService.test.ts[2m > [22mgpaService - Lineage Aware[2m > [22mScenario 4: multiple failed then pass -> GPA uses best passing grade only (PASS)[32m 0[2mms[22m[39m
+ [32mÔ£ô[39m src/core/services/gpaService.test.ts[2m > [22mgpaService - Lineage Aware[2m > [22mScenario 5: two independent lineages aggregated correctly (PASS)[32m 0[2mms[22m[39m
+ [32mÔ£ô[39m src/core/services/gpaService.test.ts[2m > [22mgpaService - Lineage Aware[2m > [22mScenario 6: lineage with no pass anywhere (EXCLUDED)[32m 0[2mms[22m[39m
+ [32mÔ£ô[39m src/core/services/gpaService.test.ts[2m > [22mgpaService - Lineage Aware[2m > [22mScenario 7: pick HIGHEST passing grade if multiple exist[32m 0[2mms[22m[39m
+ [32mÔ£ô[39m src/core/services/courseLifecycle.test.ts[2m > [22mcourseLifecycle[2m > [22misAttemptPassed[2m > [22mprioritizes explicit passed status[32m 1[2mms[22m[39m
+ [32mÔ£ô[39m src/core/services/courseLifecycle.test.ts[2m > [22mcourseLifecycle[2m > [22misAttemptPassed[2m > [22mprioritizes explicit failed status[32m 0[2mms[22m[39m
+ [32mÔ£ô[39m src/core/services/courseLifecycle.test.ts[2m > [22mcourseLifecycle[2m > [22misAttemptPassed[2m > [22mfalls back to grade comparison[32m 0[2mms[22m[39m
+ [32mÔ£ô[39m src/core/services/courseLifecycle.test.ts[2m > [22mcourseLifecycle[2m > [22misAttemptPassed[2m > [22mreturns false if no grade and no status[32m 0[2mms[22m[39m
+ [32mÔ£ô[39m src/core/services/courseLifecycle.test.ts[2m > [22mcourseLifecycle[2m > [22mcreateRepeatCourse[2m > [22mcreates a linked repeat with incremented attempt number[32m 0[2mms[22m[39m
+ [32mÔ£ô[39m src/core/services/courseLifecycle.test.ts[2m > [22mcourseLifecycle[2m > [22mcreateRepeatCourse[2m > [22mclones topics structure but resets status when initMode is copy_structure[32m 1[2mms[22m[39m
+ [32mÔ£ô[39m src/core/services/courseLifecycle.test.ts[2m > [22mcourseLifecycle[2m > [22mcreateRepeatCourse[2m > [22mreturns no topics when initMode is empty[32m 0[2mms[22m[39m
+ [32mÔ£ô[39m src/core/services/courseLifecycle.test.ts[2m > [22mcourseLifecycle[2m > [22mcalculateAcademicMetrics[2m > [22mdeduplicates lineages and uses root credits as canonical[32m 0[2mms[22m[39m
+ [32mÔ£ô[39m src/core/services/courseLifecycle.test.ts[2m > [22mcourseLifecycle[2m > [22mcalculateAcademicMetrics[2m > [22mmarks lineage as completed if any attempt passed[32m 0[2mms[22m[39m
+ [32mÔ£ô[39m src/core/services/courseLifecycle.test.ts[2m > [22mcourseLifecycle[2m > [22mcalculateAcademicMetrics[2m > [22mcounts as needsRepeat if no pass exists but at least one fail exists[32m 0[2mms[22m[39m
+ [32mÔ£ô[39m src/core/services/courseLifecycle.test.ts[2m > [22mcourseLifecycle[2m > [22mcalculateAcademicMetrics[2m > [22mdoes NOT count as needsRepeat if no failure exists (even if planned)[32m 0[2mms[22m[39m
+ [32mÔ£ô[39m src/core/services/courseLifecycle.test.ts[2m > [22mcourseLifecycle[2m > [22mbuildLineageMetadata[2m > [22massigns passed_req to all attempts in a passed lineage[32m 0[2mms[22m[39m
+ [32mÔ£ô[39m src/core/services/courseLifecycle.test.ts[2m > [22mcourseLifecycle[2m > [22mbuildLineageMetadata[2m > [22massigns needs_repeat to all attempts in a failed lineage[32m 0[2mms[22m[39m
+ [32mÔ£ô[39m src/core/services/courseLifecycle.test.ts[2m > [22mcourseLifecycle[2m > [22mbuildLineageMetadata[2m > [22massigns none to planned courses with no history[32m 0[2mms[22m[39m
+ [32mÔ£ô[39m src/core/services/courseLifecycle.test.ts[2m > [22mcourseLifecycle[2m > [22mbuildLineageMetadata[2m > [22mhandles complex lineages correctly[32m 0[2mms[22m[39m
+ [32mÔ£ô[39m src/core/services/dataService.test.ts[2m > [22mdataService[2m > [22mcalculateEffectiveStatus[2m > [22mshould return manualStatus if no topics[32m 1[2mms[22m[39m
+ [32mÔ£ô[39m src/core/services/dataService.test.ts[2m > [22mdataService[2m > [22mcalculateEffectiveStatus[2m > [22mshould be in_progress if any topic is started[32m 0[2mms[22m[39m
+ [32mÔ£ô[39m src/core/services/dataService.test.ts[2m > [22mdataService[2m > [22mcalculateEffectiveStatus[2m > [22mshould be completed only if all topics are done[32m 0[2mms[22m[39m
+ [32mÔ£ô[39m src/core/services/dataService.test.ts[2m > [22mdataService[2m > [22mcalculateEffectiveStatus[2m > [22mshould be not_started if all topics are not_started[32m 0[2mms[22m[39m
+ [32mÔ£ô[39m src/core/services/dataService.test.ts[2m > [22mdataService[2m > [22mcalculateDegreeProgress[2m > [22mshould calculate percentage correctly for unique courses[32m 0[2mms[22m[39m
+ [32mÔ£ô[39m src/core/services/dataService.test.ts[2m > [22mdataService[2m > [22mcalculateDegreeProgress[2m > [22mshould deduplicate credits for repeats and use root credits[32m 0[2mms[22m[39m
+ [32mÔ£ô[39m src/core/services/dataService.test.ts[2m > [22mdataService[2m > [22mcalculateDegreeProgress[2m > [22mshould handle zero credits[32m 0[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m3 passed[39m[22m[90m (3)[39m
+[2m      Tests [22m [1m[32m29 passed[39m[22m[90m (29)[39m
+[2m   Start at [22m 17:19:53
+[2m   Duration [22m 1.11s[2m (transform 160ms, setup 282ms, import 367ms, tests 11ms, environment 2.10s)[22m
+

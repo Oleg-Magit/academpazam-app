@@ -34,6 +34,7 @@ export const en = {
     'status.passed_academic_badge': 'PASSED REQ',
     'status.failed_badge': 'FAILED',
     'status.repeat_badge': 'REPEAT',
+    'status.repeat_secondary': 'Repeated attempt',
     'status.needs_repeat_badge': 'NEEDS REPEAT',
 
     // Actions

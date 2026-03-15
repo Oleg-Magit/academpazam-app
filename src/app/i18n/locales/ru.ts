@@ -34,6 +34,7 @@ export const ru = {
     'status.passed_academic_badge': 'ПРОЙДЕНО',
     'status.failed_badge': 'НЕ СДАЛ',
     'status.repeat_badge': 'ПОВТОР',
+    'status.repeat_secondary': 'Повторная попытка',
     'status.needs_repeat_badge': 'НУЖЕН ПОВТОР',
 
     // Actions

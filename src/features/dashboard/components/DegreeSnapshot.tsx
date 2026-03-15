@@ -52,18 +52,6 @@ export const DegreeSnapshot: React.FC<DegreeSnapshotProps> = memo(({
                             <Edit2 size={16} />
                         </Link>
                     </div>
-
-                    {/* Desktop Percentage (Hidden on mobile if desired, or keep small) */}
-                    <div className="percentage-desktop" style={{ textAlign: 'right' }}>
-                        <span style={{
-                            fontSize: '2rem',
-                            fontWeight: 800,
-                            color: 'var(--color-accent)',
-                            lineHeight: 1
-                        }}>
-                            {percentage.toFixed(0)}%
-                        </span>
-                    </div>
                 </div>
 
                 {/* 2 & 3. Progress Section */}
