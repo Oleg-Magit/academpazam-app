@@ -21,7 +21,6 @@ import { ConfirmationModal } from '@/ui/ConfirmationModal';
 import { Card } from '@/ui/Card';
 import { GraduationCap, Info, Plus } from 'lucide-react';
 import { getLocalizedDegreeName } from '@/core/utils/degreeName';
-import { FAB } from '@/ui/FAB/FAB';
 
 export const Dashboard: React.FC = () => {
     const { t, language } = useTranslation();
@@ -245,41 +244,6 @@ export const Dashboard: React.FC = () => {
                 needsRepeatCount={stats.needsRepeatCount}
             />
 
-            {bySemester.length > 0 && (
-                <Card style={{ padding: 'var(--space-md)', backgroundColor: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)' }}>
-                    {(() => {
-                        // UI-ONLY Fallback Rule: 
-                        // Display summary for the "active" semester (containing in-progress courses) 
-                        // or fallback to the first semester in the roadmap.
-                        // This does not determine academic "current" status, but provides a quick UI snapshot.
-                        const activeSemester = bySemester.find(s => s.courses.some(c => c.effectiveStatus === 'in_progress')) || bySemester[0];
-                        const coursesCount = activeSemester.courses.filter(c => c.effectiveStatus === 'in_progress').length;
-                        return (
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 'var(--space-md)' }}>
-                                <div>
-                                    <h3 style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text-secondary)', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                                        {t('label.overview')}
-                                    </h3>
-                                    <div style={{ fontSize: '1.1rem', fontWeight: 700, marginTop: '4px' }}>
-                                        {activeSemester.semesterName}
-                                    </div>
-                                </div>
-                                <div style={{ display: 'flex', gap: 'var(--space-lg)' }}>
-                                    <div>
-                                        <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>{t('label.courses')}</div>
-                                        <div style={{ fontSize: '1.1rem', fontWeight: 700 }}>{coursesCount}</div>
-                                    </div>
-                                    <div>
-                                        <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>{t('label.total_credits')}</div>
-                                        <div style={{ fontSize: '1.1rem', fontWeight: 700 }}>{activeSemester.totalCredits}</div>
-                                    </div>
-                                </div>
-                            </div>
-                        );
-                    })()}
-                </Card>
-            )}
-
             <section style={{ flex: 1 }}>
                 {semesters.length === 0 ? (
                     <Card style={{
@@ -419,13 +383,6 @@ export const Dashboard: React.FC = () => {
                     </Button>
                 </div>
             </ConfirmationModal>
-
-            {bySemester.length > 0 && (
-                <FAB 
-                    onAddCourse={() => setIsModalOpen(true)}
-                    onAddSemester={() => setIsAddSemesterModalOpen(true)}
-                />
-            )}
         </div>
     );
 };

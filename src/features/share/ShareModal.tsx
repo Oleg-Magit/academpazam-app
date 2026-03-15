@@ -19,9 +19,10 @@ import {
 interface ShareModalProps {
     isOpen: boolean;
     onClose: () => void;
+    showSupport?: boolean;
 }
 
-export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose }) => {
+export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, showSupport = true }) => {
     const { t } = useTranslation();
     const [copied, setCopied] = useState(false);
     const [isOptionsExpanded, setIsOptionsExpanded] = useState(false);
@@ -242,36 +243,38 @@ export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose }) => {
                     </div>
                 )}
 
-                <div style={{ padding: '16px 0 0 0', borderTop: '1px solid var(--color-border)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                        <h3 style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-text-secondary)', fontWeight: 600 }}>
-                            {t('share.supportTitle')}
-                        </h3>
-                    </div>
+                {showSupport && (
+                    <div style={{ padding: '16px 0 0 0', borderTop: '1px solid var(--color-border)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                            <h3 style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-text-secondary)', fontWeight: 600 }}>
+                                {t('share.supportTitle')}
+                            </h3>
+                        </div>
 
-                    <a
-                        href="https://paypal.me/OlegMagit"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '10px',
-                            padding: '12px',
-                            borderRadius: '10px',
-                            backgroundColor: 'var(--color-bg-secondary)',
-                            color: 'var(--color-accent)',
-                            textDecoration: 'none',
-                            fontWeight: 600,
-                            fontSize: '0.95rem',
-                            border: '1px dashed var(--color-accent)'
-                        }}
-                    >
-                        <ExternalLink size={18} />
-                        {t('share.donateSecondary')}
-                    </a>
-                </div>
+                        <a
+                            href="https://paypal.me/OlegMagit"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '10px',
+                                padding: '12px',
+                                borderRadius: '10px',
+                                backgroundColor: 'var(--color-bg-secondary)',
+                                color: 'var(--color-accent)',
+                                textDecoration: 'none',
+                                fontWeight: 600,
+                                fontSize: '0.95rem',
+                                border: '1px dashed var(--color-accent)'
+                            }}
+                        >
+                            <ExternalLink size={18} />
+                            {t('share.donateSecondary')}
+                        </a>
+                    </div>
+                )}
             </div>
         </Modal>
     );

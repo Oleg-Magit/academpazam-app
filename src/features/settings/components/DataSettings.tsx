@@ -161,7 +161,7 @@ export const DataSettings: React.FC<DataSettingsProps> = ({ plan, courses, onRef
                         </div>
                     </div>
 
-                    <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: '20px' }}>
+                    <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: '24px', marginTop: '12px' }}>
                         <h3 style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                             {t('share.supportTitle')}
                         </h3>
@@ -206,6 +206,7 @@ export const DataSettings: React.FC<DataSettingsProps> = ({ plan, courses, onRef
             <ShareModal
                 isOpen={isShareModalOpen}
                 onClose={() => setIsShareModalOpen(false)}
+                showSupport={false}
             />
 
             <ConfirmationModal

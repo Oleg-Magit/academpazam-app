@@ -137,7 +137,7 @@ export const SemesterNode: React.FC<SemesterNodeProps> = memo(({
                         {progress.toFixed(0)}%
                     </span>
                 </div>
-                <div style={{ fontSize: '0.7rem', color: 'var(--color-text-secondary)', opacity: 0.8, marginTop: '-2px' }}>
+                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', opacity: 0.8, marginTop: '-2px' }}>
                     {courseCount} {t('label.courses')}
                 </div>
                 <ProgressBar value={progress} height={6} />
