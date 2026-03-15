@@ -2,6 +2,7 @@ import React from 'react';
 import { Card } from '@/ui/Card';
 import { Badge } from '@/ui/Badge';
 import { Button } from '@/ui/Button';
+import { ProgressBar } from '@/ui/ProgressBar';
 import { Edit2, Trash2, ChevronRight } from 'lucide-react';
 import { useTranslation } from '@/app/i18n/useTranslation';
 import type { CourseWithTopics } from '@/core/models/types';
@@ -48,6 +49,11 @@ export const CourseList: React.FC<CourseListProps> = ({
                 const isFailed = course.attemptStatus === 'failed';
                 const isRepeat = !!course.repeatedFromCourseId;
                 const academicStatus = lineageMetadata[course.id];
+                
+                const topicsCount = course.topics?.length || 0;
+                const completedTopicsCount = course.topics?.filter(t => t.status === 'done').length || 0;
+                const showProgress = topicsCount > 0;
+                const progressValue = showProgress ? (completedTopicsCount / topicsCount) * 100 : 0;
 
                 return (
                     <Card
@@ -123,6 +129,16 @@ export const CourseList: React.FC<CourseListProps> = ({
                                 </div>
                             </div>
                         </div>
+
+                        {showProgress && (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '4px' }}>
+                                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', display: 'flex', justifyContent: 'space-between' }}>
+                                    <span>{completedTopicsCount} / {topicsCount} {t('nav.topics')}</span>
+                                    <span>{progressValue.toFixed(0)}%</span>
+                                </div>
+                                <ProgressBar value={progressValue} height={4} showValue={false} />
+                            </div>
+                        )}
 
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto' }}>
                             <div style={{ fontSize: isMobile ? '0.95rem' : '0.85rem', color: 'var(--color-text-secondary)' }}>
