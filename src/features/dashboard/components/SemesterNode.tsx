@@ -10,6 +10,7 @@ interface SemesterNodeProps {
     completedCredits: number;
     isSelected: boolean;
     onClick: () => void;
+    courseCount: number;
     attemptFailedCount?: number;
 }
 
@@ -21,6 +22,7 @@ export const SemesterNode: React.FC<SemesterNodeProps> = memo(({
     completedCredits,
     isSelected,
     onClick,
+    courseCount,
     attemptFailedCount = 0
 }) => {
     const { t } = useTranslation();
@@ -134,6 +136,9 @@ export const SemesterNode: React.FC<SemesterNodeProps> = memo(({
                     <span style={{ color: styles.accentColor }}>
                         {progress.toFixed(0)}%
                     </span>
+                </div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--color-text-secondary)', opacity: 0.8, marginTop: '-2px' }}>
+                    {courseCount} {t('label.courses')}
                 </div>
                 <ProgressBar value={progress} height={6} />
             </div>
