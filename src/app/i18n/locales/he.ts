@@ -98,6 +98,13 @@ export const he = {
     'label.ltr_mode': 'מצב LTR',
     'label.manage_courses': 'ניהול קורסים',
     'label.migrate_to': 'העבר קורסים ל:',
+
+    // support
+    'support.title': 'התקדמות אקדמית מרשימה!',
+    'support.mission': 'אקדמפז"ם הוא פרויקט חינמי, מבוסס אחסון מקומי, שנבנה עם מחשבה על סטודנטים. ללא פרסומות וללא מעקב.',
+    'support.action_primary': 'תמיכה בפרויקט',
+    'support.action_later': 'אולי אחר כך',
+    'support.action_dismiss': 'אל תציג שוב',
     'label.more_options': 'אפשרויות נוספות',
     'label.no_courses_found': 'לא נמצאו קורסים.',
     'label.notes': 'הערות',

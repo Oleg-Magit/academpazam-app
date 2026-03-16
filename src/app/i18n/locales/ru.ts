@@ -98,6 +98,13 @@ export const ru = {
     'label.ltr_mode': 'Режим LTR',
     'label.manage_courses': 'Управление курсами',
     'label.migrate_to': 'Перенести курсы в:',
+
+    // support
+    'support.title': 'Отличный академический прогресс!',
+    'support.mission': 'AcademPazam — это бесплатный проект с локальным хранением данных, созданный для студентов. Без рекламы и слежки.',
+    'support.action_primary': 'Поддержать проект',
+    'support.action_later': 'Может позже',
+    'support.action_dismiss': 'Больше не показывать',
     'label.more_options': 'Дополнительно',
     'label.no_courses_found': 'Курсы не найдены.',
     'label.notes': 'Заметки',

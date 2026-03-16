@@ -98,6 +98,13 @@ export const en = {
     'label.ltr_mode': 'LTR Mode',
     'label.manage_courses': 'Manage Courses',
     'label.migrate_to': 'Migrate courses to:',
+
+    // support
+    'support.title': 'Great Academic Progress!',
+    'support.mission': 'AcademPazam is a free, local-first project built with care for students. No ads, no tracking.',
+    'support.action_primary': 'Support the Project',
+    'support.action_later': 'Maybe Later',
+    'support.action_dismiss': 'Don\'t show again',
     'label.more_options': 'More Options',
     'label.no_courses_found': 'No courses found.',
     'label.notes': 'Notes',

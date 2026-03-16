@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { usePlans, useCourses, useSemesters } from '@/core/hooks/useData';
 import type { Course } from '@/core/models/types';
 import { DEFAULT_PASSING_THRESHOLD } from '@/core/constants/grades';
@@ -21,6 +21,14 @@ import { ConfirmationModal } from '@/ui/ConfirmationModal';
 import { Card } from '@/ui/Card';
 import { GraduationCap, Info, Plus } from 'lucide-react';
 import { getLocalizedDegreeName } from '@/core/utils/degreeName';
+import { SupportBanner } from './components/SupportBanner';
+import { 
+    getSupportState, 
+    updateSupportState, 
+    calculateStrictlyCompletedSemesters, 
+    shouldShowSupportPrompt,
+    type SupportPromptState
+} from '@/core/services/supportService';
 
 export const Dashboard: React.FC = () => {
     const { t, language } = useTranslation();
@@ -67,6 +75,42 @@ export const Dashboard: React.FC = () => {
         confirmDeleteSemester
     } = useSemesterManagement(courses, semesters, refresh, currentPlan?.passing_exam_threshold ?? DEFAULT_PASSING_THRESHOLD);
     const { progress, bySemester, stats } = useDashboardData(courses, semesters, currentPlan?.passing_exam_threshold ?? DEFAULT_PASSING_THRESHOLD);
+
+    const [supportPromptState, setSupportPromptState] = useState<SupportPromptState | null>(null);
+
+    useEffect(() => {
+        getSupportState().then(setSupportPromptState);
+    }, []);
+
+    const strictlyCompletedCount = useMemo(() => {
+        return calculateStrictlyCompletedSemesters(bySemester, currentPlan?.passing_exam_threshold ?? DEFAULT_PASSING_THRESHOLD);
+    }, [bySemester, currentPlan?.passing_exam_threshold]);
+
+    const showSupportPrompt = useMemo(() => {
+        if (!supportPromptState) return false;
+        return shouldShowSupportPrompt(strictlyCompletedCount, supportPromptState);
+    }, [strictlyCompletedCount, supportPromptState]);
+
+    const handleSupportAction = () => {
+        window.open('https://github.com/Oleg-Magit/academpazam-app', '_blank');
+    };
+
+    const handleMaybeLater = async () => {
+        const newState: Partial<SupportPromptState> = { 
+            status: 'maybe_later', 
+            lastDismissedAt: Date.now() 
+        };
+        await updateSupportState(newState);
+        setSupportPromptState(prev => prev ? { ...prev, ...newState } : null);
+    };
+
+    const handleDismissPermanently = async () => {
+        const newState: Partial<SupportPromptState> = { 
+            status: 'dismissed_permanently' 
+        };
+        await updateSupportState(newState);
+        setSupportPromptState(prev => prev ? { ...prev, ...newState } : null);
+    };
 
     const handleCreatePlan = async () => {
         const defaultPlan = {
@@ -248,6 +292,14 @@ export const Dashboard: React.FC = () => {
                 inProgressCount={stats.inProgressCount}
                 needsRepeatCount={stats.needsRepeatCount}
             />
+
+            {showSupportPrompt && (
+                <SupportBanner 
+                    onSupport={handleSupportAction}
+                    onMaybeLater={handleMaybeLater}
+                    onDismissPermanently={handleDismissPermanently}
+                />
+            )}
 
             <section style={{ flex: 1 }}>
                 {semesters.length === 0 ? (
