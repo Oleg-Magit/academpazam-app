@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { calculateStrictlyCompletedSemesters, shouldShowSupportPrompt, SupportPromptState } from './supportService';
+import { calculateStrictlyCompletedSemesters, shouldShowSupportPrompt, type SupportPromptState } from './supportService';
 import type { SemesterGroup, CourseWithTopics } from '../models/types';
 
 describe('supportService logic verification (Strict Mode)', () => {
