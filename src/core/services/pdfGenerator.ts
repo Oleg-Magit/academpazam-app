@@ -256,11 +256,13 @@ export const generateDegreePDF = async (degreeName: string, courses: CourseWithT
             let statusText = '';
             const academicStatus = lineageMetadata[course.id];
             
-            if (academicStatus === 'passed_req') {
+            if (academicStatus?.holdsPassedReq) {
                 statusText = t('status.passed_academic_badge');
+            } else if (academicStatus?.holdsNeedsRepeat) {
+                statusText = t('status.needs_repeat_badge');
             } else if (course.attemptStatus === 'failed' || (course.grade !== null && course.grade !== undefined && course.grade < passingThreshold)) {
                 statusText = t('status.failed_badge');
-            } else if (course.repeatedFromCourseId) {
+            } else if (academicStatus?.isValidRepeat) {
                 statusText = t('status.repeat_badge');
             } else if (course.effectiveStatus === 'completed') {
                 statusText = t('status.completed');

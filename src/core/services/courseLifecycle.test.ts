@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { isAttemptPassed, createRepeatCourse, calculateAcademicMetrics, buildLineageMetadata, validateCourseState, getRootCourseId } from './courseLifecycle';
+import { 
+    isAttemptPassed, 
+    createRepeatCourse, 
+    calculateAcademicMetrics, 
+    buildLineageMetadata, 
+    validateCourseState, 
+    getRootCourseId 
+} from './courseLifecycle';
 import type { Course, Topic } from '../models/types';
 
 describe('courseLifecycle', () => {
@@ -169,7 +176,7 @@ describe('courseLifecycle', () => {
             expect(metrics.needsRepeatCount).toBe(0);
         });
 
-        it('counts as needsRepeat if no pass exists but at least one fail exists', () => {
+        it('does NOT count as needsRepeat if an active retake exists', () => {
             // Case: Failed -> In Progress
             const metrics = calculateAcademicMetrics(
                 [
@@ -179,7 +186,7 @@ describe('courseLifecycle', () => {
                 56
             );
 
-            expect(metrics.needsRepeatCount).toBe(1);
+            expect(metrics.needsRepeatCount).toBe(0); // Remediation: active retake suppresses it
             expect(metrics.completedCount).toBe(0);
         });
 
@@ -197,29 +204,30 @@ describe('courseLifecycle', () => {
         const c2: any = { id: 'c2', credits: 3, repeatedFromCourseId: 'c1', attemptStatus: 'passed', updatedAt: 200 };
         const c3: any = { id: 'c3', credits: 4, attemptStatus: 'failed', updatedAt: 300 };
 
-        it('assigns passed_req to all attempts in a passed lineage', () => {
+        it('assigns holdsPassedReq: true to the correct attempt in a passed lineage', () => {
             const metadata = buildLineageMetadata([c1, c2], 56);
-            expect(metadata['c1']).toBe('passed_req');
-            expect(metadata['c2']).toBe('passed_req');
+            expect(metadata['c1'].holdsPassedReq).toBe(false); // c1 is the failure
+            expect(metadata['c2'].holdsPassedReq).toBe(true);  // c2 is the pass
         });
 
-        it('assigns needs_repeat to all attempts in a failed lineage', () => {
+        it('assigns holdsNeedsRepeat: true to the attempt in a failed lineage', () => {
             const metadata = buildLineageMetadata([c3], 56);
-            expect(metadata['c3']).toBe('needs_repeat');
+            expect(metadata['c3'].holdsNeedsRepeat).toBe(true);
         });
 
-        it('assigns none to planned courses with no history', () => {
+        it('assigns no requirement flags to planned courses with no history', () => {
             const c4: any = { id: 'c4', credits: 3, attemptStatus: 'planned' };
             const metadata = buildLineageMetadata([c4], 56);
-            expect(metadata['c4']).toBe('none');
+            expect(metadata['c4'].holdsPassedReq).toBe(false);
+            expect(metadata['c4'].holdsNeedsRepeat).toBe(false);
         });
 
         it('handles complex lineages correctly', () => {
             const c5: any = { id: 'c5', credits: 3, attemptStatus: 'failed' };
             const c6: any = { id: 'c6', credits: 3, repeatedFromCourseId: 'c5', attemptStatus: 'failed' };
             const metadata = buildLineageMetadata([c5, c6], 56);
-            expect(metadata['c5']).toBe('needs_repeat');
-            expect(metadata['c6']).toBe('needs_repeat');
+            expect(metadata['c5'].holdsNeedsRepeat).toBe(false); // c6 is successor
+            expect(metadata['c6'].holdsNeedsRepeat).toBe(true);
         });
     });
 });

@@ -5,7 +5,7 @@ import { Button } from '@/ui/Button';
 import { ProgressBar } from '@/ui/ProgressBar';
 import { Edit2, Trash2, ChevronRight } from 'lucide-react';
 import { useTranslation } from '@/app/i18n/useTranslation';
-import type { CourseWithTopics } from '@/core/models/types';
+import type { CourseWithTopics, LineageMemberMetadata } from '@/core/services/courseLifecycle';
 
 interface CourseListProps {
     courses: CourseWithTopics[];
@@ -15,7 +15,7 @@ interface CourseListProps {
     showSemesterLabel?: boolean;
     semesterLabels?: Record<string, string>;
     isMobile?: boolean;
-    lineageMetadata?: Record<string, 'passed_req' | 'needs_repeat' | 'none'>;
+    lineageMetadata?: Record<string, LineageMemberMetadata>;
 }
 
 export const CourseList: React.FC<CourseListProps> = ({
@@ -47,11 +47,10 @@ export const CourseList: React.FC<CourseListProps> = ({
         }}>
             {courses.map(course => {
                 const isFailed = course.attemptStatus === 'failed';
-                const isRepeat = !!course.repeatedFromCourseId;
                 const academicStatus = lineageMetadata[course.id];
                 
                 const topicsCount = course.topics?.length || 0;
-                const completedTopicsCount = course.topics?.filter(t => t.status === 'done').length || 0;
+                const completedTopicsCount = course.topics?.filter((topic: any) => topic.status === 'done').length || 0;
                 const showProgress = topicsCount > 0;
                 const progressValue = showProgress ? (completedTopicsCount / topicsCount) * 100 : 0;
 
@@ -77,9 +76,9 @@ export const CourseList: React.FC<CourseListProps> = ({
                                     <div style={{ fontSize: isMobile ? '0.85rem' : '0.75rem', color: 'var(--color-text-secondary)' }}>
                                         {course.code && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(course.code) && course.code.length < 25 ? course.code : ''}
                                     </div>
-                                    {isRepeat && course.attemptNumber && course.attemptNumber > 1 && (
+                                    {academicStatus?.derivedAttemptNumber && academicStatus.derivedAttemptNumber > 1 && (
                                         <span style={{ fontSize: '0.7rem', color: 'var(--color-warning)', fontWeight: 600, padding: '1px 4px', borderRadius: '4px', backgroundColor: 'var(--color-warning-light, rgba(245, 158, 11, 0.1))' }}>
-                                            {t('label.attempt_x', { num: course.attemptNumber })}
+                                            {t('label.attempt_x', { num: academicStatus.derivedAttemptNumber })}
                                         </span>
                                     )}
                                 </div>
@@ -98,35 +97,33 @@ export const CourseList: React.FC<CourseListProps> = ({
                                         {semesterLabels?.[course.semesterId] || t('label.semester')}
                                     </div>
                                 )}
-                                {isRepeat && (
+                                {academicStatus?.isValidRepeat && (
                                     <div style={{ fontSize: '0.7rem', color: 'var(--color-warning)', fontWeight: 600, marginTop: '2px' }}>
                                          · {t('status.repeat_secondary')}
                                     </div>
                                 )}
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
-                                {!(isFailed && course.effectiveStatus === 'completed') && (
                                     <Badge variant={course.effectiveStatus === 'completed' ? 'success' : course.effectiveStatus === 'in_progress' ? 'warning' : 'neutral'}>
-                                        {t(`status.${course.effectiveStatus}`)}
+                                        {t(`status.${course.effectiveStatus}` as any)}
                                     </Badge>
-                                )}
                                 <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                                     {isFailed && (
                                         <Badge variant="error" className="tiny-badge">
                                             {t('status.failed_badge')}
                                         </Badge>
                                     )}
-                                    {isRepeat && (
+                                    {academicStatus?.isValidRepeat && (
                                         <Badge variant="warning" className="tiny-badge">
                                             {t('status.repeat_badge')}
                                         </Badge>
                                     )}
-                                    {academicStatus === 'passed_req' && (
+                                    {academicStatus?.holdsPassedReq && (
                                         <Badge variant="success" className="tiny-badge">
                                             {t('status.passed_academic_badge')}
                                         </Badge>
                                     )}
-                                    {academicStatus === 'needs_repeat' && (
+                                    {academicStatus?.holdsNeedsRepeat && (
                                         <Badge variant="error" className="tiny-badge">
                                             {t('status.needs_repeat_badge')}
                                         </Badge>

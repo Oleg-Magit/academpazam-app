@@ -1,4 +1,5 @@
 import type { Course, CourseWithTopics, Topic } from '../models/types';
+export type { Course, CourseWithTopics, Topic };
 import { v4 as uuidv4 } from 'uuid';
 
 /**
@@ -126,16 +127,24 @@ export const calculateAcademicMetrics = (courses: CourseWithTopics[], passingThr
     for (const [rootId, lineageCourses] of lineages.entries()) {
         // Canonical Credits: from the root attempt
         const rootCourse = courseMap.get(rootId);
-        const canonicalCredits = rootCourse?.credits ?? lineageCourses[0].credits;
+        const firstCourse = lineageCourses.sort((a, b) => a.createdAt - b.createdAt)[0];
+        const canonicalCredits = rootCourse?.credits ?? firstCourse.credits;
         totalRequiredCredits += canonicalCredits;
 
         const hasPassedAttempt = lineageCourses.some(c => isAttemptPassed(c, passingThreshold));
-        const hasFailedAttempt = lineageCourses.some(c => c.attemptStatus === 'failed' || (c.grade !== null && c.grade !== undefined && c.grade < passingThreshold));
+        const hasFailedAttempt = lineageCourses.some(c => 
+            c.attemptStatus === 'failed' || 
+            (c.grade !== null && c.grade !== undefined && c.grade < passingThreshold)
+        );
+        const hasActiveRetake = lineageCourses.some(c => 
+            c.attemptStatus === 'planned' || c.attemptStatus === 'in_progress'
+        );
 
         if (hasPassedAttempt) {
             earnedCredits += canonicalCredits;
             completedCount += 1;
-        } else if (hasFailedAttempt) {
+        } else if (hasFailedAttempt && !hasActiveRetake) {
+            // Decrement needsRepeat if an active retake is underway
             needsRepeatCount += 1;
         }
     }
@@ -186,14 +195,22 @@ export function createRepeatCourse(
     return { course: newCourse, topics: newTopics };
 }
 
+export interface LineageMemberMetadata {
+    holdsPassedReq: boolean;
+    holdsNeedsRepeat: boolean;
+    derivedAttemptNumber: number;
+    isValidRepeat: boolean;
+    totalAttempts: number;
+}
+
 /**
  * Constructs a lookup record of academic status for all attempts in a set of courses.
- * Map: courseId -> 'passed_req' | 'needs_repeat' | 'none'
+ * Map: courseId -> LineageMemberMetadata
  */
 export const buildLineageMetadata = (
     courses: CourseWithTopics[],
     passingThreshold: number
-): Record<string, 'passed_req' | 'needs_repeat' | 'none'> => {
+): Record<string, LineageMemberMetadata> => {
     const courseMap = new Map<string, CourseWithTopics>();
     for (const c of courses) {
         if (c && c.id) {
@@ -211,27 +228,70 @@ export const buildLineageMetadata = (
         lineages.get(rootId)!.push(c);
     }
 
-    const metadata: Record<string, 'passed_req' | 'needs_repeat' | 'none'> = {};
+    const metadata: Record<string, LineageMemberMetadata> = {};
 
     for (const lineageCourses of lineages.values()) {
-        const hasPassedAttempt = lineageCourses.some(c => isAttemptPassed(c, passingThreshold));
-        const hasFailedAttempt = lineageCourses.some(c =>
-            c.attemptStatus === 'failed' ||
+        // Sort lineage by creation time to derive attempt numbers
+        const sorted = [...lineageCourses].sort((a, b) => a.createdAt - b.createdAt);
+        
+        // Ownership Rule: latest valid passed attempt gets passed_req
+        const passedAttempts = sorted.filter(c => isAttemptPassed(c, passingThreshold));
+        const latestPassedId = passedAttempts.length > 0 ? passedAttempts[passedAttempts.length - 1].id : null;
+
+        // Ownership Rule: failed attempt gets needs_repeat ONLY if no active successor exists
+        // Find failed attempts
+        const failedAttempts = sorted.filter(c => 
+            c.attemptStatus === 'failed' || 
             (c.grade !== null && c.grade !== undefined && c.grade < passingThreshold)
         );
+        const latestFailedId = failedAttempts.length > 0 ? failedAttempts[failedAttempts.length - 1].id : null;
+        const hasActiveRetake = sorted.some(s => s.attemptStatus === 'planned' || s.attemptStatus === 'in_progress');
+        
+        const hasAnyPassed = passedAttempts.length > 0;
 
-        let status: 'passed_req' | 'needs_repeat' | 'none' = 'none';
+        for (let i = 0; i < sorted.length; i++) {
+            const current = sorted[i];
+            const isLatestPassed = current.id === latestPassedId;
+            const isLatestFailed = current.id === latestFailedId;
+            
+            const holdsNeedsRepeat = isLatestFailed && !hasAnyPassed && !hasActiveRetake;
 
-        if (hasPassedAttempt) {
-            status = 'passed_req';
-        } else if (hasFailedAttempt) {
-            status = 'needs_repeat';
-        }
-
-        for (const c of lineageCourses) {
-            metadata[c.id] = status;
+            metadata[current.id] = {
+                holdsPassedReq: isLatestPassed,
+                holdsNeedsRepeat,
+                derivedAttemptNumber: i + 1,
+                isValidRepeat: i > 0,
+                totalAttempts: sorted.length
+            };
         }
     }
 
     return metadata;
+};
+
+/**
+ * Repairs a lineage after deletion to prevent orphans.
+ * If A -> B -> C and B is deleted, C now points to A.
+ * Pure and non-mutating (returns the updated courses).
+ */
+export const stitchAndRecomputeLineage = (
+    deletedCourseId: string,
+    allCourses: Course[]
+): Course[] => {
+    const deletedCourse = allCourses.find(c => c.id === deletedCourseId);
+    if (!deletedCourse) return allCourses;
+
+    const predecessorId = deletedCourse.repeatedFromCourseId;
+    
+    return allCourses.map(c => {
+        if (c.repeatedFromCourseId === deletedCourseId) {
+            // Successor now points to the predecessor
+            return {
+                ...c,
+                repeatedFromCourseId: predecessorId,
+                updatedAt: Date.now()
+            };
+        }
+        return c;
+    });
 };

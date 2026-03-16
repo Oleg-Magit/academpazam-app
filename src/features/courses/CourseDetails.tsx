@@ -313,9 +313,21 @@ export const CourseDetails: React.FC<CourseDetailsProps> = ({ id: propId, onBack
                                     topic.status === 'in_progress' ? 'var(--color-warning)' : 'var(--color-border)'
                             }}
                         >
-                            {topic.status === 'done' ? <CheckCircle size={24} /> :
-                                topic.status === 'in_progress' ? <Clock size={24} /> :
-                                    <Circle size={24} aria-hidden="true" />}
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '60px' }}>
+                                {topic.status === 'done' ? <CheckCircle size={24} /> :
+                                    topic.status === 'in_progress' ? <Clock size={24} /> :
+                                        <Circle size={24} aria-hidden="true" />}
+                                <span style={{ 
+                                    fontSize: '0.65rem', 
+                                    fontWeight: 700, 
+                                    marginTop: '4px',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.025em',
+                                    opacity: 0.8
+                                }}>
+                                    {t(`status.${topic.status}` as any)}
+                                </span>
+                            </div>
                         </button>
 
                         <div style={{ flex: 1, minWidth: 0 }}>

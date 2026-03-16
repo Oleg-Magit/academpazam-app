@@ -23,7 +23,8 @@ import { CourseList } from './components/CourseList';
 import { useSemesterManagement } from './hooks/useSemesterManagement';
 import { getSemesterTitle, getSemesterContext } from '@/core/utils/semesterUtils';
 import { DEFAULT_PASSING_THRESHOLD } from '@/core/constants/grades';
-import { isAttemptPassed, getRootCourseId, buildLineageMetadata } from '@/core/services/courseLifecycle';
+import { isAttemptPassed, getRootCourseId, buildLineageMetadata, stitchAndRecomputeLineage } from '@/core/services/courseLifecycle';
+import { saveCourse } from '@/core/db/db';
 
 export const Courses: React.FC = () => {
     const { t } = useTranslation();
@@ -299,6 +300,18 @@ export const Courses: React.FC = () => {
 
     const confirmCourseDelete = async () => {
         if (!courseToDelete) return;
+
+        // Perform lineage stitching to prevent orphans
+        const updatedCourses = stitchAndRecomputeLineage(courseToDelete.id, courses);
+        
+        // Save any successors that were updated to point to the new predecessor
+        for (const c of updatedCourses) {
+            const original = courses.find(oc => oc.id === c.id);
+            if (original && original.repeatedFromCourseId !== c.repeatedFromCourseId) {
+                await saveCourse(c);
+            }
+        }
+
         await deleteCourse(courseToDelete.id);
         setCourseToDelete(null);
         refresh();
