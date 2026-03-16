@@ -59,6 +59,7 @@ export const Dashboard: React.FC = () => {
 
     const {
         handleAddSemester,
+        getNextSemesterProposal,
         promptDeleteSemester,
         deleteModalOpen,
         setDeleteModalOpen,
@@ -94,7 +95,17 @@ export const Dashboard: React.FC = () => {
         try {
             const { generateDegreePDF } = await import('@/core/services/pdfGenerator');
             const localizedName = getLocalizedDegreeName(currentPlan, t as any);
-            const pdfBytes = await generateDegreePDF(localizedName, courses, language, currentPlan?.passing_exam_threshold ?? DEFAULT_PASSING_THRESHOLD);
+            
+            // Refined title for internal PDF metadata (human readable, no extension)
+            const cleanTitle = `${localizedName} Progress`;
+            
+            const pdfBytes = await generateDegreePDF(
+                localizedName, 
+                courses, 
+                language, 
+                currentPlan?.passing_exam_threshold ?? DEFAULT_PASSING_THRESHOLD,
+                { title: cleanTitle }
+            );
 
             const header = String.fromCharCode(...pdfBytes.slice(0, 5));
             if (!header.startsWith('%PDF-')) {
@@ -254,7 +265,7 @@ export const Dashboard: React.FC = () => {
                         <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-xl)', lineHeight: 1.5 }}>
                             {t('dashboard.empty_no_semesters_desc')}
                         </p>
-                        <Button onClick={() => handleAddSemester()} variant="primary">
+                        <Button onClick={() => handleAddSemester({ ...getNextSemesterProposal(), name: '' })} variant="primary">
                             <Plus size={18} style={{ marginRight: '8px' }} />
                             {t('dashboard.add_first_semester')}
                         </Button>
@@ -326,9 +337,9 @@ export const Dashboard: React.FC = () => {
             <AddSemesterModal
                 isOpen={isAddSemesterModalOpen}
                 onClose={() => setIsAddSemesterModalOpen(false)}
-                semesters={semesters}
-                onAdd={async (year, term) => {
-                    const nextId = await handleAddSemester(year, term);
+                getNextProposal={getNextSemesterProposal}
+                onAdd={async (semesterData) => {
+                    const nextId = await handleAddSemester(semesterData);
                     setIsAddSemesterModalOpen(false);
                     return nextId;
                 }}

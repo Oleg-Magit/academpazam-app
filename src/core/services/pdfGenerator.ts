@@ -10,11 +10,25 @@ import { loadCustomFont } from './pdfFont';
 import { translate, type SupportedLang, type TranslationKey } from '../utils/translate';
 import { getSemesterTitle } from '../utils/semesterUtils';
 
-export const generateDegreePDF = async (degreeName: string, courses: CourseWithTopics[], lang: SupportedLang = 'en', passingThreshold: number = DEFAULT_PASSING_THRESHOLD) => {
+export const generateDegreePDF = async (
+    degreeName: string, 
+    courses: CourseWithTopics[], 
+    lang: SupportedLang = 'en', 
+    passingThreshold: number = DEFAULT_PASSING_THRESHOLD,
+    options: { title?: string } = {}
+) => {
     const { PDFDocument, rgb } = await getPdfLib();
     const fontkit = await getFontKit();
 
     const pdfDoc = await PDFDocument.create();
+    
+    // Set Metadata for Browser Viewers
+    if (options.title) {
+        pdfDoc.setTitle(options.title);
+    }
+    pdfDoc.setProducer('AcademPazam');
+    pdfDoc.setCreator('AcademPazam');
+
     pdfDoc.registerFontkit(fontkit);
 
     // Robust Font Loading via service

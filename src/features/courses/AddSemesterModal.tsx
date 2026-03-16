@@ -9,7 +9,6 @@ interface AddSemesterModalProps {
     isOpen: boolean;
     onClose: () => void;
     onAdd: (semester: Omit<Semester, 'id' | 'createdAt' | 'orderIndex'>) => Promise<string | null>;
-    semesters: Semester[];
     getNextProposal: (pacing: '2-term' | '3-term') => { year: number, term: 'A' | 'B' | 'SUMMER' | 'OTHER' };
 }
 

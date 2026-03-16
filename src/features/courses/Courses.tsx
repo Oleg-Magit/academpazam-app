@@ -521,7 +521,6 @@ export const Courses: React.FC = () => {
             <AddSemesterModal
                 isOpen={isAddSemesterModalOpen}
                 onClose={() => setIsAddSemesterModalOpen(false)}
-                semesters={semesters}
                 getNextProposal={getNextSemesterProposal}
                 onAdd={async (semesterData) => {
                     const nextId = await handleAddSemester(semesterData);
