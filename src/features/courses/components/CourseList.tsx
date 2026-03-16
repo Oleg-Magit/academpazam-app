@@ -7,7 +7,6 @@ import { Edit2, Trash2, ChevronRight } from 'lucide-react';
 import { useTranslation } from '@/app/i18n/useTranslation';
 import type { CourseWithTopics, LineageMemberMetadata } from '@/core/services/courseLifecycle';
 import { getBadgeConfiguration } from '@/core/services/courseLifecycle';
-import { DEFAULT_PASSING_THRESHOLD } from '@/core/constants/grades';
 
 interface CourseListProps {
     courses: CourseWithTopics[];
@@ -18,6 +17,7 @@ interface CourseListProps {
     semesterLabels?: Record<string, string>;
     isMobile?: boolean;
     lineageMetadata?: Record<string, LineageMemberMetadata>;
+    passingThreshold: number;
 }
 
 export const CourseList: React.FC<CourseListProps> = ({
@@ -28,7 +28,8 @@ export const CourseList: React.FC<CourseListProps> = ({
     showSemesterLabel,
     semesterLabels,
     isMobile = false,
-    lineageMetadata = {}
+    lineageMetadata = {},
+    passingThreshold
 }) => {
     const { t } = useTranslation();
 
@@ -106,7 +107,7 @@ export const CourseList: React.FC<CourseListProps> = ({
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
                                 {(() => {
-                                    const badgeConfig = getBadgeConfiguration(course, DEFAULT_PASSING_THRESHOLD, course.effectiveStatus);
+                                    const badgeConfig = getBadgeConfiguration(course, passingThreshold, course.effectiveStatus);
                                     return (
                                         <Badge variant={badgeConfig.variant}>
                                             {t(badgeConfig.labelKey as any)}

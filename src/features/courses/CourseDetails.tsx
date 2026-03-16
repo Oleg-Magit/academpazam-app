@@ -14,7 +14,7 @@ import { DEFAULT_PASSING_THRESHOLD } from '@/core/constants/grades';
 import { Input } from '@/ui/Input';
 import { ConfirmationModal } from '@/ui/ConfirmationModal';
 import { FailedCourseModal } from './FailedCourseModal';
-import { createRepeatCourse } from '@/core/services/courseLifecycle';
+import { createRepeatCourse, getBadgeConfiguration } from '@/core/services/courseLifecycle';
 
 interface CourseDetailsProps {
     id?: string;
@@ -185,7 +185,7 @@ export const CourseDetails: React.FC<CourseDetailsProps> = ({ id: propId, onBack
 
     const isCourseCompleted = topics.length > 0 && topics.every(t => t.status === 'done');
     // If no topics, use manual status
-    const effectiveStatus = topics.length === 0 ? course.manualStatus : (isCourseCompleted ? 'completed' : 'in_progress');
+    const effectiveStatus = (topics.length === 0 ? course.manualStatus : (isCourseCompleted ? 'completed' : 'in_progress')) || 'not_started';
     const isGradeEnabled = effectiveStatus === 'completed';
 
     const gradeStatus = course.grade === null || course.grade === undefined ? 'ungraded' :
@@ -203,7 +203,12 @@ export const CourseDetails: React.FC<CourseDetailsProps> = ({ id: propId, onBack
                     <div style={{ flex: '1 1 280px', minWidth: 0, maxWidth: '100%' }}>
                         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--space-md)', marginBottom: 'var(--space-xs)', flexWrap: 'wrap' }}>
                             <h1 style={{ fontSize: '1.5rem', margin: 0, wordBreak: 'break-word', minWidth: 0, flex: '1 1 auto' }}>{course.name}</h1>
-                            {course.code && <span style={{ flexShrink: 0 }}><Badge>{course.code}</Badge></span>}
+                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexShrink: 0 }}>
+                                {course.code && <Badge>{course.code}</Badge>}
+                                <Badge variant={getBadgeConfiguration(course, passingThreshold, effectiveStatus).variant}>
+                                    {t(getBadgeConfiguration(course, passingThreshold, effectiveStatus).labelKey as any)}
+                                </Badge>
+                            </div>
                         </div>
                         <div style={{ color: 'var(--color-text-secondary)', fontSize: '0.9rem' }}>
                             {semesters.find(s => s.id === course.semesterId)?.name || t('label.semester')} • {course.credits} {t('label.credits')}

@@ -505,6 +505,7 @@ export const Courses: React.FC = () => {
                                                                         semesterLabels={semesterLabels}
                                                                         isMobile={isMobile}
                                                                         lineageMetadata={lineageMetadata}
+                                                                        passingThreshold={currentPlan?.passing_exam_threshold ?? DEFAULT_PASSING_THRESHOLD}
                                                                     />
                                                                 </div>
                                                             );
@@ -531,6 +532,7 @@ export const Courses: React.FC = () => {
                                 semesterLabels={semesterLabels}
                                 isMobile={isMobile}
                                 lineageMetadata={lineageMetadata}
+                                passingThreshold={currentPlan?.passing_exam_threshold ?? DEFAULT_PASSING_THRESHOLD}
                             />
                         )}
                     </>
