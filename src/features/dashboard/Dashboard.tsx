@@ -59,12 +59,6 @@ export const Dashboard: React.FC = () => {
 
     const {
         handleAddSemester,
-        startRenaming,
-        saveRename,
-        editingSemesterId,
-        tempLabel,
-        setTempLabel,
-        setEditingSemesterId,
         promptDeleteSemester,
         deleteModalOpen,
         setDeleteModalOpen,
@@ -296,16 +290,9 @@ export const Dashboard: React.FC = () => {
                 isOpen={!!selectedSemester}
                 onClose={() => {
                     setSelectedSemester(null);
-                    setEditingSemesterId(null);
                 }}
                 semesterGroup={selectedSemesterGroup}
                 onAddCourse={handleAddCourseFromDrawer}
-                onStartRenaming={startRenaming}
-                onSaveRename={saveRename}
-                editingSemesterId={editingSemesterId}
-                tempLabel={tempLabel}
-                setTempLabel={setTempLabel}
-                setEditingSemesterId={setEditingSemesterId}
                 onPromptDelete={promptDeleteSemester}
                 passingThreshold={currentPlan?.passing_exam_threshold ?? DEFAULT_PASSING_THRESHOLD}
             />

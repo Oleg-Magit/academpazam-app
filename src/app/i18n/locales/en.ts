@@ -115,6 +115,11 @@ export const en = {
     'label.topic_title': 'Topic Title',
     'label.total_credits': 'Total Credits',
     'label.year': 'Year',
+    'label.academic_pacing': 'Academic Pacing',
+    'label.pacing_2term': '2-Term Model (A, B)',
+    'label.pacing_3term': '3-Term Model (A, B, Summer)',
+    'label.custom_name': 'Custom Name',
+    'label.semester_name_placeholder': 'e.g. Semester 1',
     'label.degree_average': 'Degree Average',
     'label.weighted_gpa': 'Weighted GPA',
     'label.graded_courses': 'Graded Courses',
@@ -277,5 +282,6 @@ export const en = {
     'term.a': 'Term A',
     'term.b': 'Term B',
     'term.summer': 'Summer',
+    'term.other': 'Other',
     'placeholder.course_code': 'e.g. CS101',
 };

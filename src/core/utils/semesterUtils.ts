@@ -3,7 +3,7 @@ interface SemesterSubset {
     name?: string;
     semesterName?: string;
     year?: number;
-    term?: 'A' | 'B' | 'SUMMER';
+    term?: 'A' | 'B' | 'SUMMER' | 'OTHER';
 }
 
 /**
@@ -28,7 +28,7 @@ export const isSemesterRenamed = (semester: SemesterSubset): boolean => {
  */
 export const getSemesterDefaultLabel = (semester: SemesterSubset, t: (key: any) => string): string => {
     const tm = semester.term || 'A';
-    return t(`term.${tm.toLowerCase()}`);
+    return t(`term.${tm.toLowerCase()}` as any);
 };
 
 /**

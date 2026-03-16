@@ -15,7 +15,7 @@ export interface Semester {
     createdAt: number;
     orderIndex: number; // Controls display order
     year?: number;
-    term?: 'A' | 'B' | 'SUMMER';
+    term?: 'A' | 'B' | 'SUMMER' | 'OTHER';
 }
 
 export interface Course {
@@ -61,7 +61,7 @@ export interface SemesterGroup {
     semesterName: string;
     orderIndex: number;
     year?: number;
-    term?: 'A' | 'B' | 'SUMMER';
+    term?: 'A' | 'B' | 'SUMMER' | 'OTHER';
     courses: CourseWithTopics[];
     totalCredits: number;
     completedCredits: number;

@@ -3,7 +3,7 @@ import type { SemesterGroup, Semester } from '@/core/models/types';
 import { Card } from '@/ui/Card';
 import { Badge } from '@/ui/Badge';
 import { useTranslation } from '@/app/i18n/useTranslation';
-import { X, Info, Plus, Edit2, Trash2, Save } from 'lucide-react';
+import { X, Info, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/ui/Button';
 import { Link } from 'react-router-dom';
 import { getSemesterTitle, getSemesterContext } from '@/core/utils/semesterUtils';
@@ -14,12 +14,6 @@ interface SemesterDrawerProps {
     onClose: () => void;
     semesterGroup: SemesterGroup | null;
     onAddCourse: (semesterId: string) => void;
-    onStartRenaming: (semId: string, currentLabel: string) => void;
-    onSaveRename: () => void;
-    editingSemesterId: string | null;
-    tempLabel: string;
-    setTempLabel: (label: string) => void;
-    setEditingSemesterId: (id: string | null) => void;
     onPromptDelete: (semester: Semester) => void;
     passingThreshold: number;
 }
@@ -29,12 +23,6 @@ export const SemesterDrawer: React.FC<SemesterDrawerProps> = ({
     onClose,
     semesterGroup,
     onAddCourse,
-    onStartRenaming,
-    onSaveRename,
-    editingSemesterId,
-    tempLabel,
-    setTempLabel,
-    setEditingSemesterId,
     onPromptDelete,
     passingThreshold
 }) => {
@@ -45,10 +33,7 @@ export const SemesterDrawer: React.FC<SemesterDrawerProps> = ({
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (drawerRef.current && !drawerRef.current.contains(event.target as Node) && isOpen) {
-                // Only close if not editing
-                if (!editingSemesterId) {
-                    onClose();
-                }
+                onClose();
             }
         };
 
@@ -61,11 +46,9 @@ export const SemesterDrawer: React.FC<SemesterDrawerProps> = ({
             document.removeEventListener('mousedown', handleClickOutside);
             document.body.style.overflow = '';
         };
-    }, [isOpen, onClose, editingSemesterId]);
+    }, [isOpen, onClose]);
 
     if (!semesterGroup) return null;
-
-    const isEditing = editingSemesterId === semesterGroup.semesterId;
 
     return (
         <div style={{
@@ -87,7 +70,7 @@ export const SemesterDrawer: React.FC<SemesterDrawerProps> = ({
                 backgroundColor: 'rgba(0, 0, 0, 0.5)',
                 opacity: isOpen ? 1 : 0,
                 transition: 'opacity 0.3s ease',
-            }} />
+            }} onClick={onClose} />
 
             {/* Drawer Panel */}
             <div ref={drawerRef} style={{
@@ -103,11 +86,6 @@ export const SemesterDrawer: React.FC<SemesterDrawerProps> = ({
                 transition: 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
                 display: 'flex',
                 flexDirection: 'column',
-                // Responsive override for mobile to come from bottom could be done via clean CSS classes or media query hook
-                // For simplicity here keeping right-side for all or adding basic JS detection?
-                // Request said: "Mobile: Drawer slides from bottom. Desktop: Drawer slides from right."
-                // Since we are inline styles, we need a media query or a hook.
-                // Using a CSS class is better for this.
             }} className="drawer-panel">
 
                 {/* Header */}
@@ -116,75 +94,35 @@ export const SemesterDrawer: React.FC<SemesterDrawerProps> = ({
                     borderBottom: '1px solid var(--color-border)',
                     display: 'flex',
                     justifyContent: 'space-between',
-                    alignItems: isEditing ? 'center' : 'flex-start'
+                    alignItems: 'flex-start'
                 }}>
                     <div style={{ display: 'flex', flexDirection: 'column', flex: 1, gap: '4px' }}>
-                        {isEditing ? (
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%' }}>
-                                <input
-                                    id="rename-semester-drawer"
-                                    name="renameSemesterDrawer"
-                                    value={tempLabel}
-                                    onChange={e => setTempLabel(e.target.value)}
-                                    autoFocus
-                                    style={{
-                                        width: '100%',
-                                        padding: '8px 12px',
-                                        borderRadius: '6px',
-                                        border: '1px solid var(--color-accent)',
-                                        fontSize: '1rem',
-                                        backgroundColor: 'var(--color-bg-primary)',
-                                        color: 'var(--color-text-primary)'
-                                    }}
-                                    onKeyDown={e => {
-                                        if (e.key === 'Enter') onSaveRename();
-                                        if (e.key === 'Escape') setEditingSemesterId(null);
-                                    }}
-                                />
-                                <Button size="sm" variant="ghost" onClick={onSaveRename} style={{ padding: '8px' }}>
-                                    <Save size={20} />
-                                </Button>
-                            </div>
-                        ) : (
-                            <>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <h2 style={{ margin: 0, fontSize: '1.25rem' }}>
-                                        {getSemesterTitle(semesterGroup, t)}
-                                    </h2>
-                                    <div style={{ display: 'flex', gap: '4px' }}>
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            style={{ padding: '4px', height: 'auto' }}
-                                            onClick={() => onStartRenaming(semesterGroup.semesterId, semesterGroup.semesterName)}
-                                        >
-                                            <Edit2 size={18} style={{ opacity: 0.7 }} />
-                                        </Button>
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            style={{ padding: '4px', height: 'auto', color: 'var(--color-danger)' }}
-                                            onClick={() => {
-                                                const sem: Semester = {
-                                                    id: semesterGroup.semesterId,
-                                                    name: semesterGroup.semesterName,
-                                                    year: semesterGroup.year,
-                                                    term: semesterGroup.term,
-                                                    createdAt: 0, // Fallback, not critical for delete modal
-                                                    orderIndex: 0 // Fallback
-                                                };
-                                                onPromptDelete(sem);
-                                            }}
-                                        >
-                                            <Trash2 size={18} style={{ opacity: 0.7 }} />
-                                        </Button>
-                                    </div>
-                                </div>
-                                <span style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', fontWeight: 400 }}>
-                                    {getSemesterContext(semesterGroup, t)}
-                                </span>
-                            </>
-                        )}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <h2 style={{ margin: 0, fontSize: '1.25rem' }}>
+                                {getSemesterTitle(semesterGroup, t)}
+                            </h2>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                style={{ padding: '4px', height: 'auto', color: 'var(--color-danger)' }}
+                                onClick={() => {
+                                    const sem: Semester = {
+                                        id: semesterGroup.semesterId,
+                                        name: semesterGroup.semesterName,
+                                        year: semesterGroup.year,
+                                        term: semesterGroup.term,
+                                        createdAt: 0, // Fallback
+                                        orderIndex: 0 // Fallback
+                                    };
+                                    onPromptDelete(sem);
+                                }}
+                            >
+                                <Trash2 size={18} style={{ opacity: 0.7 }} />
+                            </Button>
+                        </div>
+                        <span style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', fontWeight: 400 }}>
+                            {getSemesterContext(semesterGroup, t)}
+                        </span>
                     </div>
                     <Button variant="ghost" size="sm" onClick={onClose} aria-label="Close" style={{ alignSelf: 'center', marginLeft: '8px' }}>
                         <X size={24} />
@@ -278,7 +216,6 @@ export const SemesterDrawer: React.FC<SemesterDrawerProps> = ({
                 </div>
             </div>
 
-            {/* Mobile Bottom Sheet Style Overrides */}
             <style>{`
                 @media (max-width: 768px) {
                     .drawer-panel {

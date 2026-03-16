@@ -31,6 +31,7 @@ export const BulkAddCourseModal: React.FC<BulkAddCourseModalProps> = ({ isOpen, 
     const [preview, setPreview] = useState<ParsedCourse[]>([]);
     const [pendingSemesters, setPendingSemesters] = useState<Semester[]>([]);
     const [step, setStep] = useState<'input' | 'preview'>('input');
+    const [pacing, setPacing] = useState<'2-term' | '3-term'>('3-term');
 
     const SEMESTER_OPTIONS = React.useMemo(() => {
         const all = [...semesters, ...pendingSemesters].sort((a, b) => a.orderIndex - b.orderIndex);
@@ -82,15 +83,27 @@ export const BulkAddCourseModal: React.FC<BulkAddCourseModalProps> = ({ isOpen, 
                 if (lastSem) {
                     const lastYear = lastSem.year || 1;
                     const lastTerm = lastSem.term || 'A';
-                    if (lastTerm === 'A') {
-                        nextYear = lastYear;
-                        nextTerm = 'B';
-                    } else if (lastTerm === 'B') {
-                        nextYear = lastYear;
-                        nextTerm = 'SUMMER';
+                    
+                    if (pacing === '2-term') {
+                        if (lastTerm === 'A') {
+                            nextYear = lastYear;
+                            nextTerm = 'B';
+                        } else {
+                            nextYear = lastYear + 1;
+                            nextTerm = 'A';
+                        }
                     } else {
-                        nextYear = lastYear + 1;
-                        nextTerm = 'A';
+                        // 3-term logic
+                        if (lastTerm === 'A') {
+                            nextYear = lastYear;
+                            nextTerm = 'B';
+                        } else if (lastTerm === 'B') {
+                            nextYear = lastYear;
+                            nextTerm = 'SUMMER';
+                        } else {
+                            nextYear = lastYear + 1;
+                            nextTerm = 'A';
+                        }
                     }
                 }
 
@@ -274,6 +287,22 @@ export const BulkAddCourseModal: React.FC<BulkAddCourseModalProps> = ({ isOpen, 
                         - {t('modal.paste_courses.format_2')}<br />
                         - {t('modal.paste_courses.format_3')}
                     </p>
+                    <div style={{ marginBottom: 'var(--space-md)', display: 'flex', gap: '16px', alignItems: 'center' }}>
+                        <div style={{ flex: 1 }}>
+                            <Select
+                                id="bulk-pacing"
+                                name="bulkPacing"
+                                label={t('label.academic_pacing')}
+                                value={pacing}
+                                onChange={e => setPacing(e.target.value as any)}
+                                options={[
+                                    { value: '2-term', label: t('label.pacing_2term') },
+                                    { value: '3-term', label: t('label.pacing_3term') }
+                                ]}
+                            />
+                        </div>
+                    </div>
+                    
                     <label htmlFor="bulk-courses-textarea" style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>
                         {t('modal.paste_courses.title')}
                     </label>
@@ -282,7 +311,7 @@ export const BulkAddCourseModal: React.FC<BulkAddCourseModalProps> = ({ isOpen, 
                         name="bulkCoursesText"
                         value={text}
                         onChange={e => setText(e.target.value)}
-                        style={{ width: '100%', minHeight: '150px', height: '25vh', padding: 'var(--space-sm)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-primary)', color: 'var(--color-text-primary)' }}
+                        style={{ width: '100%', minHeight: '150px', height: '25vh', padding: 'var(--space-sm)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-primary)', color: 'var(--color-text-primary)', marginBottom: 'var(--space-md)' }}
                         placeholder={t('modal.paste_courses.placeholder')}
                     />
                 </div>

@@ -6,13 +6,14 @@ import { CourseModal } from './CourseModal';
 import { BulkAddCourseModal } from './BulkAddCourseModal';
 import { AddSemesterModal } from './AddSemesterModal';
 import { DeleteSemesterModal } from './DeleteSemesterModal';
+import { EditSemesterModal } from './EditSemesterModal';
 import { ConfirmationModal } from '@/ui/ConfirmationModal';
 import { useTranslation } from '@/app/i18n/useTranslation';
 
 import { useMediaQuery } from '@/core/hooks/useMediaQuery';
-import { ChevronLeft, Trash2, Edit2, Save } from 'lucide-react';
+import { ChevronLeft, Trash2, Edit2 } from 'lucide-react';
 import { Button } from '@/ui/Button';
-import type { Course, CourseWithTopics } from '@/core/models/types';
+import type { Course, CourseWithTopics, Semester } from '@/core/models/types';
 
 // Sub-components
 import { SemesterNavigation } from './components/SemesterNavigation';
@@ -48,6 +49,8 @@ export const Courses: React.FC = () => {
     const [isAddSemesterModalOpen, setIsAddSemesterModalOpen] = useState(false);
     const [yearFilter, setYearFilter] = useState<string>('all');
     const [termFilter, setTermFilter] = useState<string>('all');
+    const [isEditSemesterModalOpen, setIsEditSemesterModalOpen] = useState(false);
+    const [semesterToEdit, setSemesterToEdit] = useState<Semester | null>(null);
 
     useEffect(() => {
         if (semesters.length > 0 && !selectedSemester) {
@@ -74,21 +77,25 @@ export const Courses: React.FC = () => {
 
     const {
         bySemester,
-        editingSemesterId,
-        setEditingSemesterId,
-        tempLabel,
-        setTempLabel,
         deleteModalOpen,
         setDeleteModalOpen,
         semesterToDelete,
         errorMsg,
+        getNextSemesterProposal,
         handleAddSemester,
-        startRenaming,
-        saveRename,
+        handleUpdateSemester,
         promptDeleteSemester,
         confirmDeleteSemester,
         handleReorder
     } = useSemesterManagement(courses, semesters, refresh, currentPlan?.passing_exam_threshold ?? DEFAULT_PASSING_THRESHOLD);
+
+    const handleEditSemester = (semId: string) => {
+        const sem = semesters.find(s => s.id === semId);
+        if (sem) {
+            setSemesterToEdit(sem);
+            setIsEditSemesterModalOpen(true);
+        }
+    };
 
     // Mobile modes detection
     const isSearching = searchTerm.trim() !== '' || statusFilter !== 'all';
@@ -233,53 +240,32 @@ export const Courses: React.FC = () => {
     }, [courses, semesters, selectedSemester, searchTerm, statusFilter, yearFilter, termFilter, currentPlan]);
 
     const hierarchy = useMemo(() => {
-        const yearMap = new Map<number, Map<string, Map<string, { name: string, courses: CourseWithTopics[] }>>>();
+        const yearMap = new Map<number, Semester[]>();
 
-        displayedCourses.forEach(course => {
-            const sem = semesters.find(s => s.id === course.semesterId);
-            if (!sem) return;
-
+        semesters.forEach(sem => {
             const y = sem.year ?? 1;
-            const t = sem.term ?? 'A';
-
-            if (!yearMap.has(y)) yearMap.set(y, new Map());
-            const termMap = yearMap.get(y)!;
-
-            if (!termMap.has(t)) termMap.set(t, new Map());
-            const semMap = termMap.get(t)!;
-
-            if (!semMap.has(sem.id)) semMap.set(sem.id, { name: sem.name, courses: [] });
-            semMap.get(sem.id)!.courses.push(course);
+            if (!yearMap.has(y)) yearMap.set(y, []);
+            yearMap.get(y)!.push(sem);
         });
 
         const sortedYears = Array.from(yearMap.keys()).sort((a, b) => a - b);
+        
         return sortedYears.map(year => {
-            const termMap = yearMap.get(year)!;
-            const termOrder = { 'A': 1, 'B': 2, 'SUMMER': 3 };
-            const sortedTerms = Array.from(termMap.keys()).sort((a, b) => (termOrder[a as keyof typeof termOrder] || 99) - (termOrder[b as keyof typeof termOrder] || 99));
+            const yearSemesters = yearMap.get(year)!
+                .sort((a, b) => a.orderIndex - b.orderIndex);
 
             return {
                 year,
-                terms: sortedTerms.map(term => {
-                    const semMap = termMap.get(term)!;
-                    const semArray = Array.from(semMap.keys()).map(semId => {
-                        const s = semesters.find(x => x.id === semId);
-                        return {
-                            id: semId,
-                            name: semMap.get(semId)!.name,
-                            orderIndex: s?.orderIndex || 0,
-                            courses: semMap.get(semId)!.courses as CourseWithTopics[]
-                        };
-                    }).sort((a, b) => a.orderIndex - b.orderIndex);
-
-                    return {
-                        term,
-                        semesters: semArray
-                    };
-                })
+                semesters: yearSemesters.map(sem => ({
+                    id: sem.id,
+                    name: getSemesterTitle(sem, t),
+                    orderIndex: sem.orderIndex,
+                    term: sem.term,
+                    courses: displayedCourses.filter(c => c.semesterId === sem.id)
+                }))
             };
         });
-    }, [displayedCourses, semesters]);
+    }, [displayedCourses, semesters, t]);
 
     const semesterLabels = useMemo(() => {
         const labels: Record<string, string> = {};
@@ -338,208 +324,161 @@ export const Courses: React.FC = () => {
         <SemesterNavigation
             bySemester={filteredSemestersForNav}
             selectedSemester={selectedSemester}
-            onSelectSemester={handleSelectSemester}
-            editingSemesterId={editingSemesterId}
-            setEditingSemesterId={setEditingSemesterId}
-            tempLabel={tempLabel}
-            setTempLabel={setTempLabel}
+            onSelectSemester={setSelectedSemester}
             onAddSemester={() => setIsAddSemesterModalOpen(true)}
-            onStartRenaming={startRenaming}
-            onSaveRename={saveRename}
             onPromptDelete={promptDeleteSemester}
             onReorder={handleReorder}
+            onEditStructure={handleEditSemester}
             semesters={semesters}
             isMobile={isMobile}
         />
     );
 
-    const renderCourseContent = () => (
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'var(--space-md)', overflow: 'hidden' }}>
-            {isFocusedMode && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                    <Button variant="ghost" size="sm" onClick={() => setSelectedSemester('all')} style={{ padding: '4px' }}>
-                        <ChevronLeft size={20} />
-                        {t('action.back')}
-                    </Button>
-                </div>
-            )}
+    const renderCourseContent = () => {
+        const selectedSem = selectedSemester !== 'all' ? semesters.find(s => s.id === selectedSemester) : null;
 
-            <CoursesToolbar
-                searchTerm={searchTerm}
-                onSearchChange={setSearchTerm}
-                statusFilter={statusFilter}
-                onStatusFilterChange={setStatusFilter}
-                yearFilter={yearFilter}
-                onYearFilterChange={setYearFilter}
-                termFilter={termFilter}
-                onTermFilterChange={setTermFilter}
-                availableYears={availableYears}
-                availableTerms={availableTerms}
-                onAddCourse={() => setIsModalOpen(true)}
-                onAddSemester={() => setIsAddSemesterModalOpen(true)}
-                onBulkAdd={() => setIsBulkModalOpen(true)}
-                isMobile={isMobile}
-            />
-
-            <div style={{ overflowY: 'auto', paddingRight: '4px', paddingBottom: '32px' }}>
-                {isMobile && isOverviewMode && !isSearching ? (
-                    renderSemesterNav()
-                ) : (
-                    <>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: isMobile ? '12px' : '16px' }}>
-                            <div style={{ flex: 1 }}>
-                                {editingSemesterId === selectedSemester ? (
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%' }}>
-                                        <input
-                                            id="rename-semester-header"
-                                            name="renameSemesterHeader"
-                                            value={tempLabel}
-                                            onChange={e => setTempLabel(e.target.value)}
-                                            autoFocus
-                                            style={{
-                                                width: '100%',
-                                                padding: '8px 12px',
-                                                borderRadius: '6px',
-                                                border: '1px solid var(--color-accent)',
-                                                fontSize: '1rem',
-                                                backgroundColor: 'var(--color-bg-primary)',
-                                                color: 'var(--color-text-primary)'
-                                            }}
-                                            onKeyDown={e => {
-                                                if (e.key === 'Enter') saveRename();
-                                                if (e.key === 'Escape') setEditingSemesterId(null);
-                                            }}
-                                        />
-                                        <Button size="sm" variant="ghost" onClick={saveRename} style={{ padding: '8px' }}>
-                                            <Save size={20} />
-                                        </Button>
-                                    </div>
-                                ) : (
-                                    <>
-                                        <h1 style={{ fontSize: isMobile ? '1.25rem' : '1.5rem', margin: 0, fontWeight: 700 }}>
-                                            {searchTerm.trim() !== '' || statusFilter !== 'all' ? t('label.search_results') :
-                                                selectedSemester === 'all' ? t('label.all_semesters') :
-                                                    (() => {
-                                                        const sem = semesters.find(s => s.id === selectedSemester);
-                                                        if (!sem) return t('label.semester');
-                                                        return (
-                                                            <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                                    <span>{getSemesterTitle(sem, t)}</span>
-                                                                    <Button
-                                                                        variant="ghost"
-                                                                        size="sm"
-                                                                        style={{ padding: '4px', height: 'auto' }}
-                                                                        onClick={() => startRenaming(sem.id, sem.name)}
-                                                                        aria-label={t('action.edit')}
-                                                                    >
-                                                                        <Edit2 size={18} style={{ opacity: 0.7 }} />
-                                                                    </Button>
-                                                                </div>
-                                                                <span style={{
-                                                                    fontSize: isMobile ? '0.8rem' : '0.9rem',
-                                                                    color: 'var(--color-text-secondary)',
-                                                                    fontWeight: 400,
-                                                                    marginTop: '2px'
-                                                                }}>
-                                                                    {getSemesterContext(sem, t)}
-                                                                </span>
-                                                            </div>
-                                                        );
-                                                    })()
-                                            }
-                                        </h1>
-                                        <span style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)' }}>
-                                            {displayedCourses.length} {t('label.courses_found')}
-                                        </span>
-                                    </>
-                                )}
-                            </div>
-                            {isFocusedMode && semesters.length > 1 && !editingSemesterId && (
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    style={{ color: 'var(--color-danger)', padding: '8px' }}
-                                    onClick={() => {
-                                        const fullSem = semesters.find(s => s.id === selectedSemester);
-                                        if (fullSem) promptDeleteSemester(fullSem);
-                                    }}
-                                    aria-label={t('action.delete')}
-                                >
-                                    <Trash2 size={22} />
-                                </Button>
-                            )}
-                        </div>
-
-                        {selectedSemester === 'all' || isFiltering ? (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                                {hierarchy.map(hYear => (
-                                    <div key={hYear.year}>
-                                        <h2 style={{ fontSize: isMobile ? '1.15rem' : '1.3rem', marginBottom: '12px', color: 'var(--color-text-primary)' }}>
-                                            {t('label.year' as any) || 'Year'} {hYear.year}
-                                        </h2>
-                                        <div style={{ paddingLeft: isMobile ? '8px' : '16px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                                            {hYear.terms.map(hTerm => (
-                                                <div key={hTerm.term}>
-                                                    <h3 style={{ fontSize: isMobile ? '1rem' : '1.1rem', marginBottom: '12px', color: 'var(--color-text-secondary)' }}>
-                                                        {t(`term.${hTerm.term.toLowerCase()}` as any) || `Term ${hTerm.term}`}
-                                                    </h3>
-                                                    <div style={{ paddingLeft: isMobile ? '4px' : '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                                                        {hTerm.semesters.map(hSem => {
-                                                            const isDefault = !hSem.name ||
-                                                                /^(Semester|סמסטר|Семестр)\s+\d+$/i.test(hSem.name);
-
-                                                            return (
-                                                                <div key={hSem.id}>
-                                                                    {!isDefault && (
-                                                                        <h4 style={{ fontSize: '1rem', marginBottom: '8px', color: 'var(--color-accent)' }}>
-                                                                            {hSem.name}
-                                                                        </h4>
-                                                                    )}
-                                                                    <CourseList
-                                                                        courses={hSem.courses}
-                                                                        onEdit={handleEdit}
-                                                                        onDelete={handleDelete}
-                                                                        onNavigate={(id) => setSelectedCourseId(id)}
-                                                                        showSemesterLabel={false}
-                                                                        semesterLabels={semesterLabels}
-                                                                        isMobile={isMobile}
-                                                                        lineageMetadata={lineageMetadata}
-                                                                        passingThreshold={currentPlan?.passing_exam_threshold ?? DEFAULT_PASSING_THRESHOLD}
-                                                                    />
-                                                                </div>
-                                                            );
-                                                        })}
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                ))}
-                                {hierarchy.length === 0 && (
-                                    <div style={{ textAlign: 'center', padding: '40px', color: 'var(--color-text-secondary)' }}>
-                                        {t('label.no_courses_found')}
-                                    </div>
-                                )}
-                            </div>
-                        ) : (
-                            <CourseList
-                                courses={displayedCourses}
-                                onEdit={handleEdit}
-                                onDelete={handleDelete}
-                                onNavigate={(id) => setSelectedCourseId(id)}
-                                showSemesterLabel={false}
-                                semesterLabels={semesterLabels}
-                                isMobile={isMobile}
-                                lineageMetadata={lineageMetadata}
-                                passingThreshold={currentPlan?.passing_exam_threshold ?? DEFAULT_PASSING_THRESHOLD}
-                            />
-                        )}
-                    </>
+        return (
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'var(--space-md)', overflow: 'hidden' }}>
+                {isFocusedMode && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                        <Button variant="ghost" size="sm" onClick={() => setSelectedSemester('all')} style={{ padding: '4px' }}>
+                            <ChevronLeft size={20} />
+                            {t('action.back')}
+                        </Button>
+                    </div>
                 )}
+
+                <CoursesToolbar
+                    searchTerm={searchTerm}
+                    onSearchChange={setSearchTerm}
+                    statusFilter={statusFilter}
+                    onStatusFilterChange={setStatusFilter}
+                    yearFilter={yearFilter}
+                    onYearFilterChange={setYearFilter}
+                    termFilter={termFilter}
+                    onTermFilterChange={setTermFilter}
+                    availableYears={availableYears}
+                    availableTerms={availableTerms}
+                    onAddCourse={() => setIsModalOpen(true)}
+                    onAddSemester={() => setIsAddSemesterModalOpen(true)}
+                    onBulkAdd={() => setIsBulkModalOpen(true)}
+                    isMobile={isMobile}
+                />
+
+                <div style={{ overflowY: 'auto', paddingRight: '4px', paddingBottom: '32px' }}>
+                    {isMobile && isOverviewMode && !isSearching ? (
+                        renderSemesterNav()
+                    ) : (
+                        <>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: isMobile ? '12px' : '16px' }}>
+                                <div style={{ flex: 1 }}>
+                                    <h1 style={{ fontSize: isMobile ? '1.25rem' : '1.5rem', margin: 0, fontWeight: 700 }}>
+                                        {searchTerm.trim() !== '' || statusFilter !== 'all' ? t('label.search_results') :
+                                            selectedSemester === 'all' ? t('label.all_semesters') :
+                                                (
+                                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                            <span>{selectedSem ? getSemesterTitle(selectedSem, t) : t('label.semester')}</span>
+                                                            {selectedSem && (
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="sm"
+                                                                    style={{ padding: '4px', height: 'auto' }}
+                                                                    onClick={() => handleEditSemester(selectedSem.id)}
+                                                                    aria-label={t('action.edit')}
+                                                                >
+                                                                    <Edit2 size={18} style={{ opacity: 0.7 }} />
+                                                                </Button>
+                                                            )}
+                                                        </div>
+                                                        {selectedSem && (
+                                                            <span style={{
+                                                                fontSize: isMobile ? '0.8rem' : '0.9rem',
+                                                                color: 'var(--color-text-secondary)',
+                                                                fontWeight: 400,
+                                                                marginTop: '2px'
+                                                            }}>
+                                                                {getSemesterContext(selectedSem, t)}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                )
+                                        }
+                                    </h1>
+                                    <span style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)' }}>
+                                        {displayedCourses.length} {t('label.courses_found')}
+                                    </span>
+                                </div>
+                                {isFocusedMode && semesters.length > 1 && (
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        style={{ color: 'var(--color-danger)', padding: '8px' }}
+                                        onClick={() => {
+                                            const fullSem = semesters.find(s => s.id === selectedSemester);
+                                            if (fullSem) promptDeleteSemester(fullSem);
+                                        }}
+                                        aria-label={t('action.delete')}
+                                    >
+                                        <Trash2 size={22} />
+                                    </Button>
+                                )}
+                            </div>
+
+                            {selectedSemester === 'all' || isFiltering ? (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                                    {hierarchy.map(hYear => (
+                                        <div key={hYear.year}>
+                                            <h2 style={{ fontSize: isMobile ? '1.15rem' : '1.3rem', marginBottom: '12px', color: 'var(--color-text-primary)' }}>
+                                                {t('label.year' as any) || 'Year'} {hYear.year}
+                                            </h2>
+                                            <div style={{ paddingLeft: isMobile ? '8px' : '16px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                                                {hYear.semesters.map(hSem => (
+                                                    <div key={hSem.id}>
+                                                        <h3 style={{ fontSize: isMobile ? '1rem' : '1.1rem', marginBottom: '12px', color: 'var(--color-text-secondary)' }}>
+                                                            {hSem.name}
+                                                        </h3>
+                                                        <CourseList
+                                                            courses={hSem.courses}
+                                                            onEdit={handleEdit}
+                                                            onDelete={handleDelete}
+                                                            onNavigate={(id) => setSelectedCourseId(id)}
+                                                            showSemesterLabel={false}
+                                                            semesterLabels={semesterLabels}
+                                                            isMobile={isMobile}
+                                                            lineageMetadata={lineageMetadata}
+                                                            passingThreshold={currentPlan?.passing_exam_threshold ?? DEFAULT_PASSING_THRESHOLD}
+                                                        />
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ))}
+                                    {hierarchy.length === 0 && (
+                                        <div style={{ textAlign: 'center', padding: '40px', color: 'var(--color-text-secondary)' }}>
+                                            {t('label.no_courses_found')}
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <CourseList
+                                    courses={displayedCourses}
+                                    onEdit={handleEdit}
+                                    onDelete={handleDelete}
+                                    onNavigate={(id) => setSelectedCourseId(id)}
+                                    showSemesterLabel={false}
+                                    semesterLabels={semesterLabels}
+                                    isMobile={isMobile}
+                                    lineageMetadata={lineageMetadata}
+                                    passingThreshold={currentPlan?.passing_exam_threshold ?? DEFAULT_PASSING_THRESHOLD}
+                                />
+                            )}
+                        </>
+                    )}
+                </div>
             </div>
-        </div>
-    );
+        );
+    };
 
 
 
@@ -583,8 +522,9 @@ export const Courses: React.FC = () => {
                 isOpen={isAddSemesterModalOpen}
                 onClose={() => setIsAddSemesterModalOpen(false)}
                 semesters={semesters}
-                onAdd={async (year, term) => {
-                    const nextId = await handleAddSemester(year, term);
+                getNextProposal={getNextSemesterProposal}
+                onAdd={async (semesterData) => {
+                    const nextId = await handleAddSemester(semesterData);
                     if (nextId && !isMobile) handleSelectSemester(nextId);
                     return nextId;
                 }}
@@ -601,6 +541,16 @@ export const Courses: React.FC = () => {
                     onDelete={confirmDeleteSemester}
                 />
             )}
+
+            <EditSemesterModal
+                isOpen={isEditSemesterModalOpen}
+                onClose={() => setIsEditSemesterModalOpen(false)}
+                semester={semesterToEdit}
+                onSave={async (id, updates) => {
+                    await handleUpdateSemester(id, updates);
+                    refresh();
+                }}
+            />
 
             {courseToDelete && (
                 <ConfirmationModal

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@/ui/Button';
-import { Plus, Edit2, Trash2, Save, ChevronUp, ChevronDown } from 'lucide-react';
+import { Plus, Edit2, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
 import { useTranslation } from '@/app/i18n/useTranslation';
 import type { SemesterGroup, Semester } from '@/core/models/types';
 import { getSemesterTitle } from '@/core/utils/semesterUtils';
@@ -9,15 +9,10 @@ interface SemesterNavigationProps {
     bySemester: SemesterGroup[];
     selectedSemester: string;
     onSelectSemester: (semId: string) => void;
-    editingSemesterId: string | null;
-    setEditingSemesterId: (id: string | null) => void;
-    tempLabel: string;
-    setTempLabel: (label: string) => void;
     onAddSemester: () => void;
-    onStartRenaming: (semId: string, currentLabel: string) => void;
-    onSaveRename: () => void;
     onPromptDelete: (semester: Semester) => void;
     onReorder: (semesterId: string, direction: 'up' | 'down') => void;
+    onEditStructure: (semesterId: string) => void;
     semesters: Semester[];
     isMobile?: boolean;
 }
@@ -26,15 +21,10 @@ export const SemesterNavigation: React.FC<SemesterNavigationProps> = ({
     bySemester,
     selectedSemester,
     onSelectSemester,
-    editingSemesterId,
-    setEditingSemesterId,
-    tempLabel,
-    setTempLabel,
     onAddSemester,
-    onStartRenaming,
-    onSaveRename,
     onPromptDelete,
     onReorder,
+    onEditStructure,
     semesters,
     isMobile = false
 }) => {
@@ -110,117 +100,88 @@ export const SemesterNavigation: React.FC<SemesterNavigationProps> = ({
                                         }}
                                         className="semester-row"
                                     >
-                                        {editingSemesterId === sem.semesterId ? (
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', width: '100%' }} onClick={e => e.stopPropagation()}>
-                                                <input
-                                                    id={`rename-semester-${sem.semesterId}`}
-                                                    name={`renameSemester-${sem.semesterId}`}
-                                                    value={tempLabel}
-                                                    onChange={e => setTempLabel(e.target.value)}
-                                                    autoFocus
-                                                    aria-label={`Rename semester ${sem.semesterId}`}
-                                                    style={{
-                                                        width: '100%',
-                                                        padding: isMobile ? '10px' : '4px',
-                                                        borderRadius: '4px',
-                                                        border: '1px solid var(--color-accent)',
-                                                        fontSize: isMobile ? '1rem' : '0.9rem',
-                                                        backgroundColor: 'var(--color-bg-primary)',
-                                                        color: 'var(--color-text-primary)'
-                                                    }}
-                                                    onKeyDown={e => {
-                                                        if (e.key === 'Enter') onSaveRename();
-                                                        if (e.key === 'Escape') setEditingSemesterId(null);
-                                                    }}
-                                                />
-                                                <Button size={isMobile ? 'md' : 'sm'} variant="ghost" onClick={onSaveRename} style={{ padding: '4px' }} aria-label={t('action.save')}>
-                                                    <Save size={isMobile ? 20 : 14} />
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flex: 1, overflow: 'hidden' }}>
+                                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    disabled={bySemester.findIndex(x => x.semesterId === sem.semesterId) === 0}
+                                                    style={{ padding: 0, height: '14px', visibility: selectedSemester === sem.semesterId ? 'visible' : 'hidden' }}
+                                                    onClick={(e) => { e.stopPropagation(); onReorder(sem.semesterId, 'up'); }}
+                                                    aria-label="Move Up"
+                                                >
+                                                    <ChevronUp size={12} />
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    disabled={bySemester.findIndex(x => x.semesterId === sem.semesterId) === bySemester.length - 1}
+                                                    style={{ padding: 0, height: '14px', visibility: selectedSemester === sem.semesterId ? 'visible' : 'hidden' }}
+                                                    onClick={(e) => { e.stopPropagation(); onReorder(sem.semesterId, 'down'); }}
+                                                    aria-label="Move Down"
+                                                >
+                                                    <ChevronDown size={12} />
                                                 </Button>
                                             </div>
-                                        ) : (
-                                            <>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flex: 1, overflow: 'hidden' }}>
-                                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+
+                                            <span style={{
+                                                fontWeight: selectedSemester === sem.semesterId ? 600 : 400,
+                                                fontSize: isMobile ? '1.1rem' : '1rem',
+                                                whiteSpace: 'nowrap',
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis',
+                                                marginLeft: '4px'
+                                            }}>
+                                                {getSemesterTitle(sem, t)}
+                                            </span>
+                                        </div>
+
+                                        <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                                            {selectedSemester === sem.semesterId && (
+                                                <div style={{ display: 'flex', gap: '4px' }}>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        style={{ padding: '4px', height: 'auto' }}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            onEditStructure(sem.semesterId);
+                                                        }}
+                                                        aria-label={t('action.edit')}
+                                                    >
+                                                        <Edit2 size={isMobile ? 18 : 12} style={{ opacity: 0.7 }} />
+                                                    </Button>
+
+                                                    {semesters.length > 1 && (
                                                         <Button
                                                             variant="ghost"
                                                             size="sm"
-                                                            disabled={bySemester.findIndex(x => x.semesterId === sem.semesterId) === 0}
-                                                            style={{ padding: 0, height: '14px', visibility: selectedSemester === sem.semesterId ? 'visible' : 'hidden' }}
-                                                            onClick={(e) => { e.stopPropagation(); onReorder(sem.semesterId, 'up'); }}
-                                                            aria-label="Move Up"
+                                                            style={{ padding: '4px', height: 'auto', color: 'var(--color-danger)' }}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                const fullSem = semesters.find(s => s.id === sem.semesterId);
+                                                                if (fullSem) onPromptDelete(fullSem);
+                                                            }}
+                                                            aria-label={t('action.delete')}
                                                         >
-                                                            <ChevronUp size={12} />
+                                                            <Trash2 size={isMobile ? 18 : 12} style={{ opacity: 0.7 }} />
                                                         </Button>
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            disabled={bySemester.findIndex(x => x.semesterId === sem.semesterId) === bySemester.length - 1}
-                                                            style={{ padding: 0, height: '14px', visibility: selectedSemester === sem.semesterId ? 'visible' : 'hidden' }}
-                                                            onClick={(e) => { e.stopPropagation(); onReorder(sem.semesterId, 'down'); }}
-                                                            aria-label="Move Down"
-                                                        >
-                                                            <ChevronDown size={12} />
-                                                        </Button>
-                                                    </div>
-
-                                                    <span style={{
-                                                        fontWeight: selectedSemester === sem.semesterId ? 600 : 400,
-                                                        fontSize: isMobile ? '1.1rem' : '1rem',
-                                                        whiteSpace: 'nowrap',
-                                                        overflow: 'hidden',
-                                                        textOverflow: 'ellipsis',
-                                                        marginLeft: '4px'
-                                                    }}>
-                                                        {getSemesterTitle(sem, t)}
-                                                    </span>
-                                                    {selectedSemester === sem.semesterId && (
-                                                        <div style={{ display: 'flex', gap: '4px' }}>
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="sm"
-                                                                style={{ padding: '4px', height: 'auto' }}
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    onStartRenaming(sem.semesterId, sem.semesterName);
-                                                                }}
-                                                                aria-label={t('action.edit')}
-                                                            >
-                                                                <Edit2 size={isMobile ? 18 : 12} style={{ opacity: 0.7 }} />
-                                                            </Button>
-
-                                                            {semesters.length > 1 && (
-                                                                <Button
-                                                                    variant="ghost"
-                                                                    size="sm"
-                                                                    style={{ padding: '4px', height: 'auto', color: 'var(--color-danger)' }}
-                                                                    onClick={(e) => {
-                                                                        e.stopPropagation();
-                                                                        const fullSem = semesters.find(s => s.id === sem.semesterId);
-                                                                        if (fullSem) onPromptDelete(fullSem);
-                                                                    }}
-                                                                    aria-label={t('action.delete')}
-                                                                >
-                                                                    <Trash2 size={isMobile ? 18 : 12} style={{ opacity: 0.7 }} />
-                                                                </Button>
-                                                            )}
-                                                        </div>
                                                     )}
                                                 </div>
-                                                <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                                                    {(sem.courses.length > 0) && (
-                                                        <span style={{
-                                                            fontSize: isMobile ? '0.9rem' : '0.75rem',
-                                                            color: 'var(--color-text-secondary)',
-                                                            backgroundColor: 'var(--color-bg-primary)',
-                                                            padding: isMobile ? '4px 10px' : '2px 6px',
-                                                            borderRadius: '12px'
-                                                        }}>
-                                                            {sem.courses.length}
-                                                        </span>
-                                                    )}
-                                                </div>
-                                            </>
-                                        )}
+                                            )}
+                                            
+                                            {sem.courses.length > 0 && (
+                                                <span style={{
+                                                    fontSize: isMobile ? '0.9rem' : '0.75rem',
+                                                    color: 'var(--color-text-secondary)',
+                                                    backgroundColor: 'var(--color-bg-primary)',
+                                                    padding: isMobile ? '4px 10px' : '2px 6px',
+                                                    borderRadius: '12px'
+                                                }}>
+                                                    {sem.courses.length}
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
                                 ))}
                             </div>
@@ -228,7 +189,7 @@ export const SemesterNavigation: React.FC<SemesterNavigationProps> = ({
                     ))
             })()}
 
-            < Button
+            <Button
                 variant="ghost"
                 onClick={onAddSemester}
                 style={{
@@ -241,6 +202,6 @@ export const SemesterNavigation: React.FC<SemesterNavigationProps> = ({
                 <Plus size={isMobile ? 20 : 16} style={{ marginRight: '8px' }} />
                 {t('action.add_semester')}
             </Button>
-        </div >
+        </div>
     );
 };

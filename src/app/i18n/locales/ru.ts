@@ -115,6 +115,9 @@ export const ru = {
     'label.topic_title': 'Заголовок темы',
     'label.total_credits': 'Всего кредитов',
     'label.year': 'Год',
+    'label.academic_pacing': 'Академический темп',
+    'label.2_term_model': '2-семестровая модель (А, Б)',
+    'label.3_term_model': '3-семестровая модель (А, Б, Летний)',
     'label.degree_average': 'Средний балл степени',
     'label.weighted_gpa': 'Средневзвешенный балл',
     'label.graded_courses': 'Курсы с оценкой',
@@ -277,5 +280,6 @@ export const ru = {
     'term.a': 'Семестр А',
     'term.b': 'Семестр Б',
     'term.summer': 'Летний',
+    'term.other': 'Другой',
     'placeholder.course_code': 'например, CS101',
 };

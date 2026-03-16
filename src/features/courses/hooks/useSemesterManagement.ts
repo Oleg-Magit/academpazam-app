@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { saveSemester, deleteSemester, saveCourse } from '@/core/db/db';
 import type { CourseWithTopics, Semester } from '@/core/models/types';
 import { groupCoursesBySemester } from '@/core/services/dataService';
@@ -12,8 +12,6 @@ export const useSemesterManagement = (
     passingThreshold: number
 ) => {
     const { t } = useTranslation();
-    const [editingSemesterId, setEditingSemesterId] = useState<string | null>(null);
-    const [tempLabel, setTempLabel] = useState('');
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [semesterToDelete, setSemesterToDelete] = useState<Semester | null>(null);
     const [errorMsg, setErrorMsg] = useState('');
@@ -22,71 +20,53 @@ export const useSemesterManagement = (
         return groupCoursesBySemester(courses, semesters, passingThreshold);
     }, [courses, semesters, passingThreshold]);
 
-    const handleAddSemester = async (year?: number, term?: 'A' | 'B' | 'SUMMER') => {
-        // If year and term are provided, check for duplicates
-        if (year !== undefined && term !== undefined) {
-            const exists = semesters.find(s => s.year === year && s.term === term);
-            if (exists) return null;
+    const getNextSemesterProposal = useCallback((pacing: '2-term' | '3-term' = '3-term'): { year: number, term: 'A' | 'B' | 'SUMMER' | 'OTHER' } => {
+        if (semesters.length === 0) {
+            return { year: 1, term: 'A' };
         }
 
-        const maxOrder = semesters.length > 0 ? Math.max(...semesters.map(s => s.orderIndex)) : -1;
-        const lastSem = semesters.find(s => s.orderIndex === maxOrder);
+        const sorted = [...semesters].sort((a, b) => b.orderIndex - a.orderIndex);
+        const lastSem = sorted[0];
 
-        let newYear = year;
-        let newTerm = term;
+        const lastYear = typeof lastSem.year === 'number' ? lastSem.year : 1;
+        const lastTerm = lastSem.term || 'A';
 
-        if (newYear === undefined || newTerm === undefined) {
-            if (!lastSem) {
-                newYear = 1;
-                newTerm = 'A';
+        if (pacing === '2-term') {
+            // 2-term Model: A -> B, B -> next year A
+            if (lastTerm === 'A') {
+                return { year: lastYear, term: 'B' };
             } else {
-                const lastYear = lastSem.year || 1;
-                const lastTerm = lastSem.term || 'A';
-
-                if (lastTerm === 'A') {
-                    newYear = lastYear;
-                    newTerm = 'B';
-                } else if (lastTerm === 'B') {
-                    newYear = lastYear;
-                    newTerm = 'SUMMER';
-                } else {
-                    newYear = lastYear + 1;
-                    newTerm = 'A';
-                }
+                return { year: lastYear + 1, term: 'A' };
+            }
+        } else {
+            // 3-term Model: A -> B, B -> Summer, Summer -> next year A
+            if (lastTerm === 'A') {
+                return { year: lastYear, term: 'B' };
+            } else if (lastTerm === 'B') {
+                return { year: lastYear, term: 'SUMMER' };
+            } else {
+                // Includes 'SUMMER', 'OTHER', or any fallback
+                return { year: lastYear + 1, term: 'A' };
             }
         }
+    }, [semesters]);
 
+    const handleAddSemester = useCallback(async (semesterData: Omit<Semester, 'id' | 'createdAt' | 'orderIndex'>) => {
+        const maxOrder = semesters.length > 0 ? Math.max(...semesters.map(s => s.orderIndex)) : -1;
+        
         const newSemester: Semester = {
             id: uuidv4(),
-            name: '', // Empty string indicates default/generated name
+            name: semesterData.name || '',
             createdAt: Date.now(),
             orderIndex: maxOrder + 1,
-            year: newYear!,
-            term: newTerm! as any
+            year: semesterData.year,
+            term: semesterData.term
         };
         await saveSemester(newSemester);
         refresh();
         return newSemester.id;
-    };
+    }, [semesters, refresh]);
 
-    const startRenaming = (semId: string, currentLabel: string) => {
-        setEditingSemesterId(semId);
-        setTempLabel(currentLabel);
-    };
-
-    const saveRename = async () => {
-        if (!editingSemesterId) return;
-
-        const semester = semesters.find(s => s.id === editingSemesterId);
-        if (semester) {
-            await saveSemester({
-                ...semester,
-                name: tempLabel
-            });
-            refresh();
-        }
-        setEditingSemesterId(null);
-    };
 
     const promptDeleteSemester = (semester: Semester) => {
         if (semesters.length <= 1) {
@@ -122,15 +102,29 @@ export const useSemesterManagement = (
         setSemesterToDelete(null);
     };
 
+    const handleUpdateSemester = async (semesterId: string, updates: Partial<Semester>) => {
+        const semester = semesters.find(s => s.id === semesterId);
+        if (semester) {
+            await saveSemester({
+                ...semester,
+                ...updates
+            });
+            refresh();
+        }
+    };
+
     const handleReorder = async (semesterId: string, direction: 'up' | 'down') => {
-        const index = semesters.findIndex(s => s.id === semesterId);
+        // Use bySemester (which is sorted by orderIndex) for safe reordering
+        const index = bySemester.findIndex(s => s.semesterId === semesterId);
         if (index === -1) return;
         if (direction === 'up' && index === 0) return;
-        if (direction === 'down' && index === semesters.length - 1) return;
+        if (direction === 'down' && index === bySemester.length - 1) return;
 
         const targetIndex = direction === 'up' ? index - 1 : index + 1;
-        const current = semesters[index];
-        const target = semesters[targetIndex];
+        const current = semesters.find(s => s.id === semesterId);
+        const target = semesters.find(s => s.id === bySemester[targetIndex].semesterId);
+
+        if (!current || !target) return;
 
         // Swap orderIndex
         const currentOrder = current.orderIndex;
@@ -146,17 +140,13 @@ export const useSemesterManagement = (
 
     return {
         bySemester,
-        editingSemesterId,
-        setEditingSemesterId,
-        tempLabel,
-        setTempLabel,
         deleteModalOpen,
         setDeleteModalOpen,
         semesterToDelete,
         errorMsg,
+        getNextSemesterProposal,
         handleAddSemester,
-        startRenaming,
-        saveRename,
+        handleUpdateSemester,
         promptDeleteSemester,
         confirmDeleteSemester,
         handleReorder

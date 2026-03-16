@@ -115,6 +115,9 @@ export const he = {
     'label.topic_title': 'כותרת הנושא',
     'label.total_credits': 'סה״כ נקודות',
     'label.year': 'שנה',
+    'label.academic_pacing': 'קצב אקדמי',
+    'label.2_term_model': 'מודל 2 סמסטרים (א׳, ב׳)',
+    'label.3_term_model': 'מודל 3 סמסטרים (א׳, ב׳, קיץ)',
     'label.degree_average': 'ממוצע תואר',
     'label.weighted_gpa': 'ממוצע משוקלל',
     'label.graded_courses': 'קורסים עם ציון',
@@ -277,5 +280,6 @@ export const he = {
     'term.a': 'סמסטר א׳',
     'term.b': 'סמסטר ב׳',
     'term.summer': 'קיץ',
+    'term.other': 'אחר',
     'placeholder.course_code': 'למשל CS101',
 };
