@@ -120,6 +120,7 @@ export const en = {
     'label.graded_courses': 'Graded Courses',
     'label.no_grades_yet': 'No grades yet',
     'label.ungraded': 'Ungraded',
+    'degree.defaultName': 'General Degree',
 
     // filter
     'filter.group_attempts': 'Filter by Attempt Status',
@@ -135,7 +136,7 @@ export const en = {
     'footer.shareLabel': 'Share',
     'footer.terms': 'Terms',
     'footer.version': 'v1.8.1',
-    'footer.copyright': '© {{year}} AcademPazam',
+    'footer.copyright': '© 2026 AcademPazam',
 
     // help
     'help.footer_hint': 'You can always access this help from the footer.',
@@ -159,7 +160,7 @@ export const en = {
 
     // legal
     'legal.about.title': 'About AcademPazam',
-    'legal.privacy.date': 'Effective Date: {{year}}',
+    'legal.privacy.date': 'Effective Date: 2026',
     'legal.privacy.title': 'Privacy Policy',
     'legal.terms.title': 'Terms of Use',
     'legal.about.body': 'AcademPazam is a local-first web application designed to help students track and manage their academic degree progress in a simple and privacy-focused way. The application runs entirely in your browser. All course data and progress information are stored locally on your device.\n\nProject: https://github.com/Oleg-Magit/academpazam-app\nCreator: https://www.linkedin.com/in/olegmagit/\nSupport: https://paypal.me/OlegMagit',

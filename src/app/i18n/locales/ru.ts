@@ -120,6 +120,7 @@ export const ru = {
     'label.graded_courses': 'Курсы с оценкой',
     'label.no_grades_yet': 'Оценок пока нет',
     'label.ungraded': 'Без оценки',
+    'degree.defaultName': 'Общая степень',
 
     // filter
     'filter.group_attempts': 'Фильтр по статусу попытки',
@@ -135,7 +136,7 @@ export const ru = {
     'footer.shareLabel': 'Поделиться',
     'footer.terms': 'Условия',
     'footer.version': 'v1.8.1',
-    'footer.copyright': '© {{year}} AcademPazam',
+    'footer.copyright': '© 2026 AcademPazam',
 
     // help
     'help.footer_hint': 'Вы всегда можете получить доступ к этой справке из футера.',
@@ -159,7 +160,7 @@ export const ru = {
 
     // legal
     'legal.about.title': 'О проекте AcademPazam',
-    'legal.privacy.date': 'Дата вступления в силу: {{year}}',
+    'legal.privacy.date': 'Дата вступления в силу: 2026',
     'legal.privacy.title': 'Политика конфиденциальности',
     'legal.terms.title': 'Условия использования',
     'legal.about.body': 'AcademPazam — это веб-приложение local-first, созданное для помощи студентам в отслеживании прогресса обучения простым и конфиденциальным способом. Приложение полностью работает в вашем браузере. Все данные о курсах и прогрессе хранятся локально на вашем устройстве.\n\nПроект: https://github.com/Oleg-Magit/academpazam-app\nАвтор: https://www.linkedin.com/in/olegmagit/\nПоддержать: https://paypal.me/OlegMagit',

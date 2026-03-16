@@ -120,6 +120,7 @@ export const he = {
     'label.graded_courses': 'קורסים עם ציון',
     'label.no_grades_yet': 'אין ציונים עדיין',
     'label.ungraded': 'ללא ציון',
+    'degree.defaultName': 'תואר כללי',
 
     // filter
     'filter.group_attempts': 'סינון לפי מצב ניסיון',
@@ -135,7 +136,7 @@ export const he = {
     'footer.shareLabel': 'שתף',
     'footer.terms': 'תנאים',
     'footer.version': 'v1.8.1',
-    'footer.copyright': '© {{year}} אקדמפז"ם',
+    'footer.copyright': '© 2026 אקדמפז"ם',
 
     // help
     'help.footer_hint': 'תמיד תוכל לגשת לעזרה זו מהתחתית.',
@@ -159,7 +160,7 @@ export const he = {
 
     // legal
     'legal.about.title': 'אודות אקדמפז"ם',
-    'legal.privacy.date': 'תאריך עדכון: {{year}}',
+    'legal.privacy.date': 'תאריך עדכון: 2026',
     'legal.privacy.title': 'מדיניות פרטיות',
     'legal.terms.title': 'תנאי שימוש',
     'legal.about.body': 'אקדמפז"ם היא אפליקציית Local-first שנועדה לעזור לסטודנטים לעקוב אחר התקדמות התואר בצורה פשוטה וממוקדת פרטיות. האפליקציה רצה כולה בדפדפן שלך. כל נתוני הקורסים וההתקדמות נשמרים מקומית על המכשיר שלך.\n\nפרויקט: https://github.com/Oleg-Magit/academpazam-app\nיוצר: https://www.linkedin.com/in/olegmagit/\nתמיכה: https://paypal.me/OlegMagit',
