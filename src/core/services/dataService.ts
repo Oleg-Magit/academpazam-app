@@ -1,6 +1,6 @@
 import type { Course, Topic, CourseStatus, CourseWithTopics, SemesterGroup, Semester } from '../models/types';
 import { getTopicsByCourse } from '../db/db';
-import { calculateAcademicMetrics } from './courseLifecycle';
+import { calculateAcademicMetrics, buildLineageMetadata, isAttemptPassed, isAttemptFailed } from './courseLifecycle';
 
 /**
  * Determines the display status of a course based on its topics.
@@ -56,6 +56,8 @@ export const groupCoursesBySemester = (
         };
     });
 
+    const lineageMetadata = buildLineageMetadata(courses, passingThreshold);
+
     courses.forEach(course => {
         const semId = course.semesterId;
         // Handle potential orphan courses (fallback group)
@@ -72,21 +74,26 @@ export const groupCoursesBySemester = (
         groups[semId].courses.push(course);
         groups[semId].totalCredits += course.credits;
         
-        // SEMANTIC MODEL FIX (v1.8):
-        // Semester-level accomplishment is based strictly on the attempt success IN THIS SEMESTER.
-        // Degree-level fulfillment (canonical credits) is handled separately in calculateDegreeProgress.
-        const isPassed = course.attemptStatus === 'passed' || 
-                         (course.grade !== null && course.grade !== undefined && course.grade >= passingThreshold);
+        // SEMANTIC MODEL FIX (v1.8 / v1.9):
+        // Semester-level accomplishment is based on effective academic resolution.
+        // Credits count as "completed" for the semester if:
+        // 1. The attempt is locally passed.
+        // 2. OR the attempt is a failure that has been resolved by a later retake (planned, in-progress, or passed).
+        const attemptPassed = isAttemptPassed(course, passingThreshold);
+        const resolvedFailure = isAttemptFailed(course, passingThreshold) && !lineageMetadata[course.id]?.holdsNeedsRepeat;
 
-        if (isPassed) {
+        if (attemptPassed || resolvedFailure) {
             groups[semId].completedCredits += course.credits;
-        } else {
-            // Check for explicit failure or grade failure for the red badge count
-            const isFailed = course.attemptStatus === 'failed' || 
-                             (course.grade !== null && course.grade !== undefined && course.grade < passingThreshold);
-            if (isFailed) {
-                groups[semId].attemptFailedCount = (groups[semId].attemptFailedCount || 0) + 1;
-            }
+        }
+
+        // SEMESTER ALERT FIX (v1.9):
+        // We only trigger a red badge/alert if the attempt is "unresolved".
+        // This means it's a failure (or grade-failure) that:
+        // 1. Is the latest attempt in its lineage
+        // 2. Has no subsequent pass
+        // 3. Has no active retake session (planned/in_progress)
+        if (lineageMetadata[course.id]?.holdsNeedsRepeat) {
+            groups[semId].attemptFailedCount = (groups[semId].attemptFailedCount || 0) + 1;
         }
     });
 
