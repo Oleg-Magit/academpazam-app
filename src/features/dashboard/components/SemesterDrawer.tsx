@@ -7,6 +7,7 @@ import { X, Info, Plus, Edit2, Trash2, Save } from 'lucide-react';
 import { Button } from '@/ui/Button';
 import { Link } from 'react-router-dom';
 import { getSemesterTitle, getSemesterContext } from '@/core/utils/semesterUtils';
+import { getBadgeConfiguration } from '@/core/services/courseLifecycle';
 
 interface SemesterDrawerProps {
     isOpen: boolean;
@@ -20,6 +21,7 @@ interface SemesterDrawerProps {
     setTempLabel: (label: string) => void;
     setEditingSemesterId: (id: string | null) => void;
     onPromptDelete: (semester: Semester) => void;
+    passingThreshold: number;
 }
 
 export const SemesterDrawer: React.FC<SemesterDrawerProps> = ({
@@ -33,7 +35,8 @@ export const SemesterDrawer: React.FC<SemesterDrawerProps> = ({
     tempLabel,
     setTempLabel,
     setEditingSemesterId,
-    onPromptDelete
+    onPromptDelete,
+    passingThreshold
 }) => {
     const { t } = useTranslation();
     const drawerRef = useRef<HTMLDivElement>(null);
@@ -220,11 +223,8 @@ export const SemesterDrawer: React.FC<SemesterDrawerProps> = ({
                                                     {course.code && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(course.code) && course.code.length < 20 ? course.code : ''}
                                                 </div>
                                             </div>
-                                            <Badge variant={
-                                                course.effectiveStatus === 'completed' ? 'success' :
-                                                    course.effectiveStatus === 'in_progress' ? 'warning' : 'neutral'
-                                            }>
-                                                {t(`status.${course.effectiveStatus}`)}
+                                            <Badge variant={getBadgeConfiguration(course, passingThreshold, course.effectiveStatus).variant}>
+                                                {t(getBadgeConfiguration(course, passingThreshold, course.effectiveStatus).labelKey as any)}
                                             </Badge>
                                         </div>
 

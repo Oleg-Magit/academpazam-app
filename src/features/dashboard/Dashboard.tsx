@@ -307,6 +307,7 @@ export const Dashboard: React.FC = () => {
                 setTempLabel={setTempLabel}
                 setEditingSemesterId={setEditingSemesterId}
                 onPromptDelete={promptDeleteSemester}
+                passingThreshold={currentPlan?.passing_exam_threshold ?? DEFAULT_PASSING_THRESHOLD}
             />
 
             {semesterToDelete && (

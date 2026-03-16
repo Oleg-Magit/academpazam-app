@@ -26,6 +26,55 @@ export const isAttemptPassed = (course: Course | CourseWithTopics, passingThresh
 };
 
 /**
+ * Specifically identifies if a course is failed (explicitly or via grade).
+ */
+export const isAttemptFailed = (course: Course | CourseWithTopics, passingThreshold: number): boolean => {
+    if (course.attemptStatus === 'failed') return true;
+    if (course.attemptStatus === 'passed' || course.attemptStatus === 'planned' || course.attemptStatus === 'in_progress') {
+        return false;
+    }
+
+    // Legacy/Implicit fallback: if grade exists and is below threshold, it's failed
+    if (course.grade !== null && course.grade !== undefined) {
+        return course.grade < passingThreshold;
+    }
+
+    return false;
+};
+
+export type BadgeVariant = 'success' | 'warning' | 'neutral' | 'info' | 'error';
+
+/**
+ * UI Helper: Determines the primary status badge configuration.
+ * Prioritizes academic outcome (Failed/Passed) over topic progress status.
+ */
+export const getBadgeConfiguration = (
+    course: Course | CourseWithTopics,
+    passingThreshold: number,
+    effectiveStatus: string
+): { labelKey: string; variant: BadgeVariant } => {
+    if (isAttemptFailed(course, passingThreshold)) {
+        return { labelKey: 'status.failed_badge', variant: 'error' };
+    }
+
+    if (isAttemptPassed(course, passingThreshold)) {
+        return { labelKey: 'status.passed_academic_badge', variant: 'success' };
+    }
+
+    // Fallback to topic completion status
+    const variantMap: Record<string, BadgeVariant> = {
+        'completed': 'success',
+        'in_progress': 'warning',
+        'not_started': 'neutral'
+    };
+
+    return {
+        labelKey: `status.${effectiveStatus}`,
+        variant: variantMap[effectiveStatus] || 'neutral'
+    };
+};
+
+/**
  * Validates a course for internal consistency.
  * Pure and non-mutating.
  */

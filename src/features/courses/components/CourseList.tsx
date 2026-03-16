@@ -6,6 +6,8 @@ import { ProgressBar } from '@/ui/ProgressBar';
 import { Edit2, Trash2, ChevronRight } from 'lucide-react';
 import { useTranslation } from '@/app/i18n/useTranslation';
 import type { CourseWithTopics, LineageMemberMetadata } from '@/core/services/courseLifecycle';
+import { getBadgeConfiguration } from '@/core/services/courseLifecycle';
+import { DEFAULT_PASSING_THRESHOLD } from '@/core/constants/grades';
 
 interface CourseListProps {
     courses: CourseWithTopics[];
@@ -46,7 +48,6 @@ export const CourseList: React.FC<CourseListProps> = ({
             padding: '4px'
         }}>
             {courses.map(course => {
-                const isFailed = course.attemptStatus === 'failed';
                 const academicStatus = lineageMetadata[course.id];
                 
                 const topicsCount = course.topics?.length || 0;
@@ -104,23 +105,18 @@ export const CourseList: React.FC<CourseListProps> = ({
                                 )}
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
-                                    <Badge variant={course.effectiveStatus === 'completed' ? 'success' : course.effectiveStatus === 'in_progress' ? 'warning' : 'neutral'}>
-                                        {t(`status.${course.effectiveStatus}` as any)}
-                                    </Badge>
-                                <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-                                    {isFailed && (
-                                        <Badge variant="error" className="tiny-badge">
-                                            {t('status.failed_badge')}
+                                {(() => {
+                                    const badgeConfig = getBadgeConfiguration(course, DEFAULT_PASSING_THRESHOLD, course.effectiveStatus);
+                                    return (
+                                        <Badge variant={badgeConfig.variant}>
+                                            {t(badgeConfig.labelKey as any)}
                                         </Badge>
-                                    )}
+                                    );
+                                })()}
+                                <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                                     {academicStatus?.isValidRepeat && (
                                         <Badge variant="warning" className="tiny-badge">
                                             {t('status.repeat_badge')}
-                                        </Badge>
-                                    )}
-                                    {academicStatus?.holdsPassedReq && (
-                                        <Badge variant="success" className="tiny-badge">
-                                            {t('status.passed_academic_badge')}
                                         </Badge>
                                     )}
                                     {academicStatus?.holdsNeedsRepeat && (
