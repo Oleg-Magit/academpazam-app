@@ -50,6 +50,27 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
         t('help.troubleshooting.q2')
     ];
 
+    const parseLinks = (text: string) => {
+        const parts = text.split(/(\[.*?\]\(.*?\))/g);
+        return parts.map((part, i) => {
+            const match = part.match(/\[(.*?)\]\((.*?)\)/);
+            if (match) {
+                return (
+                    <a
+                        key={i}
+                        href={match[2]}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ color: 'var(--color-accent)', fontWeight: 500 }}
+                    >
+                        {match[1]}
+                    </a>
+                );
+            }
+            return part;
+        });
+    };
+
     return (
         <Modal
             isOpen={isOpen}
@@ -63,9 +84,9 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
         >
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.95rem', margin: 0 }}>
-                    {t('help.welcome_desc') || 'Welcome to AcademPazam! Here is a quick guide to help you manage your academic journey.'}
+                    {parseLinks(t('help.welcome_desc') || 'Welcome to AcademPazam! Here is a quick guide to help you manage your academic journey.')}
                 </p>
-
+ 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                     {sections.map((section, idx) => (
                         <div key={idx} style={{ display: 'flex', gap: '16px' }}>
@@ -84,13 +105,13 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
                             <div>
                                 <h3 style={{ margin: '0 0 4px 0', fontSize: '1.05rem', fontWeight: 600 }}>{section.title}</h3>
                                 <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
-                                    {section.body}
+                                    {parseLinks(section.body)}
                                 </p>
                             </div>
                         </div>
                     ))}
                 </div>
-
+ 
                 <div style={{
                     marginTop: '8px',
                     padding: '20px',
@@ -104,11 +125,11 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
                     </h3>
                     <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.9rem', color: 'var(--color-text-secondary)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         {troubleshooting.map((item, idx) => (
-                            <li key={idx}>{item}</li>
+                            <li key={idx}>{parseLinks(item)}</li>
                         ))}
                     </ul>
                 </div>
-
+ 
                 <div style={{
                     marginTop: '8px',
                     padding: '16px',
@@ -120,7 +141,7 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
                     border: '1px solid var(--color-border)'
                 }}>
                     <Info size={18} style={{ color: 'var(--color-accent)' }} />
-                    <span style={{ fontSize: '0.85rem' }}>{t('help.footer_hint') || 'You can always access this help from the footer.'}</span>
+                    <span style={{ fontSize: '0.85rem' }}>{parseLinks(t('help.footer_hint') || 'You can always access this help from the footer.')}</span>
                 </div>
             </div>
         </Modal>

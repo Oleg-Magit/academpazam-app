@@ -23,6 +23,28 @@ export const LegalModal: React.FC<LegalModalProps> = ({ isOpen, onClose, type })
         }
     };
 
+    const parseLinks = (text: string) => {
+        // Split text into segments based on [label](url) pattern
+        const parts = text.split(/(\[.*?\]\(.*?\))/g);
+        return parts.map((part, i) => {
+            const match = part.match(/\[(.*?)\]\((.*?)\)/);
+            if (match) {
+                return (
+                    <a
+                        key={i}
+                        href={match[2]}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ color: 'var(--color-accent)', fontWeight: 500 }}
+                    >
+                        {match[1]}
+                    </a>
+                );
+            }
+            return part;
+        });
+    };
+
     const renderContent = () => {
         return (
             <div style={{ display: 'grid', gap: '20px' }}>
@@ -31,9 +53,9 @@ export const LegalModal: React.FC<LegalModalProps> = ({ isOpen, onClose, type })
                         {t('legal.privacy.date')}
                     </div>
                 )}
-                <p style={{ whiteSpace: 'pre-line', fontSize: '0.925rem', lineHeight: 1.6 }}>
-                    {t(`legal.${type}.body`)}
-                </p>
+                <div style={{ whiteSpace: 'pre-line', fontSize: '0.925rem', lineHeight: 1.6 }}>
+                    {parseLinks(t(`legal.${type}.body`))}
+                </div>
             </div>
         );
     };
