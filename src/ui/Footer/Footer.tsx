@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from '@/app/i18n/useTranslation';
+import { Github } from 'lucide-react';
 import type { LegalPageType } from '@/features/legal/LegalModal';
 import styles from './Footer.module.css';
 
@@ -18,12 +19,19 @@ export const Footer: React.FC<FooterProps> = ({ onOpenLegal, onOpenHelp }) => {
 
     return (
         <footer className={styles.footer}>
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', flexWrap: 'wrap', textAlign: 'center' }}>
-                <a href="https://github.com/Oleg-Magit/academpazam-app" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--color-text-secondary)', textDecoration: 'none' }} className="footer-link">
-                    <span style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>{t('footer.appName')}</span>
-                    <span>{t('footer.version', { version: appVersion })}</span>
+            <div className={styles.section}>
+                <span>{t('footer.localFirst')}</span>
+                <span className={styles.separator}>•</span>
+                <a 
+                    href="https://github.com/Oleg-Magit/academpazam-app" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className={styles.linkButton}
+                    style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
+                >
+                    <Github size={14} />
+                    GitHub
                 </a>
-                {isDev && <span className={styles.devBadge}>{t('footer.devBadge')}</span>}
             </div>
 
             <nav className={styles.section}>
@@ -52,9 +60,10 @@ export const Footer: React.FC<FooterProps> = ({ onOpenLegal, onOpenHelp }) => {
             </nav>
 
             <div className={styles.section}>
-                <span>{t('footer.copyright', { year: currentYear })}</span>
+                <span>{t('footer.version', { version: appVersion })}</span>
+                {isDev && <span className={styles.devBadge}>{t('footer.devBadge')}</span>}
                 <span className={styles.separator}>•</span>
-                <span>{t('footer.localFirst')}</span>
+                <span>{t('footer.copyright', { year: currentYear })}</span>
             </div>
         </footer>
     );
