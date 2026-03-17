@@ -31,27 +31,22 @@ export const computeDegreeGpa = (courses: Course[] | CourseWithTopics[], passing
     for (const lineageCourses of lineages.values()) {
         // Lineage Policy: 
         // Only lineages with at least one passing attempt contribute to GPA.
-        // We pick the HIGHEST passing grade if multiple exist.
-        const passingAttempts = lineageCourses.filter(c => isAttemptPassed(c, passingThreshold));
+        // We pick the LATEST passed attempt (matching courseLifecycle.ts)
+        const sorted = [...lineageCourses].sort((a, b) => a.createdAt - b.createdAt);
+        const passedAttempts = sorted.filter(c => isAttemptPassed(c, passingThreshold));
 
-        if (passingAttempts.length > 0) {
-            // Find max grade among passing attempts
-            let maxGrade = -1;
-            let canonicalCredits = 0;
-
-            for (const attempt of passingAttempts) {
-                if (attempt.grade !== null && attempt.grade !== undefined) {
-                    if (attempt.grade > maxGrade) {
-                        maxGrade = attempt.grade;
-                        canonicalCredits = attempt.credits;
-                    }
-                }
+        if (passedAttempts.length > 0) {
+            const canonicalAttempt = passedAttempts[passedAttempts.length - 1];
+            
+            // IF canonical attempt is excluded, skip entire lineage
+            if (canonicalAttempt.excludeFromAverage) {
+                continue;
             }
 
-            if (maxGrade >= 0) {
+            if (canonicalAttempt.grade !== null && canonicalAttempt.grade !== undefined) {
                 gradedLineageCount++;
-                totalWeightedScore += maxGrade * canonicalCredits;
-                totalCredits += canonicalCredits;
+                totalWeightedScore += canonicalAttempt.grade * canonicalAttempt.credits;
+                totalCredits += canonicalAttempt.credits;
             }
         }
     }

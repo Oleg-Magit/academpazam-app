@@ -1,5 +1,5 @@
-import type { Course, CourseWithTopics, Topic } from '../models/types';
-export type { Course, CourseWithTopics, Topic };
+import type { Course, CourseWithTopics, Topic, CourseStatus } from '../models/types';
+export type { Course, CourseWithTopics, Topic, CourseStatus };
 import { v4 as uuidv4 } from 'uuid';
 
 /**
@@ -52,7 +52,11 @@ export const getBadgeConfiguration = (
     course: Course | CourseWithTopics,
     passingThreshold: number,
     effectiveStatus: string
-): { labelKey: string; variant: BadgeVariant } => {
+): { variant: BadgeVariant; labelKey: string } => {
+    if (course.excludeFromAverage) {
+        return { variant: 'success', labelKey: 'status.participated_badge' };
+    }
+
     if (isAttemptFailed(course, passingThreshold)) {
         return { labelKey: 'status.failed_badge', variant: 'error' };
     }

@@ -41,6 +41,7 @@ export const he = {
     'status.planned': 'מתוכנן',
     'status.repeat_badge': 'קורס חוזר',
     'status.repeat_secondary': 'ניסיון חוזר',
+    'status.participated_badge': 'השתתף',
     'status.repeated': 'חוזר',
     'status.done': 'הושלם',
 
@@ -69,6 +70,7 @@ export const he = {
     'action.save_topics': 'שמור נושאים',
     'action.switch_dark': 'עבור למצב כהה',
     'action.switch_light': 'עבור למצב בהיר',
+    'action.mark_participated': 'סמן כקורס השתתפות',
     'common.back': 'חזור',
 
     // labels
@@ -128,8 +130,10 @@ export const he = {
     'label.degree_average': 'ממוצע תואר',
     'label.weighted_gpa': 'ממוצע משוקלל',
     'label.graded_courses': 'קורסים עם ציון',
+    'label.average': 'ממוצע',
     'label.no_grades_yet': 'אין ציונים עדיין',
     'label.ungraded': 'ללא ציון',
+    'label.not_available': 'N/A',
     'degree.defaultName': 'תואר כללי',
 
     // filter

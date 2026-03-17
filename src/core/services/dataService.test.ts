@@ -22,8 +22,8 @@ describe('dataService', () => {
             const s1 = groups.find(g => g.semesterId === 's1')!;
             const s2 = groups.find(g => g.semesterId === 's2')!;
 
-            // SEMANTIC MODEL V1.8 Check:
-            expect(s1.completedCredits).toBe(0); // Historical failure remains failure
+            // SEMANTIC MODEL V1.9 Check:
+            expect(s1.completedCredits).toBe(3); // Resolved failure now counts in local semester
             expect(s2.completedCredits).toBe(3); // Repeat semester shows local achievement
             expect(s1.totalCredits).toBe(3);
             expect(s2.totalCredits).toBe(3);

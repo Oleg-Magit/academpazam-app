@@ -191,6 +191,22 @@ export const CourseDetails: React.FC<CourseDetailsProps> = ({ id: propId, onBack
     const gradeStatus = course.grade === null || course.grade === undefined ? 'ungraded' :
         (course.grade >= passingThreshold ? 'passed' : 'failed');
 
+    const canMarkParticipated = isGradeEnabled && (course.grade !== null || course.attemptStatus === 'passed');
+
+    const handleToggleParticipated = async () => {
+        if (!course) return;
+        const nextValue = !course.excludeFromAverage;
+        const updated: Course = {
+            ...course,
+            excludeFromAverage: nextValue,
+            attemptStatus: nextValue ? 'passed' : course.attemptStatus,
+            updatedAt: Date.now()
+        };
+        await saveCourse(updated);
+        setCourse(updated);
+        if (onRefresh) onRefresh();
+    };
+
     return (
         <div>
             <Button variant="ghost" onClick={() => { if (onBack) onBack(); else navigate('/courses'); }} style={{ marginBottom: 'var(--space-md)' }}>
@@ -234,15 +250,27 @@ export const CourseDetails: React.FC<CourseDetailsProps> = ({ id: propId, onBack
                                 />
                             </div>
                             {isGradeEnabled && (
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={handleGradeSave}
-                                    aria-label={t('action.save')}
-                                    style={{ paddingTop: '10px' }}
-                                >
-                                    <Save size={20} />
-                                </Button>
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={handleGradeSave}
+                                        aria-label={t('action.save')}
+                                        style={{ paddingTop: '10px' }}
+                                    >
+                                        <Save size={20} />
+                                    </Button>
+                                    <Button
+                                        variant={course.excludeFromAverage ? "primary" : "ghost"}
+                                        size="sm"
+                                        onClick={handleToggleParticipated}
+                                        disabled={!canMarkParticipated}
+                                        title={t('action.mark_participated')}
+                                        style={{ paddingTop: '10px', minWidth: '40px' }}
+                                    >
+                                        <CheckCircle size={20} color={course.excludeFromAverage ? "white" : undefined} />
+                                    </Button>
+                                </div>
                             )}
                             {course.grade !== null && course.grade !== undefined && (
                                 <div style={{ paddingTop: '10px' }}>

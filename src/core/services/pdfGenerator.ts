@@ -269,8 +269,10 @@ export const generateDegreePDF = async (
             // Draw Expected Status (Lineage-aware Priority)
             let statusText = '';
             const academicStatus = lineageMetadata[course.id];
-            
-            if (academicStatus?.holdsPassedReq) {
+            // Status Badge Logic
+            if (course.excludeFromAverage) {
+                statusText = t('status.participated_badge').toUpperCase();
+            } else if (academicStatus?.holdsPassedReq) {
                 statusText = t('status.passed_academic_badge');
             } else if (academicStatus?.holdsNeedsRepeat) {
                 statusText = t('status.needs_repeat_badge');

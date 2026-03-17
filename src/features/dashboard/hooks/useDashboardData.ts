@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { calculateDegreeProgress, groupCoursesBySemester } from '@/core/services/dataService';
+import { computeDegreeGpa } from '@/core/services/gpaService';
 import type { CourseWithTopics, Semester } from '@/core/models/types';
 
 export const useDashboardData = (courses: CourseWithTopics[] | null, semesters: Semester[], passingThreshold: number) => {
@@ -7,18 +8,21 @@ export const useDashboardData = (courses: CourseWithTopics[] | null, semesters: 
         if (!courses || semesters.length === 0) return {
             progress: { totalCredits: 0, completedCredits: 0, percentage: 0 },
             bySemester: [],
-            stats: { completedCount: 0, inProgressCount: 0, needsRepeatCount: 0, totalRemainingCredits: 0 },
+            stats: { completedCount: 0, inProgressCount: 0, needsRepeatCount: 0, totalRemainingCredits: 0, gpa: 0 },
             byYear: [] // added
         };
 
         const prog = calculateDegreeProgress(courses, passingThreshold);
         const grouped = groupCoursesBySemester(courses, semesters, passingThreshold);
+        
+        const gpaResult = computeDegreeGpa(courses, passingThreshold);
 
         const stats = {
             completedCount: prog.academicCompletedCount,
             inProgressCount: courses.filter(c => c.effectiveStatus === 'in_progress').length,
             needsRepeatCount: prog.academicNeedsRepeatCount,
-            totalRemainingCredits: Math.max(0, prog.totalCredits - prog.completedCredits)
+            totalRemainingCredits: Math.max(0, prog.totalCredits - prog.completedCredits),
+            gpa: gpaResult.gpa
         };
 
         // Calculate metrics by year

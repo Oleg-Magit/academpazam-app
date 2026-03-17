@@ -14,6 +14,7 @@ interface DegreeSnapshotProps {
     completedCount: number;
     inProgressCount: number;
     needsRepeatCount: number;
+    gpa: number | null;
 }
 
 export const DegreeSnapshot: React.FC<DegreeSnapshotProps> = memo(({
@@ -24,7 +25,8 @@ export const DegreeSnapshot: React.FC<DegreeSnapshotProps> = memo(({
     percentage,
     completedCount,
     inProgressCount,
-    needsRepeatCount
+    needsRepeatCount,
+    gpa
 }) => {
     const { t } = useTranslation();
 
@@ -104,6 +106,7 @@ export const DegreeSnapshot: React.FC<DegreeSnapshotProps> = memo(({
                     {needsRepeatCount > 0 && (
                         <StatChip label={t('status.needs_repeat')} value={needsRepeatCount} color="var(--color-danger)" />
                     )}
+                    <StatChip label={t('label.average')} value={gpa !== null ? gpa.toFixed(1) : t('label.not_available')} color="var(--color-accent)" />
                     <StatChip label={t('label.remaining')} value={remainingCredits} color="var(--color-text-secondary)" />
                 </div>
             </div>

@@ -41,6 +41,7 @@ export const en = {
     'status.planned': 'Planned',
     'status.repeat_badge': 'REPEAT',
     'status.repeat_secondary': 'Repeated attempt',
+    'status.participated_badge': 'PARTICIPATED',
     'status.repeated': 'Repeated',
     'status.done': 'Completed',
 
@@ -69,6 +70,7 @@ export const en = {
     'action.save_topics': 'Save Topics',
     'action.switch_dark': 'Switch to Dark',
     'action.switch_light': 'Switch to Light',
+    'action.mark_participated': 'Mark as Participated',
     'common.back': 'Back',
 
     // labels
@@ -130,8 +132,10 @@ export const en = {
     'label.degree_average': 'Degree Average',
     'label.weighted_gpa': 'Weighted GPA',
     'label.graded_courses': 'Graded Courses',
+    'label.average': 'Average',
     'label.no_grades_yet': 'No grades yet',
     'label.ungraded': 'Ungraded',
+    'label.not_available': 'N/A',
     'degree.defaultName': 'General Degree',
 
     // filter

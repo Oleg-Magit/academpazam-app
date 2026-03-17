@@ -41,6 +41,7 @@ export const ru = {
     'status.planned': 'Запланирован',
     'status.repeat_badge': 'ПОВТОР',
     'status.repeat_secondary': 'Повторная попытка',
+    'status.participated_badge': 'УЧАСТИЕ',
     'status.repeated': 'Повторен',
     'status.done': 'Завершен',
 
@@ -69,6 +70,7 @@ export const ru = {
     'action.save_topics': 'Сохранить темы',
     'action.switch_dark': 'Темная тема',
     'action.switch_light': 'Светлая тема',
+    'action.mark_participated': 'Отметить как участие',
     'common.back': 'Назад',
 
     // labels
@@ -128,8 +130,10 @@ export const ru = {
     'label.degree_average': 'Средний балл степени',
     'label.weighted_gpa': 'Средневзвешенный балл',
     'label.graded_courses': 'Курсы с оценкой',
+    'label.average': 'Средний балл',
     'label.no_grades_yet': 'Оценок пока нет',
     'label.ungraded': 'Без оценки',
+    'label.not_available': 'н/д',
     'degree.defaultName': 'Общая степень',
 
     // filter

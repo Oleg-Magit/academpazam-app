@@ -31,6 +31,7 @@ export interface Course {
     attemptStatus?: 'passed' | 'failed' | 'in_progress' | 'planned';
     repeatedFromCourseId?: string;
     attemptNumber?: number;
+    excludeFromAverage?: boolean;
     createdAt: number;
     updatedAt: number;
 }
