@@ -137,7 +137,7 @@ export const SemesterNode: React.FC<SemesterNodeProps> = memo(({
                         {courseCount} {t('label.courses')}
                     </span>
                 </div>
-                <ProgressBar value={progress} height={12} labelInside={true} showValue={true} />
+                <ProgressBar value={progress} height={12} labelInside={true} showValue={true} labelThreshold={15} />
             </div>
 
             {isSelected && (

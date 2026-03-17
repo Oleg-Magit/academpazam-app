@@ -34,7 +34,7 @@ export const DegreeSnapshot: React.FC<DegreeSnapshotProps> = memo(({
 
     return (
         <Card className="degree-snapshot-card" style={{ padding: 'var(--space-lg)', position: 'relative' }}>
-            <div className="snapshot-container" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <div className="snapshot-container" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 {/* 1. Header Row */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -63,61 +63,28 @@ export const DegreeSnapshot: React.FC<DegreeSnapshotProps> = memo(({
                         </div>
                     </div>
 
-                    <ProgressBar value={percentage} height={20} labelInside={true} showValue={true} />
+                    <ProgressBar value={percentage} height={20} labelInside={true} showValue={true} labelThreshold={8} />
                 </div>
 
-                <div style={{ height: '1px', background: 'var(--color-border)', opacity: 0.5, margin: '0 -4px' }} />
-
-                {/* AREA B: Academic Status */}
-                <div className="academic-status-block">
-                    <h2 style={{ fontSize: '0.8rem', fontWeight: 700, margin: 0, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '12px' }}>
-                        {t('label.academic_status')}
-                    </h2>
-                    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                        <div style={{ 
-                            flex: '1 1 140px', 
-                            padding: '10px', 
-                            backgroundColor: 'var(--color-bg-secondary)', 
-                            borderRadius: '10px',
-                            border: '1px solid var(--color-border)',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '2px',
-                            opacity: 0.8
-                        }}>
-                            <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', fontWeight: 600 }}>{t('label.weighted_gpa')}</span>
-                            <span style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-accent)' }}>
-                                {gpa !== null ? gpa.toFixed(1) : t('label.not_available')}
-                            </span>
-                        </div>
-                        
-                        <div style={{ 
-                            flex: '1 1 140px', 
-                            padding: '10px', 
-                            backgroundColor: 'var(--color-bg-secondary)', 
-                            borderRadius: '10px',
-                            border: '1px solid var(--color-border)',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '2px',
-                            opacity: 0.8
-                        }}>
-                            <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', fontWeight: 600 }}>{t('label.courses_for_improvement')}</span>
-                            <span style={{ fontSize: '1.5rem', fontWeight: 800, color: needsImprovementCount > 0 ? 'var(--color-warning)' : 'var(--color-text-primary)' }}>
-                                {needsImprovementCount}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                {/* 4. Status Stats Row - Restored to original position and content */}
+                {/* Status Stats Row - Unified and Compact */}
                 <div className="stats-row" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '4px' }}>
                     <StatChip label={t('status.completed')} value={completedCount} color="var(--color-success)" />
                     <StatChip label={t('status.in_progress')} value={inProgressCount} color="var(--color-warning)" />
                     {needsRepeatCount > 0 && (
                         <StatChip label={t('status.needs_repeat')} value={needsRepeatCount} color="var(--color-danger)" />
                     )}
-                    <StatChip label={t('label.average')} value={gpa !== null ? gpa.toFixed(1) : t('label.not_available')} color="var(--color-accent)" />
+                    <StatChip 
+                        label={t('label.average')} 
+                        value={gpa !== null ? gpa.toFixed(1) : t('label.not_available')} 
+                        color="var(--color-accent)" 
+                    />
+                    {needsImprovementCount > 0 && (
+                        <StatChip 
+                            label={t('label.needs_improvement')} 
+                            value={needsImprovementCount} 
+                            color="var(--color-warning)" 
+                        />
+                    )}
                     <StatChip label={t('label.remaining')} value={remainingCredits} color="var(--color-text-secondary)" />
                 </div>
             </div>

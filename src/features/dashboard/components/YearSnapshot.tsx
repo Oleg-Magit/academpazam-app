@@ -38,7 +38,7 @@ export const YearSnapshot: React.FC<YearSnapshotProps> = memo(({
                 </div>
 
                 <div style={{ marginTop: '4px' }}>
-                    <ProgressBar value={percentage} height={12} labelInside={true} showValue={true} />
+                    <ProgressBar value={percentage} height={12} labelInside={true} showValue={true} labelThreshold={15} />
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '6px', fontSize: '0.75rem', color: 'var(--color-text-secondary)', fontWeight: 500 }}>
                         <span>
                             <span style={{ color: 'var(--color-text-primary)' }}>{completedCredits}</span> / {totalCredits} {t('label.total_credits')}

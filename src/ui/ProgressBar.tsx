@@ -8,9 +8,18 @@ interface ProgressBarProps {
     labelInside?: boolean;
     height?: number;
     isMini?: boolean;
+    labelThreshold?: number;
 }
 
-export const ProgressBar: React.FC<ProgressBarProps> = ({ value, label, showValue = true, labelInside = false, height, isMini = false }) => {
+export const ProgressBar: React.FC<ProgressBarProps> = ({ 
+    value, 
+    label, 
+    showValue = true, 
+    labelInside = false, 
+    height, 
+    isMini = false,
+    labelThreshold = 15
+}) => {
     const percentage = Math.min(Math.max(value, 0), 100);
 
     return (
@@ -26,7 +35,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({ value, label, showValu
                     className={styles.fill}
                     style={{ width: `${percentage}%` }}
                 >
-                    {labelInside && percentage > 15 && (
+                    {labelInside && percentage > labelThreshold && (
                         <span className={isMini ? styles.miniLabel : styles.internalLabel}>
                             {percentage.toFixed(0)}%
                         </span>
