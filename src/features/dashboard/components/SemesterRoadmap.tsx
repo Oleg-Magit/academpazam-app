@@ -65,7 +65,7 @@ export const SemesterRoadmap: React.FC<SemesterRoadmapProps> = ({
             padding: '16px var(--space-lg)',
             scrollBehavior: 'smooth',
             alignItems: 'flex-start'
-        }} className="roadmap-scroller">
+        }} className="roadmap-scroller ui-scrollbar">
             {groupedByYear.map(({ year, yearSemesters }) => (
                 <div key={year} style={{
                     display: 'flex',

@@ -80,3 +80,27 @@ a {
     color: inherit;
     text-decoration: none;
 }
+
+/* UI Scrollbar Utility */
+.ui-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border) transparent;
+}
+
+.ui-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.ui-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.ui-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: var(--radius-sm);
+}
+
+.ui-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--color-text-secondary);
+}
