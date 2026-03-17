@@ -92,7 +92,7 @@ export const Dashboard: React.FC = () => {
     }, [strictlyCompletedCount, supportPromptState]);
 
     const handleSupportAction = () => {
-        window.open('https://github.com/Oleg-Magit/academpazam-app', '_blank');
+        window.open('https://paypal.me/OlegMagit', '_blank');
     };
 
     const handleMaybeLater = async () => {

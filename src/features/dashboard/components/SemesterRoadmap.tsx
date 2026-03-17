@@ -62,11 +62,9 @@ export const SemesterRoadmap: React.FC<SemesterRoadmapProps> = ({
             display: 'flex',
             gap: '24px',
             overflowX: 'auto',
-            padding: '16px var(--space-md)',
+            padding: '16px var(--space-lg)',
             scrollBehavior: 'smooth',
-            alignItems: 'flex-start',
-            scrollbarWidth: 'none',
-            msOverflowStyle: 'none'
+            alignItems: 'flex-start'
         }} className="roadmap-scroller">
             {groupedByYear.map(({ year, yearSemesters }) => (
                 <div key={year} style={{
@@ -175,11 +173,6 @@ export const SemesterRoadmap: React.FC<SemesterRoadmapProps> = ({
                     {t('action.add_semester')}
                 </span>
             </button>
-            <style>{`
-                .roadmap-scroller::-webkit-scrollbar {
-                    display: none;
-                }
-            `}</style>
         </div>
     );
 };
