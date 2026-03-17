@@ -5,6 +5,7 @@ export interface GpaResult {
     gpa: number | null;
     gradedCount: number;
     totalCredits: number;
+    needsImprovementCount: number;
 }
 
 export const computeDegreeGpa = (courses: Course[] | CourseWithTopics[], passingThreshold: number = 56): GpaResult => {
@@ -26,19 +27,16 @@ export const computeDegreeGpa = (courses: Course[] | CourseWithTopics[], passing
     let totalWeightedScore = 0;
     let totalCredits = 0;
     let gradedLineageCount = 0;
+    let needsImprovementCount = 0;
 
     // 2. Process each lineage
     for (const lineageCourses of lineages.values()) {
-        // Lineage Policy: 
-        // Only lineages with at least one passing attempt contribute to GPA.
-        // We pick the LATEST passed attempt (matching courseLifecycle.ts)
         const sorted = [...lineageCourses].sort((a, b) => a.createdAt - b.createdAt);
         const passedAttempts = sorted.filter(c => isAttemptPassed(c, passingThreshold));
 
         if (passedAttempts.length > 0) {
             const canonicalAttempt = passedAttempts[passedAttempts.length - 1];
             
-            // IF canonical attempt is excluded, skip entire lineage
             if (canonicalAttempt.excludeFromAverage) {
                 continue;
             }
@@ -47,17 +45,24 @@ export const computeDegreeGpa = (courses: Course[] | CourseWithTopics[], passing
                 gradedLineageCount++;
                 totalWeightedScore += canonicalAttempt.grade * canonicalAttempt.credits;
                 totalCredits += canonicalAttempt.credits;
+
+                // IMPROVEMENT METRIC FIX: 
+                // Canonical-only passed courses with grade below 70
+                if (canonicalAttempt.grade < 70) {
+                    needsImprovementCount++;
+                }
             }
         }
     }
 
     if (gradedLineageCount === 0 || totalCredits === 0) {
-        return { gpa: null, gradedCount: 0, totalCredits: 0 };
+        return { gpa: null, gradedCount: 0, totalCredits: 0, needsImprovementCount: 0 };
     }
 
     return {
         gpa: Number((totalWeightedScore / totalCredits).toFixed(1)),
         gradedCount: gradedLineageCount,
-        totalCredits
+        totalCredits,
+        needsImprovementCount
     };
 };

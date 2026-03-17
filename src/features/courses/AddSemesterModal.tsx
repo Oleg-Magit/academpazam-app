@@ -127,13 +127,13 @@ export const AddSemesterModal: React.FC<AddSemesterModalProps> = ({
 
                 <div>
                     <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--color-text-secondary)', marginBottom: '8px' }}>
-                        {t('label.custom_name') || 'Custom Name (Optional)'}
+                        {t('label.custom_name')}
                     </label>
                     <input
                         type="text"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        placeholder={t('label.semester_name_placeholder') || 'e.g. Semester 1'}
+                        placeholder={t('label.semester_name_placeholder')}
                         style={{
                             width: '100%',
                             padding: '12px',

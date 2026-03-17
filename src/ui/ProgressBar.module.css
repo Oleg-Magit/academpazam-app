@@ -19,6 +19,18 @@
 
 .fill {
     height: 100%;
-    background-color: var(--color-success);
-    transition: width 0.5s ease-out;
+    background: linear-gradient(90deg, var(--color-success) 0%, #6ee7b7 100%);
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2rem;
+}
+
+.internalLabel {
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    padding: 0 4px;
 }

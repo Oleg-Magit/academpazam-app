@@ -113,6 +113,8 @@ export const he = {
     'label.optional': '(אופציונלי)',
     'label.pts': 'נק׳',
     'label.remaining': 'נותרו',
+    'label.custom_name': 'שם אישי',
+    'label.semester_name_placeholder': 'למשל: סמסטר א׳ (אופציונלי)',
     'label.rtl_mode': 'מצב RTL',
     'label.search_placeholder': 'חפש קורסים, קודים או נושאים...',
     'label.search_results': 'תוצאות חיפוש',
@@ -134,11 +136,12 @@ export const he = {
     'label.no_grades_yet': 'אין ציונים עדיין',
     'label.ungraded': 'ללא ציון',
     'label.not_available': 'N/A',
+    'label.needs_improvement': 'לשיפור',
+    'label.courses_for_improvement': 'קורסים לשיפור',
     'degree.defaultName': 'תואר כללי',
 
-    // filter
     'filter.group_attempts': 'סינון לפי מצב ניסיון',
-    'filter.group_academic': 'סינון לפי מצב אקדמי',
+    'label.academic_status': 'מצב אקדמי',
 
     // footer
     'footer.about': 'אודות',

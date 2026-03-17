@@ -77,7 +77,7 @@ export const EditSemesterModal: React.FC<EditSemesterModalProps> = ({
                         autoFocus
                     />
                     <p style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginTop: '4px' }}>
-                        {t('label.optional')} - leave empty for default label
+                        {t('label.optional')}
                     </p>
                 </div>
 

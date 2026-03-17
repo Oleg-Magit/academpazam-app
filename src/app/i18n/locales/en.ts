@@ -136,11 +136,12 @@ export const en = {
     'label.no_grades_yet': 'No grades yet',
     'label.ungraded': 'Ungraded',
     'label.not_available': 'N/A',
+    'label.needs_improvement': 'Needs Improvement',
+    'label.courses_for_improvement': 'Courses to Improve',
     'degree.defaultName': 'General Degree',
 
-    // filter
     'filter.group_attempts': 'Filter by Attempt Status',
-    'filter.group_academic': 'Filter by Academic Status',
+    'label.academic_status': 'Academic Status',
 
     // footer
     'footer.about': 'About',

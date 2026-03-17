@@ -14,6 +14,7 @@ interface DegreeSnapshotProps {
     completedCount: number;
     inProgressCount: number;
     needsRepeatCount: number;
+    needsImprovementCount: number;
     gpa: number | null;
 }
 
@@ -26,80 +27,90 @@ export const DegreeSnapshot: React.FC<DegreeSnapshotProps> = memo(({
     completedCount,
     inProgressCount,
     needsRepeatCount,
+    needsImprovementCount,
     gpa
 }) => {
     const { t } = useTranslation();
 
     return (
         <Card className="degree-snapshot-card" style={{ padding: 'var(--space-lg)', position: 'relative' }}>
-            <div className="snapshot-container" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {/* 1. Title Row: Primary Element */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
+            <div className="snapshot-container" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                {/* 1. Header Row */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <h1 className="degree-title" style={{
                             fontSize: '1.25rem',
                             fontWeight: 700,
                             margin: 0,
-                            color: 'var(--color-text-primary)',
-                            lineHeight: 1.2
+                            color: 'var(--color-text-primary)'
                         }}>
                             {degreeName}
                         </h1>
-                        <Link to="/settings" style={{
-                            color: 'var(--color-text-secondary)',
-                            transition: 'color 0.2s',
-                            display: 'flex',
-                            padding: '2px'
-                        }} className="edit-plan-link" aria-label={t('action.edit')}>
+                        <Link to="/settings" className="edit-plan-link" aria-label={t('action.edit')}>
                             <Edit2 size={16} />
                         </Link>
                     </div>
                 </div>
 
-                {/* 2 & 3. Progress Section */}
-                <div className="degree-progress-block" style={{ marginTop: 'var(--space-sm)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                        <h2 style={{ fontSize: '0.85rem', fontWeight: 600, margin: 0, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                {/* AREA A: Degree Progress */}
+                <div className="degree-progress-block">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                        <h2 style={{ fontSize: '0.8rem', fontWeight: 700, margin: 0, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                             {t('dashboard.degree_progress')}
                         </h2>
-                        <span style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-accent)' }}>
-                            {percentage.toFixed(0)}%
-                        </span>
+                        <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+                            {completedCredits} / {totalCredits} <span style={{ fontSize: '0.75rem', opacity: 0.7 }}>{t('label.credits')}</span>
+                        </div>
                     </div>
 
-                    <ProgressBar value={percentage} height={12} showValue={false} />
+                    <ProgressBar value={percentage} height={20} labelInside={true} showValue={true} />
+                </div>
 
-                    <div style={{ 
-                        marginTop: '12px', 
-                        display: 'flex', 
-                        flexDirection: 'column', 
-                        gap: '6px'
-                    }}>
+                <div style={{ height: '1px', background: 'var(--color-border)', opacity: 0.5, margin: '0 -4px' }} />
+
+                {/* AREA B: Academic Status */}
+                <div className="academic-status-block">
+                    <h2 style={{ fontSize: '0.8rem', fontWeight: 700, margin: 0, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '12px' }}>
+                        {t('label.academic_status')}
+                    </h2>
+                    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                         <div style={{ 
-                            display: 'flex', 
-                            justifyContent: 'space-between', 
-                            alignItems: 'baseline',
-                            fontSize: '0.95rem',
-                            fontWeight: 600,
-                            color: 'var(--color-text-primary)'
+                            flex: '1 1 140px', 
+                            padding: '10px', 
+                            backgroundColor: 'var(--color-bg-secondary)', 
+                            borderRadius: '10px',
+                            border: '1px solid var(--color-border)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '2px',
+                            opacity: 0.8
                         }}>
-                            <span>{t('label.completed')}</span>
-                            <span>{completedCredits} / {totalCredits} <span style={{ fontSize: '0.8rem', fontWeight: 500, color: 'var(--color-text-secondary)' }}>({t('label.credits')})</span></span>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', fontWeight: 600 }}>{t('label.weighted_gpa')}</span>
+                            <span style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-accent)' }}>
+                                {gpa !== null ? gpa.toFixed(1) : t('label.not_available')}
+                            </span>
                         </div>
+                        
                         <div style={{ 
-                            display: 'flex', 
-                            justifyContent: 'space-between', 
-                            alignItems: 'baseline',
-                            fontSize: '0.85rem',
-                            color: 'var(--color-text-secondary)'
+                            flex: '1 1 140px', 
+                            padding: '10px', 
+                            backgroundColor: 'var(--color-bg-secondary)', 
+                            borderRadius: '10px',
+                            border: '1px solid var(--color-border)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '2px',
+                            opacity: 0.8
                         }}>
-                            <span>{t('label.remaining')}</span>
-                            <span style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>{remainingCredits} {t('label.credits')}</span>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', fontWeight: 600 }}>{t('label.courses_for_improvement')}</span>
+                            <span style={{ fontSize: '1.5rem', fontWeight: 800, color: needsImprovementCount > 0 ? 'var(--color-warning)' : 'var(--color-text-primary)' }}>
+                                {needsImprovementCount}
+                            </span>
                         </div>
                     </div>
                 </div>
 
-                {/* 4. Status Stats Row */}
+                {/* 4. Status Stats Row - Restored to original position and content */}
                 <div className="stats-row" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '4px' }}>
                     <StatChip label={t('status.completed')} value={completedCount} color="var(--color-success)" />
                     <StatChip label={t('status.in_progress')} value={inProgressCount} color="var(--color-warning)" />

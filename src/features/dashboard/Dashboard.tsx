@@ -291,6 +291,7 @@ export const Dashboard: React.FC = () => {
                 completedCount={stats.completedCount}
                 inProgressCount={stats.inProgressCount}
                 needsRepeatCount={stats.needsRepeatCount}
+                needsImprovementCount={stats.needsImprovementCount}
                 gpa={stats.gpa}
             />
 

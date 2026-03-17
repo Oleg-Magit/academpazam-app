@@ -130,12 +130,12 @@ export const CourseList: React.FC<CourseListProps> = ({
                         </div>
 
                         {showProgress && (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '4px' }}>
-                                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', display: 'flex', justifyContent: 'space-between' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', marginTop: '4px' }}>
+                                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', display: 'flex', justifyContent: 'space-between', marginBottom: '-2px' }}>
                                     <span>{completedTopicsCount} / {topicsCount} {t('nav.topics')}</span>
                                     <span>{progressValue.toFixed(0)}%</span>
                                 </div>
-                                <ProgressBar value={progressValue} height={4} showValue={false} />
+                                <ProgressBar value={progressValue} height={8} showValue={false} />
                             </div>
                         )}
 

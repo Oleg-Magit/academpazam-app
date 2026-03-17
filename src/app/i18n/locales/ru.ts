@@ -127,6 +127,8 @@ export const ru = {
     'label.academic_pacing': 'Академический темп',
     'label.2_term_model': '2-семестровая модель (А, Б)',
     'label.3_term_model': '3-семестровая модель (А, Б, Летний)',
+    'label.custom_name': 'Название (опционально)',
+    'label.semester_name_placeholder': 'например: Семестр 1',
     'label.degree_average': 'Средний балл степени',
     'label.weighted_gpa': 'Средневзвешенный балл',
     'label.graded_courses': 'Курсы с оценкой',
@@ -134,11 +136,12 @@ export const ru = {
     'label.no_grades_yet': 'Оценок пока нет',
     'label.ungraded': 'Без оценки',
     'label.not_available': 'н/д',
+    'label.needs_improvement': 'Для улучшения',
+    'label.courses_for_improvement': 'Курсы для улучшения',
     'degree.defaultName': 'Общая степень',
 
-    // filter
     'filter.group_attempts': 'Фильтр по статусу попытки',
-    'filter.group_academic': 'Фильтр по академическому статусу',
+    'label.academic_status': 'Академический статус',
 
     // footer
     'footer.about': 'О проекте',

@@ -133,14 +133,11 @@ export const SemesterNode: React.FC<SemesterNodeProps> = memo(({
                     <span style={{ color: 'var(--color-text-secondary)' }}>
                         {completedCredits} / {totalCredits} {t('label.pts')}
                     </span>
-                    <span style={{ color: styles.accentColor }}>
-                        {progress.toFixed(0)}%
+                    <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', opacity: 0.8 }}>
+                        {courseCount} {t('label.courses')}
                     </span>
                 </div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', opacity: 0.8, marginTop: '-2px' }}>
-                    {courseCount} {t('label.courses')}
-                </div>
-                <ProgressBar value={progress} height={6} />
+                <ProgressBar value={progress} height={12} labelInside={true} showValue={true} />
             </div>
 
             {isSelected && (
