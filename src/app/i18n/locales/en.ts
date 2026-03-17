@@ -31,7 +31,7 @@ export const en = {
     'status.failed': 'Failed',
     'status.failed_badge': 'FAILED',
     'status.in_progress': 'In Progress',
-    'status.needs_repeat': 'Needs Repeat',
+    'status.needs_repeat': 'Failed',
     'status.needs_repeat_badge': 'NEEDS REPEAT',
     'status.not_completed': 'Not Completed',
     'status.not_started': 'Not Started',

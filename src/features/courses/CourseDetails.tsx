@@ -333,9 +333,13 @@ export const CourseDetails: React.FC<CourseDetailsProps> = ({ id: propId, onBack
 
             <h3>{t('nav.topics')} ({topics.length})</h3>
 
-            {/* Topic List (omitted for brevity in replacement, but I must keep it) */}
+            {/* Topic List */}
             <div style={{ display: 'grid', gap: 'var(--space-md)', marginTop: 'var(--space-md)' }}>
-                {topics.map(topic => (
+                {React.useMemo(() => {
+                    const unfinished = topics.filter(t => t.status !== 'done');
+                    const finished = topics.filter(t => t.status === 'done');
+                    return [...unfinished, ...finished];
+                }, [topics]).map(topic => (
                     <Card key={topic.id} style={{ padding: 'var(--space-md)', display: 'flex', alignItems: 'center', gap: 'var(--space-md)' }}>
                         <button
                             onClick={() => handleToggleStatus(topic)}

@@ -31,7 +31,7 @@ export const ru = {
     'status.failed': 'Не сдан',
     'status.failed_badge': 'НЕ СДАН',
     'status.in_progress': 'В процессе',
-    'status.needs_repeat': 'Требуется повтор',
+    'status.needs_repeat': 'Не сдан',
     'status.needs_repeat_badge': 'ПОВТОР',
     'status.not_completed': 'Не завершен',
     'status.not_started': 'Не начат',

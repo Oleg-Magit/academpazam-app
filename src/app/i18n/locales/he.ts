@@ -31,7 +31,7 @@ export const he = {
     'status.failed': 'נכשל',
     'status.failed_badge': 'נכשל',
     'status.in_progress': 'בתהליך',
-    'status.needs_repeat': 'דרוש שיפור',
+    'status.needs_repeat': 'נכשל',
     'status.needs_repeat_badge': 'דרוש חוזר',
     'status.not_completed': 'טרם הושלם',
     'status.not_started': 'טרם התחיל',
