@@ -13,7 +13,7 @@ export const AppearanceSettings: React.FC = () => {
     const { theme, toggleTheme } = useTheme();
 
     return (
-        <div style={{ display: 'grid', gap: '16px' }}>
+        <div style={{ display: 'grid', gap: '12px' }}>
             <Card style={{ padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
                     <h2 style={{ fontSize: '1rem', margin: 0 }}>{t('settings.language')}</h2>

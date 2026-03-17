@@ -35,7 +35,7 @@ export const Settings: React.FC = () => {
                 </div>
             )}
 
-            <div style={{ display: 'grid', gap: '16px' }}>
+            <div style={{ display: 'grid', gap: '12px' }}>
                 <AppearanceSettings />
 
                 <PlanSettings

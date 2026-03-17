@@ -365,7 +365,7 @@ export const Courses: React.FC = () => {
                     isMobile={isMobile}
                 />
 
-                <div style={{ overflowY: 'auto', paddingRight: '4px', paddingBottom: '32px' }}>
+                <div style={{ overflowY: 'auto', paddingRight: '4px', paddingBottom: '32px' }} className="ui-scrollbar">
                     {isMobile && isOverviewMode && !isSearching ? (
                         renderSemesterNav()
                     ) : (
@@ -426,16 +426,16 @@ export const Courses: React.FC = () => {
                             </div>
 
                             {selectedSemester === 'all' || isFiltering ? (
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '16px' : '16px' }}>
                                     {hierarchy.map(hYear => (
                                         <div key={hYear.year}>
-                                            <h2 style={{ fontSize: isMobile ? '1.15rem' : '1.3rem', marginBottom: '12px', color: 'var(--color-text-primary)' }}>
+                                            <h2 style={{ fontSize: isMobile ? '1.15rem' : '1.3rem', marginBottom: '8px', color: 'var(--color-text-primary)' }}>
                                                 {t('label.year' as any) || 'Year'} {hYear.year}
                                             </h2>
-                                            <div style={{ paddingLeft: isMobile ? '8px' : '16px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                                            <div style={{ paddingLeft: isMobile ? '8px' : '16px', display: 'flex', flexDirection: 'column', gap: isMobile ? '8px' : '12px' }}>
                                                 {hYear.semesters.map(hSem => (
                                                     <div key={hSem.id}>
-                                                        <h3 style={{ fontSize: isMobile ? '1rem' : '1.1rem', marginBottom: '12px', color: 'var(--color-text-secondary)' }}>
+                                                        <h3 style={{ fontSize: isMobile ? '1rem' : '1.1rem', marginBottom: '8px', color: 'var(--color-text-secondary)' }}>
                                                             {hSem.name}
                                                         </h3>
                                                         <CourseList

@@ -45,7 +45,7 @@ export const CourseList: React.FC<CourseListProps> = ({
         <div style={{
             display: 'grid',
             gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(300px, 1fr))',
-            gap: '16px',
+            gap: isMobile ? '12px' : '14px',
             padding: '4px'
         }}>
             {courses.map(course => {
@@ -61,7 +61,7 @@ export const CourseList: React.FC<CourseListProps> = ({
                         key={course.id}
                         onClick={() => onNavigate(course.id)}
                         style={{
-                            padding: isMobile ? '20px' : '16px',
+                            padding: isMobile ? '14px' : '16px',
                             cursor: 'pointer',
                             display: 'flex',
                             flexDirection: 'column',
@@ -69,7 +69,7 @@ export const CourseList: React.FC<CourseListProps> = ({
                             position: 'relative',
                             transition: 'transform 0.2s, box-shadow 0.2s',
                             border: '1px solid var(--color-border)',
-                            minHeight: isMobile ? '140px' : 'auto'
+                            minHeight: isMobile ? '130px' : 'auto'
                         }}
                     >
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>

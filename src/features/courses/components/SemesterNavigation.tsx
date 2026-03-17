@@ -41,20 +41,20 @@ export const SemesterNavigation: React.FC<SemesterNavigationProps> = ({
             paddingRight: isMobile ? '0' : '8px',
             borderRight: isMobile ? 'none' : '1px solid var(--color-border)',
             paddingBottom: isMobile ? '16px' : '0'
-        }}>
+        }} className="ui-scrollbar">
             {!isMobile && <h2 style={{ fontSize: '1.2rem', marginBottom: '16px', paddingLeft: '8px' }}>{t('label.semesters')}</h2>}
 
             <div
                 onClick={() => onSelectSemester('all')}
                 style={{
-                    padding: isMobile ? '12px 16px' : '8px 12px',
+                    padding: isMobile ? '8px 12px' : '8px 12px',
                     borderRadius: '8px',
                     cursor: 'pointer',
                     backgroundColor: selectedSemester === 'all' ? 'var(--color-bg-secondary)' : 'transparent',
                     border: selectedSemester === 'all' ? '1px solid var(--color-border)' : '1px solid transparent',
                     display: 'flex',
                     alignItems: 'center',
-                    minHeight: isMobile ? '56px' : '42px',
+                    minHeight: isMobile ? '48px' : '42px',
                     marginBottom: '8px',
                     transition: 'all 0.2s ease',
                 }}
@@ -75,7 +75,7 @@ export const SemesterNavigation: React.FC<SemesterNavigationProps> = ({
                 return Object.entries(groups)
                     .sort((a, b) => Number(a[0]) - Number(b[0]))
                     .map(([year, yearSemesters]) => (
-                        <div key={year} style={{ marginBottom: '16px' }}>
+                        <div key={year} style={{ marginBottom: '12px' }}>
                             <h3 style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)', marginBottom: '8px', paddingLeft: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                                 {t('label.year')} {year}
                             </h3>
@@ -85,7 +85,7 @@ export const SemesterNavigation: React.FC<SemesterNavigationProps> = ({
                                         key={sem.semesterId}
                                         onClick={() => onSelectSemester(sem.semesterId)}
                                         style={{
-                                            padding: isMobile ? '12px 16px' : '8px 12px',
+                                            padding: isMobile ? '8px 12px' : '8px 12px',
                                             borderRadius: '8px',
                                             cursor: 'pointer',
                                             backgroundColor: selectedSemester === sem.semesterId ? 'var(--color-bg-secondary)' : 'transparent',
@@ -94,7 +94,7 @@ export const SemesterNavigation: React.FC<SemesterNavigationProps> = ({
                                             justifyContent: 'space-between',
                                             alignItems: 'center',
                                             transition: 'all 0.2s ease',
-                                            minHeight: isMobile ? '56px' : '42px',
+                                            minHeight: isMobile ? '48px' : '42px',
                                             position: 'relative',
                                             marginLeft: '8px'
                                         }}

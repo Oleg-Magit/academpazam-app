@@ -132,7 +132,7 @@ export const DataSettings: React.FC<DataSettingsProps> = ({ plan, courses, onRef
             <Card style={{ padding: '16px' }}>
                 <h2 style={{ fontSize: '1rem', marginBottom: '20px' }}>{t('settings.data_management')}</h2>
 
-                <div style={{ display: 'grid', gap: '24px' }}>
+                <div style={{ display: 'grid', gap: '12px' }}>
                     <div>
                         <h3 style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                             {t('settings.export_group')}
@@ -167,7 +167,7 @@ export const DataSettings: React.FC<DataSettingsProps> = ({ plan, courses, onRef
                         </div>
                     </div>
 
-                    <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: '24px', marginTop: '12px' }}>
+                    <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: '16px' }}>
                         <h3 style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                             {t('share.supportTitle')}
                         </h3>
@@ -194,7 +194,7 @@ export const DataSettings: React.FC<DataSettingsProps> = ({ plan, courses, onRef
                         </div>
                     </div>
 
-                    <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: '20px' }}>
+                    <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: '16px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
                             <div>
                                 <h3 style={{ fontSize: '0.85rem', color: 'var(--color-danger)', fontWeight: 600, margin: 0 }}>{t('settings.dangerZone.title')}</h3>

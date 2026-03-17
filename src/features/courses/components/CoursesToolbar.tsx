@@ -42,10 +42,10 @@ export const CoursesToolbar: React.FC<CoursesToolbarProps> = ({
         <div style={{
             display: 'flex',
             flexDirection: 'row', // Always row but wraps
-            gap: isMobile ? '16px' : '20px',
+            gap: isMobile ? '12px' : '16px',
             justifyContent: 'space-between',
             alignItems: 'flex-start',
-            paddingBottom: '20px',
+            paddingBottom: '12px',
             borderBottom: '1px solid var(--color-border)',
             flexWrap: 'wrap'
         }}>
