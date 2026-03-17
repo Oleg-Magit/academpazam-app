@@ -10,6 +10,8 @@ import { loadCustomFont } from './pdfFont';
 import { translate, type SupportedLang, type TranslationKey } from '../utils/translate';
 import { getSemesterTitle } from '../utils/semesterUtils';
 
+import { computeDegreeGpa } from './gpaService';
+
 export const generateDegreePDF = async (
     degreeName: string, 
     courses: CourseWithTopics[], 
@@ -71,14 +73,15 @@ export const generateDegreePDF = async (
     });
 
     const progress = calculateDegreeProgress(courses, passingThreshold);
+    const gpaData = computeDegreeGpa(courses, passingThreshold);
+    
     const summaryY = height - 110;
 
-    // Rebalanced summary metrics: 22% for credits, 28% for progress/remaining
-    const colWidths = [0.22, 0.22, 0.28, 0.28].map(w => contentWidth * w);
+    // rebalanced summary metrics to 5 columns
+    const colWidths = [0.18, 0.18, 0.20, 0.22, 0.22].map(w => contentWidth * w);
     
     const getX = (col: number) => {
         if (lang === 'he') {
-            // In RTL, we sum the widths of columns that come "after" (to the left of) the current one
             const widthsBefore = colWidths.slice(col + 1).reduce((sum, w) => sum + w, 0);
             return margin + widthsBefore;
         }
@@ -87,38 +90,54 @@ export const generateDegreePDF = async (
     };
     const colAlign = lang === 'he' ? 'right' : 'left';
 
+    // 1. Total Credits
     drawCellText(currentPage, customFont, `${t('label.total_credits')}: ${progress.totalCredits}`, {
         x: getX(0),
         y: summaryY,
         width: colWidths[0],
-        size: 11,
+        size: 10,
         color: black,
         align: colAlign
     });
 
+    // 2. Completed Credits
     drawCellText(currentPage, customFont, `${t('label.completed')}: ${progress.completedCredits}`, {
         x: getX(1),
         y: summaryY,
         width: colWidths[1],
-        size: 11,
+        size: 10,
         color: black,
         align: colAlign
     });
 
-    drawCellText(currentPage, customFont, `${t('label.remaining')}: ${progress.totalCredits - progress.completedCredits}`, {
+    // 3. Average Grade
+    const avgLabel = t('label.average');
+    const avgValue = gpaData.gpa !== null ? gpaData.gpa.toString() : t('label.not_available');
+    drawCellText(currentPage, customFont, `${avgLabel}: ${avgValue}`, {
         x: getX(2),
         y: summaryY,
         width: colWidths[2],
-        size: 11,
+        size: 10,
         color: black,
         align: colAlign
     });
 
-    drawCellText(currentPage, customFont, `${t('dashboard.degree_progress')}: ${progress.percentage.toFixed(1)}%`, {
+    // 4. Remaining Credits
+    drawCellText(currentPage, customFont, `${t('label.remaining')}: ${progress.totalCredits - progress.completedCredits}`, {
         x: getX(3),
         y: summaryY,
         width: colWidths[3],
-        size: 11,
+        size: 10,
+        color: black,
+        align: colAlign
+    });
+
+    // 5. Progress %
+    drawCellText(currentPage, customFont, `${t('dashboard.degree_progress')}: ${progress.percentage.toFixed(1)}%`, {
+        x: getX(4),
+        y: summaryY,
+        width: colWidths[4],
+        size: 10,
         color: black,
         align: colAlign
     });
