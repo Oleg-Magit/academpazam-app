@@ -6,6 +6,33 @@
 
 ---
 
+## 🖼️ Screenshots
+
+AcademPazam supports a full RTL/BiDi academic planning experience, including Hebrew UI, dark mode, course progress tracking, detailed course pages, and PDF export.
+
+| Dashboard Overview | Course List |
+|---|---|
+| ![AcademPazam dashboard overview showing degree progress, completed semesters, GPA, and local-first privacy message](./assets/screenshots/dashboard.png) | ![AcademPazam course list view showing semester filters, course cards, credits, grades, and progress status](./assets/screenshots/course-list.png) |
+
+| Course Details | PDF Export |
+|---|---|
+| ![AcademPazam course details screen showing course grade, topics, completion status, and topic actions](./assets/screenshots/course-details.png) | ![AcademPazam exported PDF progress report in Hebrew with semesters, courses, credits, grades, and completion status](./assets/screenshots/pdf-export.png) |
+
+---
+
+## 🎯 Why I Built This
+
+Many students track their degree progress using spreadsheets, notes, or scattered university portals.  
+AcademPazam was built to give students a clearer and more private way to plan their academic path.
+
+The project focuses on:
+
+- Local-first storage, so student data stays on the device.
+- Offline availability through PWA fundamentals.
+- Hebrew, English, and Russian support, including RTL/BiDi layout handling.
+- Academic progress tracking by courses, credits, grades, semesters, and topics.
+- Practical export options such as JSON backup/restore and PDF reports.
+
 ## ✨ Key Features
 
 - **🛡️ Privacy First** – No accounts, no tracking, and no cloud syncing. All your data stays in your browser's IndexedDB.
