@@ -87,7 +87,17 @@ To preview the build locally:
 ```bash
 npm run preview
 ```
+### Run tests
 
+```bash
+npm run test:run
+```
+```md
+### Run full project check
+```
+```bash
+npm run check
+```
 ---
 
 ## 🌍 Deployment
