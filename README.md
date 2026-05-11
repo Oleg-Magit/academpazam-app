@@ -92,9 +92,8 @@ npm run preview
 ```bash
 npm run test:run
 ```
-```md
 ### Run full project check
-```
+
 ```bash
 npm run check
 ```
