@@ -137,7 +137,7 @@ export const normalizeAcademicImport = (input: AcademicImportNormalizationInput)
 
             return {
                 sourceRowId: row.sourceRowId,
-                action: target ? 'skip' : 'add',
+                action: target || ambiguous ? 'skip' : 'add',
                 targetCourseId: target?.id ?? null,
                 proposed: {
                     ...(row.code?.trim() ? { code: row.code.trim() } : {}),
@@ -187,7 +187,7 @@ export const normalizeAcademicImport = (input: AcademicImportNormalizationInput)
 
         return {
             sourceRowId: row.sourceRowId,
-            action: target ? 'update' : 'add',
+            action: ambiguous ? 'skip' : target ? 'update' : 'add',
             targetCourseId: target?.id ?? null,
             proposed: {
                 ...((row.code?.trim() || target?.code) ? { code: row.code?.trim() || target?.code } : {}),
