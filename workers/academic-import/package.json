@@ -10,7 +10,7 @@
     "cf-types": "wrangler types"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "5.20260830.1",
+    "@cloudflare/workers-types": "5.20260827.1",
     "typescript": "~5.9.3",
     "wrangler": "4.127.1"
   }
