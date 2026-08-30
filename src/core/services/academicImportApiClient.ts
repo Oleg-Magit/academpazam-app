@@ -8,12 +8,14 @@ import type {
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const REQUEST_TIMEOUT_MS = 60_000;
 
+type AcademicImportClientErrorCode = AcademicImportErrorCode | 'NOT_CONFIGURED' | 'NETWORK_ERROR';
+
 export class AcademicImportApiError extends Error {
-    constructor(
-        public readonly code: AcademicImportErrorCode | 'NOT_CONFIGURED' | 'NETWORK_ERROR',
-        message: string,
-    ) {
+    readonly code: AcademicImportClientErrorCode;
+
+    constructor(code: AcademicImportClientErrorCode, message: string) {
         super(message);
+        this.code = code;
         this.name = 'AcademicImportApiError';
     }
 }
