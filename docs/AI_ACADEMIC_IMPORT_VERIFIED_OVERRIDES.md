@@ -3,7 +3,7 @@
 **Date verified:** 2026-08-30  
 **Branch:** `feat/ai-academic-import`
 
-This note records implementation decisions that were changed after the original `AI_ACADEMIC_IMPORT_IMPLEMENTATION.md` was written and then verified by the actual build/type system. Where this note conflicts with the original document, **this note and the implemented code take precedence**.
+This note records implementation decisions that changed after the original `AI_ACADEMIC_IMPORT_IMPLEMENTATION.md` was written and were then verified by the actual compiler, Wrangler-generated types, and CI. Where this note conflicts with the original document, **this note and the implemented code take precedence**. All product semantics, safety rules, review requirements, and scope boundaries from the original specification remain unchanged unless explicitly overridden below.
 
 ## 1. Extraction model
 
