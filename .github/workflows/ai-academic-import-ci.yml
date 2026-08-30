@@ -22,8 +22,16 @@ jobs:
           cache: npm
       - name: Install frontend dependencies
         run: npm ci
-      - name: Run frontend quality gate
-        run: npm run check
+      - name: Run full test suite
+        run: npm run test:run
+      - name: Build application
+        run: npm run build
+      - name: Lint AI Academic Import code
+        run: >-
+          npx eslint
+          src/features/ai-import
+          src/core/services/academicImportApiClient.ts
+          src/core/events/dataEvents.ts
 
   worker:
     runs-on: ubuntu-latest
