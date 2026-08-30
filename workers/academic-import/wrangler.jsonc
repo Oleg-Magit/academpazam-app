@@ -1,0 +1,13 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "academpazam-academic-import",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-08-30",
+  "ai": {
+    "binding": "AI"
+  },
+  "vars": {
+    "APP_ENV": "development",
+    "ALLOWED_ORIGIN": "http://localhost:5173"
+  }
+}
