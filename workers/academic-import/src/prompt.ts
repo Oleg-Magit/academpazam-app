@@ -18,3 +18,18 @@ Give each extracted source row a stable sourceRowId such as row-1, row-2, in sou
         content: `Extract the academic course records from the following converted document.\n\n${sourceText}`,
     },
 ];
+
+export const buildCourseTopicsMessages = (documentText: string, courseName: string) => [
+    {
+        role: 'system' as const,
+        content: `You are an AI assistant that extracts course topics from a syllabus document. 
+Your goal is to extract the list of topics, schedule, or curriculum taught in the document.
+Look for tables, weekly schedules, or lists of lessons.
+Provide a brief description for each topic if available. Keep descriptions concise. If a topic has no description, set it to null.
+Return the topics in chronological order based on the syllabus.`,
+    },
+    {
+        role: 'user' as const,
+        content: `Extract the course topics from the following syllabus document.\n\n${documentText}`,
+    },
+];

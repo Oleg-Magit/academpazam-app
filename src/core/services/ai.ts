@@ -14,7 +14,7 @@ export async function extractCourseTopics(file: File | null, textSyllabus: strin
     const WORKER_URL = import.meta.env.VITE_WORKER_URL || 'http://localhost:8787';
 
     try {
-        const response = await fetch(`${WORKER_URL}/api/ai/extract-topics`, {
+        const response = await fetch(`${WORKER_URL}/api/v1/extract/course-topics`, {
             method: 'POST',
             body: formData,
         });

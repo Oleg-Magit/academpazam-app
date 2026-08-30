@@ -36,7 +36,11 @@ export const UploadSyllabusModal: React.FC<UploadSyllabusModalProps> = ({ isOpen
         setIsAnalyzing(true);
         try {
             const extracted = await extractCourseTopics(file, textSyllabus, courseName);
-            setPreviewTopics(extracted);
+            if (extracted.length === 0) {
+                alert("ה-AI קרא את הקובץ אבל לא הצליח למצוא בו נושאי לימוד. נסה להעלות קובץ אחר או להדביק את הטקסט.");
+            } else {
+                setPreviewTopics(extracted);
+            }
         } catch (err) {
             console.error(err);
             alert("Error analyzing syllabus");
@@ -121,7 +125,14 @@ export const UploadSyllabusModal: React.FC<UploadSyllabusModalProps> = ({ isOpen
                                 <Upload size={32} color="var(--color-text-secondary)" />
                                 <span style={{ fontWeight: 500 }}>Upload PDF/Image</span>
                                 <input type="file" accept=".pdf,image/*" onChange={handleFileChange} style={{ display: 'none' }} />
-                                {file && <span style={{ color: 'var(--color-primary)' }}>{file.name}</span>}
+                                {file && (
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-primary)' }} onClick={(e) => e.preventDefault()}>
+                                        <span>{file.name}</span>
+                                        <Button variant="ghost" onClick={() => setFile(null)} style={{ padding: '4px', height: 'auto', minHeight: 'auto' }}>
+                                            <Trash2 size={16} />
+                                        </Button>
+                                    </div>
+                                )}
                             </label>
                         </div>
 

@@ -91,3 +91,41 @@ export const parseAcademicImportExtraction = (value: unknown): AcademicImportExt
     if (!isStringArray(value.warnings)) return null;
     return value as unknown as AcademicImportExtraction;
 };
+
+export interface ExtractedTopic {
+    title: string;
+    description: string | null;
+}
+
+export interface CourseTopicsExtraction {
+    topics: ExtractedTopic[];
+}
+
+export const courseTopicsJsonSchema = {
+    type: 'object',
+    additionalProperties: false,
+    properties: {
+        topics: {
+            type: 'array',
+            items: {
+                type: 'object',
+                additionalProperties: false,
+                properties: {
+                    title: { type: 'string' },
+                    description: { type: ['string', 'null'] }
+                },
+                required: ['title', 'description']
+            }
+        }
+    },
+    required: ['topics']
+} as const;
+
+export const parseCourseTopicsExtraction = (value: unknown): CourseTopicsExtraction | null => {
+    if (!isRecord(value)) return null;
+    if (!Array.isArray(value.topics)) return null;
+    const isTopic = (t: unknown): t is ExtractedTopic => 
+        isRecord(t) && typeof t.title === 'string' && isNullableString(t.description);
+    if (!value.topics.every(isTopic)) return null;
+    return value as unknown as CourseTopicsExtraction;
+};
