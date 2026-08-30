@@ -2,7 +2,7 @@ import type { AcademicImportMode } from './schema';
 
 export const buildAcademicImportMessages = (mode: AcademicImportMode, sourceText: string) => [
     {
-        role: 'system',
+        role: 'system' as const,
         content: `You extract academic course records from university documents for AcademPazam.
 Return only data supported by the source. Never invent codes, credits, grades, semesters, or course outcomes.
 Preserve course names in the source language. Use null when a field is absent or unreliable.
@@ -14,7 +14,7 @@ For academic_results: extract explicit academic results/attempt outcomes. A nume
 Give each extracted source row a stable sourceRowId such as row-1, row-2, in source order.`,
     },
     {
-        role: 'user',
+        role: 'user' as const,
         content: `Extract the academic course records from the following converted document.\n\n${sourceText}`,
     },
 ];
