@@ -1,10 +1,12 @@
 import { corsHeaders, withCors } from './cors';
 import { fileToDocumentText, pastedTextToDocument } from './documentToText';
 import { ApiError, errorResponse } from './errors';
-import { buildAcademicImportMessages } from './prompt';
+import { buildAcademicImportMessages, buildCourseTopicsMessages } from './prompt';
 import {
     academicImportJsonSchema,
     parseAcademicImportExtraction,
+    courseTopicsJsonSchema,
+    parseCourseTopicsExtraction,
     type AcademicImportMode,
 } from './schema';
 
@@ -100,6 +102,63 @@ const handleExtraction = async (request: Request, env: Env, requestId: string): 
     });
 };
 
+const handleCourseTopicsExtraction = async (request: Request, env: Env, requestId: string): Promise<Response> => {
+    const contentType = request.headers.get('content-type') ?? '';
+    if (!contentType.includes('multipart/form-data')) {
+        throw new ApiError('INVALID_REQUEST', 'Expected multipart form data.', 400);
+    }
+
+    const form = await request.formData();
+    const courseName = typeof form.get('courseName') === 'string' ? form.get('courseName') as string : 'Unknown Course';
+    const fileValue = form.get('file');
+    const textValue = form.get('textSyllabus');
+    const file = fileValue instanceof File && fileValue.size > 0 ? fileValue : null;
+    const text = typeof textValue === 'string' && textValue.trim() ? textValue : null;
+
+    if ((file && text) || (!file && !text)) {
+        throw new ApiError('INVALID_REQUEST', 'Provide exactly one source: a file or pasted text.', 400);
+    }
+
+    const document = file
+        ? await fileToDocumentText(env.AI, file)
+        : pastedTextToDocument(text as string);
+
+    console.log("=== EXTRACTED TEXT ===");
+    console.log(document.text);
+    console.log("======================");
+
+    let raw: unknown;
+    try {
+        raw = await env.AI.run(MODEL, {
+            messages: buildCourseTopicsMessages(document.text, courseName),
+            response_format: {
+                type: 'json_schema',
+                json_schema: courseTopicsJsonSchema,
+            },
+            max_tokens: 4096,
+            temperature: 0.1,
+        });
+    } catch (error) {
+        throw mapProviderError(error);
+    }
+
+    const extraction = parseCourseTopicsExtraction(modelPayload(raw));
+    if (!extraction) {
+        throw new ApiError('INVALID_MODEL_OUTPUT', 'The AI response did not match the required course topics format.', 502);
+    }
+
+    return Response.json({
+        ok: true,
+        requestId,
+        topics: extraction.topics,
+        meta: {
+            model: MODEL,
+            sourceConversion: document.sourceConversion,
+            truncated: document.truncated,
+        },
+    });
+};
+
 export default {
     async fetch(request: Request, env: Env): Promise<Response> {
         const requestId = crypto.randomUUID();
@@ -115,6 +174,8 @@ export default {
                 response = Response.json({ ok: true, service: 'academpazam-academic-import' });
             } else if (request.method === 'POST' && url.pathname === '/api/v1/extract/academic-import') {
                 response = await handleExtraction(request, env, requestId);
+            } else if (request.method === 'POST' && url.pathname === '/api/v1/extract/course-topics') {
+                response = await handleCourseTopicsExtraction(request, env, requestId);
             } else {
                 response = Response.json({ ok: false, requestId, error: { code: 'INVALID_REQUEST', message: 'Route not found.' } }, { status: 404 });
             }
