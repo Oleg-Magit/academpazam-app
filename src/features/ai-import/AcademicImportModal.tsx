@@ -48,6 +48,7 @@ export const AcademicImportModal: React.FC<AcademicImportModalProps> = ({
     const [documentWarnings, setDocumentWarnings] = useState<string[]>([]);
     const [errorMessage, setErrorMessage] = useState('');
     const abortRef = useRef<AbortController | null>(null);
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
 
     const configured = isAcademicImportConfigured();
 
@@ -61,6 +62,7 @@ export const AcademicImportModal: React.FC<AcademicImportModalProps> = ({
         setRows([]);
         setDocumentWarnings([]);
         setErrorMessage('');
+        if (fileInputRef.current) fileInputRef.current.value = '';
     };
 
     const handleClose = () => {
@@ -76,9 +78,15 @@ export const AcademicImportModal: React.FC<AcademicImportModalProps> = ({
 
     const sourceReady = Boolean(file) !== Boolean(pastedText.trim());
 
+    const clearFile = () => {
+        setFile(null);
+        setErrorMessage('');
+        if (fileInputRef.current) fileInputRef.current.value = '';
+    };
+
     const handleFile = (nextFile: File | null) => {
         if (nextFile && nextFile.size > MAX_FILE_SIZE) {
-            setFile(null);
+            clearFile();
             setErrorMessage(text('fileTooLarge'));
             return;
         }
@@ -117,7 +125,7 @@ export const AcademicImportModal: React.FC<AcademicImportModalProps> = ({
             setRows(revalidateAcademicImportRows(normalized, mode, passingThreshold));
             setDocumentWarnings([
                 ...result.data.warnings,
-                ...(result.meta.truncated ? ['Source text was truncated to the safe processing limit.'] : []),
+                ...(result.meta.truncated ? [text('truncated')] : []),
             ]);
             setStep('review');
         } catch (error) {
@@ -207,21 +215,25 @@ export const AcademicImportModal: React.FC<AcademicImportModalProps> = ({
                     <label style={{ display: 'grid', gap: '6px' }}>
                         {text('upload')}
                         <input
+                            ref={fileInputRef}
                             type="file"
                             accept=".pdf,.png,.jpg,.jpeg,.txt,application/pdf,image/png,image/jpeg,text/plain"
                             onChange={event => handleFile(event.target.files?.[0] ?? null)}
                         />
                     </label>
+                    {file && (
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', fontSize: '0.85rem' }}>
+                            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{file.name}</span>
+                            <Button variant="ghost" size="sm" onClick={clearFile}>{text('clearFile')}</Button>
+                        </div>
+                    )}
                     <label style={{ display: 'grid', gap: '6px' }}>
                         {text('paste')}
                         <textarea
                             rows={7}
                             value={pastedText}
                             disabled={Boolean(file)}
-                            onChange={event => {
-                                setPastedText(event.target.value);
-                                if (event.target.value.trim()) setFile(null);
-                            }}
+                            onChange={event => setPastedText(event.target.value)}
                             style={{ width: '100%', resize: 'vertical', padding: '10px', border: '1px solid var(--color-border)', borderRadius: '8px', background: 'var(--color-bg-primary)', color: 'var(--color-text-primary)' }}
                         />
                     </label>
@@ -239,7 +251,7 @@ export const AcademicImportModal: React.FC<AcademicImportModalProps> = ({
 
             {(step === 'analyzing' || step === 'saving') && (
                 <div role="status" style={{ padding: '24px 0', textAlign: 'center' }}>
-                    {step === 'analyzing' ? text('processing') : text('save') + '…'}
+                    {step === 'analyzing' ? text('processing') : `${text('save')}…`}
                 </div>
             )}
 
@@ -263,7 +275,7 @@ export const AcademicImportModal: React.FC<AcademicImportModalProps> = ({
             {step === 'success' && (
                 <div style={{ display: 'grid', gap: '16px', textAlign: 'center', padding: '16px 0' }}>
                     <div>{text('success')}</div>
-                    <Button onClick={handleClose}>{text('cancel')}</Button>
+                    <Button onClick={handleClose}>{text('done')}</Button>
                 </div>
             )}
 
