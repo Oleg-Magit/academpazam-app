@@ -8,7 +8,7 @@ import {
     type AcademicImportMode,
 } from './schema';
 
-const MODEL = '@cf/meta/llama-3.2-11b-vision-instruct';
+const MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
 
 interface Env {
     AI: Ai;
@@ -77,6 +77,7 @@ const handleExtraction = async (request: Request, env: Env, requestId: string): 
                 json_schema: academicImportJsonSchema,
             },
             max_tokens: 8192,
+            temperature: 0.1,
         });
     } catch (error) {
         throw mapProviderError(error);
