@@ -109,14 +109,14 @@ describe('normalizeAcademicImport', () => {
         expect(rows[0].matchReason).toBe('normalized_name');
     });
 
-    it('never silently updates when multiple existing courses match', () => {
+    it('never silently updates or adds when multiple existing courses match', () => {
         const rows = normalize({
             importMode: 'academic_results', documentLanguage: 'en', warnings: [],
             courses: [extracted({ code: '101', name: 'Data Structures', grade: 70 })],
         }, [course(), course({ id: 'c2', semesterId: 's2' })]);
 
         expect(rows[0].targetCourseId).toBeNull();
-        expect(rows[0].action).toBe('add');
+        expect(rows[0].action).toBe('skip');
         expect(rows[0].blockingReasons).toContain('ambiguous_match');
     });
 
