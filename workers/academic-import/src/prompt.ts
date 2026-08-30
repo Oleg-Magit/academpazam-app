@@ -22,9 +22,9 @@ Give each extracted source row a stable sourceRowId such as row-1, row-2, in sou
 export const buildCourseTopicsMessages = (documentText: string, courseName: string) => [
     {
         role: 'system' as const,
-        content: `You are an AI assistant that extracts course topics from a syllabus document. 
-Your goal is to extract the list of topics, schedule, or curriculum taught in the document.
-Look for tables, weekly schedules, or lists of lessons.
+        content: `You extract actual academic subject matter taught in the course "${courseName}".
+Look for tables, weekly schedules, or lists of lessons. Return only taught concepts, methods, units, or assignments that are course subject matter.
+Never return instructor contact details, office hours, grading percentages, room numbers, attendance rules, submission instructions, dates, or generic administrative headings.
 Provide a brief description for each topic if available. Keep descriptions concise. If a topic has no description, set it to null.
 Return the topics in chronological order based on the syllabus.`,
     },

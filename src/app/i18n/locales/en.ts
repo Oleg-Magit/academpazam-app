@@ -171,7 +171,7 @@ export const en = {
     'help.workflow.step4': '4. Track Progress',
     'help.workflow.step4_body': 'As you complete topics, your course status and degree averages will update automatically.',
     'help.workflow.step5': '5. Privacy-First',
-    'help.workflow.step5_body': 'Your data never leaves your device. Everything is stored locally in your browser for maximum privacy.',
+    'help.workflow.step5_body': 'Your regular degree data stays locally in your browser. Optional AI features send only the source you explicitly select for processing; results are reviewed before local save.',
     'help.workflow.step6': '6. Troubleshooting',
     'help.workflow.step6_body': 'If you encounter any issues, try refreshing the page or check the troubleshooting section below.',
 
@@ -181,7 +181,7 @@ export const en = {
     'legal.privacy.title': 'Privacy Policy',
     'legal.terms.title': 'Terms of Use',
     'legal.about.body': 'AcademPazam is a local-first web application designed to help students track and manage their academic degree progress in a simple, offline, and privacy-focused way.\n\nThe application runs entirely in your browser. All course data and progress information are stored locally on your device via IndexedDB technology.\n\nProject: [GitHub repository](https://github.com/Oleg-Magit/academpazam-app)\nCreator: [LinkedIn profile](https://www.linkedin.com/in/olegmagit/)\nSupport: [Support via PayPal](https://paypal.me/OlegMagit)',
-    'legal.privacy.body': 'AcademPazam is built with a privacy-first philosophy. We do not collect, transmit, or store your personal data on any server. All information you enter stays on your local device.\n\nFor any inquiries, you can reach the creator via my [LinkedIn profile](https://www.linkedin.com/in/olegmagit/).\n\nPlease note: if you choose to support the project via [PayPal](https://paypal.me/OlegMagit), their external privacy policy will apply to that specific transaction.',
+    'legal.privacy.body': 'AcademPazam is built with a privacy-first philosophy. Regular degree data is stored locally in your browser. Optional AI features send only the source you explicitly select for processing; the full local database is not uploaded, and AI results are reviewed before local save.\n\nFor any inquiries, you can reach the creator via my [LinkedIn profile](https://www.linkedin.com/in/olegmagit/).\n\nPlease note: if you choose to support the project via [PayPal](https://paypal.me/OlegMagit), their external privacy policy will apply to that specific transaction.',
     'legal.terms.body': 'By using AcademPazam, you agree to these terms:\n\nAcademPazam is open-source software provided "as is" under the MIT License. While we strive for accuracy, this tool is for personal tracking only. Always verify your degree requirements with your official academic institution.\n\nProject Source: [GitHub repository](https://github.com/Oleg-Magit/academpazam-app)\nContact: [LinkedIn profile](https://www.linkedin.com/in/olegmagit/)\nThird-party links: [PayPal support](https://paypal.me/OlegMagit)',
 
     // modals

@@ -7,7 +7,7 @@ import type { Topic } from '@/core/models/types';
 import { saveTopic } from '@/core/db/db';
 import { v4 as uuidv4 } from 'uuid';
 import { useTranslation } from '@/app/i18n/useTranslation';
-import { Trash2, FileText, Upload, Brain, Check } from 'lucide-react';
+import { Trash2, Upload, Brain, Check } from 'lucide-react';
 
 interface UploadSyllabusModalProps {
     isOpen: boolean;
@@ -24,6 +24,7 @@ export const UploadSyllabusModal: React.FC<UploadSyllabusModalProps> = ({ isOpen
     const [isLoading, setIsLoading] = useState(false);
     const [previewTopics, setPreviewTopics] = useState<Partial<Topic>[]>([]);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [consentGiven, setConsentGiven] = useState(false);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
@@ -39,25 +40,33 @@ export const UploadSyllabusModal: React.FC<UploadSyllabusModalProps> = ({ isOpen
             if (extracted.length === 0) {
                 alert("ה-AI קרא את הקובץ אבל לא הצליח למצוא בו נושאי לימוד. נסה להעלות קובץ אחר או להדביק את הטקסט.");
             } else {
-                setPreviewTopics(extracted);
+                setPreviewTopics(extracted.map(topic => ({
+                    title: topic.title,
+                    description: topic.description ?? '',
+                })));
             }
         } catch (err) {
             console.error(err);
-            alert("Error analyzing syllabus");
+            alert(err instanceof Error ? err.message : 'Error analyzing syllabus');
         } finally {
-            setIsAnalyzing(false);
+        setIsAnalyzing(false);
         }
     };
 
     const handleSaveTopics = async () => {
         setIsLoading(true);
         try {
+            const seen = new Set<string>();
             for (const pt of previewTopics) {
-                if (!pt.title?.trim()) continue;
+                const title = pt.title?.trim();
+                if (!title) continue;
+                const key = title.toLocaleLowerCase().replace(/\s+/g, ' ');
+                if (seen.has(key)) continue;
+                seen.add(key);
                 const newTopic: Topic = {
                     id: uuidv4(),
                     courseId,
-                    title: pt.title,
+                    title,
                     description: pt.description || '',
                     status: 'not_started',
                     createdAt: Date.now(),
@@ -103,7 +112,7 @@ export const UploadSyllabusModal: React.FC<UploadSyllabusModalProps> = ({ isOpen
                         <Button 
                             variant="primary" 
                             onClick={handleAnalyze} 
-                            disabled={(!file && !textSyllabus.trim()) || isAnalyzing}
+                            disabled={(!file && !textSyllabus.trim()) || !consentGiven || isAnalyzing}
                         >
                             <Brain size={18} style={{ marginRight: '8px' }} />
                             {isAnalyzing ? 'Analyzing...' : 'Analyze'}
@@ -135,6 +144,11 @@ export const UploadSyllabusModal: React.FC<UploadSyllabusModalProps> = ({ isOpen
                                 )}
                             </label>
                         </div>
+
+                        <label style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', fontSize: '0.85rem' }}>
+                            <input type="checkbox" checked={consentGiven} onChange={e => setConsentGiven(e.target.checked)} />
+                            <span>Only this syllabus source will be sent for AI processing. Your local AcademPazam database is not uploaded, and nothing is saved until you review and approve the topics.</span>
+                        </label>
 
                         <div style={{ textAlign: 'center', color: 'var(--color-text-secondary)' }}>OR</div>
 
