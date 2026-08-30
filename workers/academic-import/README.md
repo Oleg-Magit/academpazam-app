@@ -2,6 +2,18 @@
 
 Feature-specific Cloudflare Worker for `feat/ai-academic-import`.
 
+## Runtime requirement
+
+This Worker uses Wrangler 4.127.1 and therefore requires **Node.js 22 or newer**.
+
+Verify before continuing:
+
+```bash
+node --version
+```
+
+If the major version is below 22, switch/update Node first.
+
 ## 1. Install
 
 ```bash
@@ -87,21 +99,26 @@ Then test a synthetic/redacted PDF or image. Do not use a sensitive real transcr
 npm run deploy
 ```
 
-Set the production `ALLOWED_ORIGIN` to the AcademPazam GitHub Pages origin and note the resulting `workers.dev` URL. Production frontend wiring is an integration step; do not edit the existing GitHub Pages workflow from this feature branch yet.
+Set the production `ALLOWED_ORIGIN` to the AcademPazam GitHub Pages origin and note the resulting `workers.dev` URL. Production frontend wiring is an integration step; do not edit the existing GitHub Pages deployment workflow from this feature branch yet.
 
 ## Verification gate
 
 Worker:
 
 ```bash
+npm run cf-types
 npm run typecheck
 ```
 
-Root app:
+Frontend feature branch CI runs:
 
 ```bash
-npm run check
+npm run test:run
+npm run build
+npx eslint src/features/ai-import src/core/services/academicImportApiClient.ts src/core/events/dataEvents.ts
 ```
+
+Note: the current repository baseline contains pre-existing lint failures outside this feature. The AI Import CI therefore requires the full test suite and build, while linting the newly added AI Import code separately. Do not treat unrelated baseline lint debt as an AI Import regression.
 
 Manual happy path:
 
