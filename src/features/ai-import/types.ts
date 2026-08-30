@@ -1,4 +1,4 @@
-import type { Semester } from '@/core/models/types';
+import type { Course, Semester } from '@/core/models/types';
 
 export type AcademicImportMode = 'degree_plan' | 'academic_results';
 export type AcademicAttemptStatus = 'passed' | 'failed' | 'in_progress' | 'planned';
@@ -59,6 +59,13 @@ export type AcademicImportApiResponse = AcademicImportApiSuccess | AcademicImpor
 export type ImportAction = 'add' | 'update' | 'skip';
 export type MatchReason = 'course_code' | 'normalized_name' | 'none';
 export type DuplicateRisk = 'none' | 'possible' | 'exact';
+export type ReviewBlockingReason =
+    | 'missing_name'
+    | 'missing_credits'
+    | 'invalid_grade'
+    | 'unresolved_semester'
+    | 'ambiguous_match'
+    | 'missing_outcome';
 
 export interface ProposedAcademicCourse {
     code?: string;
@@ -84,13 +91,13 @@ export interface AcademicImportReviewRow {
     matchReason: MatchReason;
     duplicateRisk: DuplicateRisk;
     warnings: string[];
-    blockingReasons: Array<'missing_name' | 'missing_credits' | 'invalid_grade' | 'unresolved_semester' | 'ambiguous_match'>;
+    blockingReasons: ReviewBlockingReason[];
 }
 
 export interface AcademicImportNormalizationInput {
     extraction: AcademicImportExtraction;
     planId: string;
     passingThreshold: number;
-    courses: import('@/core/models/types').Course[];
+    courses: Course[];
     semesters: Semester[];
 }
