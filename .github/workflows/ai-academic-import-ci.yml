@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - feat/ai-academic-import
+      - integration/ai-academic-navigator
   workflow_dispatch:
 
 permissions:
@@ -47,6 +48,25 @@ jobs:
           node-version: 22
       - name: Install Worker dependencies
         run: npm install
+      - name: Generate Cloudflare types
+        run: npm run cf-types
+      - name: Typecheck Worker
+        run: npm run typecheck
+
+  course-blueprint-worker:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: workers/course-blueprint
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Worker dependencies
+        run: npm ci
       - name: Generate Cloudflare types
         run: npm run cf-types
       - name: Typecheck Worker
