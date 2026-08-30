@@ -1,8 +1,8 @@
 import React from 'react';
 import { Button } from '@/ui/Button';
-import { Search, Plus, FileText, Sparkles } from 'lucide-react';
+import { Search, Plus, FileText } from 'lucide-react';
 import { useTranslation } from '@/app/i18n/useTranslation';
-import { academicImportText } from '@/features/ai-import/i18n';
+import { AcademicImportToolbarAction } from '@/features/ai-import/AcademicImportToolbarAction';
 
 interface CoursesToolbarProps {
     searchTerm: string;
@@ -18,7 +18,6 @@ interface CoursesToolbarProps {
     onAddCourse: () => void;
     onAddSemester: () => void;
     onBulkAdd: () => void;
-    onAIImport: () => void;
     isMobile?: boolean;
 }
 
@@ -36,11 +35,9 @@ export const CoursesToolbar: React.FC<CoursesToolbarProps> = ({
     onAddCourse,
     onAddSemester,
     onBulkAdd,
-    onAIImport,
     isMobile = false
 }) => {
-    const { t, language } = useTranslation();
-    const aiLabel = academicImportText(language, 'open');
+    const { t } = useTranslation();
 
     return (
         <div style={{
@@ -205,15 +202,7 @@ export const CoursesToolbar: React.FC<CoursesToolbarProps> = ({
                     <FileText size={isMobile ? 20 : 18} style={{ marginRight: isMobile ? '0' : '8px' }} />
                     {!isMobile && t('action.add_list')}
                 </Button>
-                <Button
-                    variant="secondary"
-                    onClick={onAIImport}
-                    title={isMobile ? aiLabel : undefined}
-                    style={{ height: '42px', flex: isMobile ? '1 1 42px' : 'none' }}
-                >
-                    <Sparkles size={isMobile ? 20 : 18} style={{ marginRight: isMobile ? '0' : '8px' }} />
-                    {!isMobile && aiLabel}
-                </Button>
+                <AcademicImportToolbarAction isMobile={isMobile} />
                 <Button
                     variant="primary"
                     onClick={onAddCourse}
