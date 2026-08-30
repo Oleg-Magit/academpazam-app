@@ -39,16 +39,30 @@ export const AcademicImportReview: React.FC<AcademicImportReviewProps> = ({ rows
         <div style={{ display: 'grid', gap: '12px' }}>
             {rows.map((row, index) => {
                 const active = row.action !== 'skip';
+                const relationshipMessage = row.duplicateRisk === 'possible'
+                    ? text('possibleDuplicate')
+                    : row.targetCourseId && row.action === 'skip'
+                        ? text('existingSkipped')
+                        : row.targetCourseId && row.action === 'update'
+                            ? text('matchedExisting')
+                            : '';
+
                 return (
-                    <div key={row.sourceRowId} style={{ border: '1px solid var(--color-border)', borderRadius: '10px', padding: '12px', opacity: active ? 1 : 0.65 }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,2fr) minmax(90px,1fr)', gap: '8px', marginBottom: '8px' }}>
+                    <div key={row.sourceRowId} style={{ border: '1px solid var(--color-border)', borderRadius: '10px', padding: '12px', opacity: active ? 1 : 0.72 }}>
+                        {relationshipMessage && (
+                            <div role="status" style={{ marginBottom: '8px', fontSize: '0.8rem', color: row.duplicateRisk === 'possible' ? 'var(--color-warning)' : 'var(--color-text-secondary)' }}>
+                                {relationshipMessage}
+                            </div>
+                        )}
+
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '8px', marginBottom: '8px' }}>
                             <label style={{ display: 'grid', gap: '4px', fontSize: '0.8rem' }}>
                                 {text('course')}
                                 <input
                                     value={row.proposed.name}
                                     disabled={!active}
                                     onChange={event => replaceRow(index, { ...row, proposed: { ...row.proposed, name: event.target.value } })}
-                                    style={{ width: '100%', minHeight: '38px', padding: '8px', border: '1px solid var(--color-border)', borderRadius: '8px', background: 'var(--color-bg-primary)', color: 'var(--color-text-primary)' }}
+                                    style={{ width: '100%', minWidth: 0, minHeight: '38px', padding: '8px', border: '1px solid var(--color-border)', borderRadius: '8px', background: 'var(--color-bg-primary)', color: 'var(--color-text-primary)' }}
                                 />
                             </label>
                             <label style={{ display: 'grid', gap: '4px', fontSize: '0.8rem' }}>
@@ -57,12 +71,12 @@ export const AcademicImportReview: React.FC<AcademicImportReviewProps> = ({ rows
                                     value={row.proposed.code ?? ''}
                                     disabled={!active}
                                     onChange={event => replaceRow(index, { ...row, proposed: { ...row.proposed, code: event.target.value || undefined } })}
-                                    style={{ width: '100%', minHeight: '38px', padding: '8px', border: '1px solid var(--color-border)', borderRadius: '8px', background: 'var(--color-bg-primary)', color: 'var(--color-text-primary)' }}
+                                    style={{ width: '100%', minWidth: 0, minHeight: '38px', padding: '8px', border: '1px solid var(--color-border)', borderRadius: '8px', background: 'var(--color-bg-primary)', color: 'var(--color-text-primary)' }}
                                 />
                             </label>
                         </div>
 
-                        <div style={{ display: 'grid', gridTemplateColumns: mode === 'academic_results' ? '1fr 1.4fr 1fr 1fr' : '1fr 1.6fr 1fr', gap: '8px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '8px' }}>
                             <label style={{ display: 'grid', gap: '4px', fontSize: '0.8rem' }}>
                                 {text('credits')}
                                 <input
@@ -136,9 +150,9 @@ export const AcademicImportReview: React.FC<AcademicImportReviewProps> = ({ rows
                         </div>
 
                         {(row.warnings.length > 0 || (active && row.blockingReasons.length > 0)) && (
-                            <div role="status" style={{ marginTop: '8px', fontSize: '0.78rem', color: row.blockingReasons.length > 0 ? 'var(--color-danger)' : 'var(--color-warning)' }}>
+                            <div role="status" style={{ marginTop: '8px', fontSize: '0.78rem', color: active && row.blockingReasons.length > 0 ? 'var(--color-danger)' : 'var(--color-warning)' }}>
                                 <strong>{text('warnings')}:</strong>{' '}
-                                {[...row.warnings, ...row.blockingReasons].join(' · ')}
+                                {[...row.warnings, ...(active ? row.blockingReasons : [])].join(' · ')}
                             </div>
                         )}
                     </div>
