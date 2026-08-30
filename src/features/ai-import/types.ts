@@ -62,6 +62,7 @@ export type DuplicateRisk = 'none' | 'possible' | 'exact';
 export type ReviewBlockingReason =
     | 'missing_name'
     | 'missing_credits'
+    | 'invalid_credits'
     | 'invalid_grade'
     | 'unresolved_semester'
     | 'ambiguous_match'
