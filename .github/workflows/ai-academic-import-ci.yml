@@ -33,6 +33,10 @@ jobs:
           src/features/ai-import
           src/core/services/academicImportApiClient.ts
           src/core/events/dataEvents.ts
+          src/features/courses/UploadSyllabusModal.tsx
+          src/features/courses/courseBlueprintI18n.ts
+          src/features/courses/courseBlueprintNormalizer.ts
+          src/core/services/ai.ts
 
   worker:
     runs-on: ubuntu-latest

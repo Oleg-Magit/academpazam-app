@@ -53,3 +53,25 @@ export const validateCourseBlueprintProposals = (
     ...proposal,
     selected: proposals[index].selected && proposal.isValid,
 }));
+
+export const updateCourseBlueprintProposal = (
+    proposals: CourseBlueprintProposal[],
+    index: number,
+    field: 'title' | 'description',
+    value: string,
+    existingTopics: Topic[],
+): CourseBlueprintProposal[] => {
+    const updated = proposals.map((proposal, proposalIndex) => proposalIndex === index
+        ? { ...proposal, [field]: value }
+        : proposal);
+    const validated = validateCourseBlueprintProposals(updated, existingTopics);
+    if (field !== 'title') return validated;
+
+    return validated.map((proposal, proposalIndex) => proposalIndex === index && proposal.isDuplicate
+        ? { ...proposal, selected: false }
+        : proposal);
+};
+
+export const toggleCourseBlueprintProposal = (proposals: CourseBlueprintProposal[], index: number): CourseBlueprintProposal[] => proposals.map((proposal, proposalIndex) => proposalIndex === index
+    ? { ...proposal, selected: !proposal.selected }
+    : proposal);

@@ -9,7 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { useTranslation } from '@/app/i18n/useTranslation';
 import { Trash2, Upload, Brain, Check } from 'lucide-react';
 import { courseBlueprintText } from './courseBlueprintI18n';
-import { prepareCourseBlueprintProposals, validateCourseBlueprintProposals, type CourseBlueprintProposal } from './courseBlueprintNormalizer';
+import { prepareCourseBlueprintProposals, toggleCourseBlueprintProposal, updateCourseBlueprintProposal, validateCourseBlueprintProposals, type CourseBlueprintProposal } from './courseBlueprintNormalizer';
 
 interface UploadSyllabusModalProps {
     isOpen: boolean;
@@ -29,6 +29,20 @@ export const UploadSyllabusModal: React.FC<UploadSyllabusModalProps> = ({ isOpen
     const [previewTopics, setPreviewTopics] = useState<CourseBlueprintProposal[]>([]);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [consentGiven, setConsentGiven] = useState(false);
+
+    const resetState = () => {
+        setFile(null);
+        setTextSyllabus('');
+        setPreviewTopics([]);
+        setConsentGiven(false);
+        setIsLoading(false);
+        setIsAnalyzing(false);
+    };
+
+    const handleClose = () => {
+        resetState();
+        onClose();
+    };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
@@ -76,7 +90,7 @@ export const UploadSyllabusModal: React.FC<UploadSyllabusModalProps> = ({ isOpen
                 await saveTopic(newTopic);
             }
             onSave();
-            onClose();
+            handleClose();
         } catch (err) {
             console.error(err);
             alert(text.saveError);
@@ -90,14 +104,10 @@ export const UploadSyllabusModal: React.FC<UploadSyllabusModalProps> = ({ isOpen
     };
 
     const updateTopic = (index: number, field: 'title' | 'description', value: string) => {
-        setPreviewTopics(prev => {
-            const updated = [...prev];
-            updated[index] = { ...updated[index], [field]: value };
-            return validateCourseBlueprintProposals(updated, existingTopics);
-        });
+        setPreviewTopics(prev => updateCourseBlueprintProposal(prev, index, field, value, existingTopics));
     };
 
-    const toggleTopic = (index: number) => setPreviewTopics(prev => prev.map((topic, i) => i === index ? { ...topic, selected: !topic.selected } : topic));
+    const toggleTopic = (index: number) => setPreviewTopics(prev => toggleCourseBlueprintProposal(prev, index));
     const hasSelectedInvalidTitle = previewTopics.some(topic => topic.selected && !topic.title.trim());
 
     const isPreviewMode = previewTopics.length > 0;
@@ -105,7 +115,7 @@ export const UploadSyllabusModal: React.FC<UploadSyllabusModalProps> = ({ isOpen
     return (
         <Modal
             isOpen={isOpen}
-            onClose={onClose}
+            onClose={handleClose}
             title={isPreviewMode ? text.review : text.title}
             footer={
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-md)' }}>

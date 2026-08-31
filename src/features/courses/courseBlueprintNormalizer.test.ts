@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Topic } from '@/core/models/types';
-import { normalizeTopicTitle, prepareCourseBlueprintProposals, validateCourseBlueprintProposals } from './courseBlueprintNormalizer';
+import { normalizeTopicTitle, prepareCourseBlueprintProposals, toggleCourseBlueprintProposal, updateCourseBlueprintProposal } from './courseBlueprintNormalizer';
 
 const existingTopic: Topic = {
     id: 'existing', courseId: 'course', title: 'Linear Algebra', description: 'Existing',
@@ -51,11 +51,19 @@ describe('course blueprint normalization', () => {
         expect(existingTopic).toEqual(before);
     });
 
-    it('revalidates edited titles without changing explicit selection state', () => {
+    it('deselects a selected proposal edited into an existing duplicate', () => {
         const proposal = prepareCourseBlueprintProposals([{ title: 'New Topic', description: null }], [existingTopic])[0];
-        proposal.title = ' Linear   Algebra ';
-        expect(validateCourseBlueprintProposals([proposal], [existingTopic])[0]).toMatchObject({
-            title: 'Linear Algebra', isDuplicate: true, selected: true,
+        const edited = updateCourseBlueprintProposal([proposal], 0, 'title', ' Linear   Algebra ', [existingTopic]);
+        expect(edited[0]).toMatchObject({
+            title: 'Linear Algebra', isDuplicate: true, selected: false,
+        });
+        expect(toggleCourseBlueprintProposal(edited, 0)[0].selected).toBe(true);
+    });
+
+    it('preserves selection when only the description is edited', () => {
+        const proposal = prepareCourseBlueprintProposals([{ title: 'New Topic', description: null }], [existingTopic])[0];
+        expect(updateCourseBlueprintProposal([proposal], 0, 'description', 'Updated', [existingTopic])[0]).toMatchObject({
+            description: 'Updated', selected: true,
         });
     });
 });
