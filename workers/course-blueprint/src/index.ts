@@ -8,6 +8,13 @@ const cors = (request: Request, env: Env): HeadersInit => {
   return { 'Access-Control-Allow-Origin': origin && allowed.has(origin) ? origin : 'null', 'Access-Control-Allow-Methods': 'POST,OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type', 'Vary': 'Origin' };
 };
 const response = (request: Request, env: Env, body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json', ...cors(request, env) } });
+const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null && !Array.isArray(value);
+const modelPayload = (value: unknown): unknown => {
+  if (!isRecord(value) || !('response' in value)) return value;
+  const modelResponse = value.response;
+  if (typeof modelResponse !== 'string') return modelResponse;
+  try { return JSON.parse(modelResponse) as unknown; } catch { return modelResponse; }
+};
 const validTopics = (value: unknown): value is { topics: Array<{ title: string; description: string | null }> } => {
   if (!value || typeof value !== 'object' || !Array.isArray((value as { topics?: unknown }).topics)) return false;
   return (value as { topics: unknown[] }).topics.every(topic => Boolean(topic) && typeof topic === 'object' && typeof (topic as { title?: unknown }).title === 'string' && ((topic as { description?: unknown }).description === null || typeof (topic as { description?: unknown }).description === 'string'));
@@ -36,8 +43,8 @@ export default { async fetch(request: Request, env: Env): Promise<Response> {
     source = source.trim().slice(0, MAX_TEXT_LENGTH);
     if (!source) return response(request, env, { ok: false, requestId: id, error: { code: 'INVALID_REQUEST', message: 'The syllabus is empty.' } }, 400);
     const raw = await env.AI.run(MODEL, { messages: [{ role: 'system', content: 'Extract only reliable academic course topics explicitly present in the syllabus. Preserve the language used by the syllabus for topic titles and descriptions. Do not invent, infer, or enrich topics that are absent from the source. If no reliable academic topics exist, return an empty topics list. Exclude instructor contact details, office hours, grading percentages, room numbers, attendance policy, submission instructions, dates, and generic administrative headings. Return JSON with topics, each having title and nullable description.' }, { role: 'user', content: source }], response_format: { type: 'json_schema', json_schema: { type: 'object', additionalProperties: false, properties: { topics: { type: 'array', items: { type: 'object', additionalProperties: false, properties: { title: { type: 'string' }, description: { type: ['string', 'null'] } }, required: ['title', 'description'] } } }, required: ['topics'] } }, temperature: 0.1, max_tokens: 4096 });
-    const payload = typeof (raw as { response?: unknown })?.response === 'string' ? JSON.parse((raw as { response: string }).response) : raw;
-    if (!validTopics(payload)) throw new Error('invalid output');
+    const payload = modelPayload(raw);
+    if (!validTopics(payload)) return response(request, env, { ok: false, requestId: id, error: { code: 'INVALID_MODEL_OUTPUT', message: 'The AI response did not match the required course topic format.' } }, 502);
     return response(request, env, { ok: true, requestId: id, topics: payload.topics, meta: { model: MODEL } });
   } catch { return response(request, env, { ok: false, requestId: id, error: { code: 'AI_UNAVAILABLE', message: 'AI processing is temporarily unavailable.' } }, 503); }
 } } satisfies ExportedHandler<Env>;
