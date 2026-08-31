@@ -3,8 +3,12 @@ name: AI Academic Import CI
 on:
   push:
     branches:
+      - main
       - feat/ai-academic-import
       - integration/ai-academic-navigator
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
