@@ -2,6 +2,14 @@ import { useState, useEffect, useCallback } from 'react';
 import type { Plan, CourseWithTopics, Topic, Semester } from '../models/types';
 import { getPlans, getPlan, getCoursesByPlan, getTopicsByCourse, getSemesters } from '../db/db';
 import { enrichCourses } from '../services/dataService';
+import { ACADEMPAZAM_DATA_CHANGED_EVENT } from '../events/dataEvents';
+
+const useAcademPazamDataChange = (refresh: () => void) => {
+    useEffect(() => {
+        window.addEventListener(ACADEMPAZAM_DATA_CHANGED_EVENT, refresh);
+        return () => window.removeEventListener(ACADEMPAZAM_DATA_CHANGED_EVENT, refresh);
+    }, [refresh]);
+};
 
 export function usePlans() {
     const [plans, setPlans] = useState<Plan[]>([]);
@@ -10,6 +18,7 @@ export function usePlans() {
     const [version, setVersion] = useState(0);
 
     const refresh = useCallback(() => setVersion(v => v + 1), []);
+    useAcademPazamDataChange(refresh);
 
     useEffect(() => {
         let active = true;
@@ -34,6 +43,10 @@ export function usePlan(id: string | null) {
     const [plan, setPlan] = useState<Plan | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<Error | null>(null);
+    const [version, setVersion] = useState(0);
+
+    const refresh = useCallback(() => setVersion(v => v + 1), []);
+    useAcademPazamDataChange(refresh);
 
     useEffect(() => {
         let active = true;
@@ -53,9 +66,9 @@ export function usePlan(id: string | null) {
                 if (active) setLoading(false);
             });
         return () => { active = false; };
-    }, [id]);
+    }, [id, version]);
 
-    return { plan, loading, error };
+    return { plan, loading, error, refresh };
 }
 
 export function useCourses(planId: string | null) {
@@ -65,6 +78,7 @@ export function useCourses(planId: string | null) {
     const [version, setVersion] = useState(0);
 
     const refresh = useCallback(() => setVersion(v => v + 1), []);
+    useAcademPazamDataChange(refresh);
 
     useEffect(() => {
         let active = true;
@@ -97,6 +111,7 @@ export function useTopics(courseId: string | null) {
     const [version, setVersion] = useState(0);
 
     const refresh = useCallback(() => setVersion(v => v + 1), []);
+    useAcademPazamDataChange(refresh);
 
     useEffect(() => {
         let active = true;
@@ -128,6 +143,7 @@ export function useSemesters() {
     const [version, setVersion] = useState(0);
 
     const refresh = useCallback(() => setVersion(v => v + 1), []);
+    useAcademPazamDataChange(refresh);
 
     useEffect(() => {
         let active = true;

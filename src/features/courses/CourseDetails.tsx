@@ -6,6 +6,7 @@ import { Card } from '@/ui/Card';
 import { Badge } from '@/ui/Badge';
 import { TopicModal } from '@/features/topics/TopicModal';
 import { BulkAddTopicModal } from '@/features/topics/BulkAddTopicModal';
+import { UploadSyllabusModal } from './UploadSyllabusModal';
 import type { Topic, TopicStatus, Course } from '@/core/models/types';
 import { saveTopic, deleteTopic, saveCourse, initDB } from '@/core/db/db';
 import { Plus, ArrowLeft, Trash2, Edit2, CheckCircle, Circle, Clock, FileText, Save, RefreshCcw } from 'lucide-react';
@@ -15,6 +16,7 @@ import { Input } from '@/ui/Input';
 import { ConfirmationModal } from '@/ui/ConfirmationModal';
 import { FailedCourseModal } from './FailedCourseModal';
 import { createRepeatCourse, getBadgeConfiguration } from '@/core/services/courseLifecycle';
+import { courseBlueprintText } from './courseBlueprintI18n';
 
 interface CourseDetailsProps {
     id?: string;
@@ -23,7 +25,7 @@ interface CourseDetailsProps {
 }
 
 export const CourseDetails: React.FC<CourseDetailsProps> = ({ id: propId, onBack, onRefresh }) => {
-    const { t } = useTranslation();
+    const { t, language } = useTranslation();
     const { id: paramId } = useParams<{ id: string }>();
     const id = propId || paramId;
     const navigate = useNavigate();
@@ -33,6 +35,7 @@ export const CourseDetails: React.FC<CourseDetailsProps> = ({ id: propId, onBack
     const { courses } = useCourses(course?.degreePlanId || null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
+    const [isSyllabusModalOpen, setIsSyllabusModalOpen] = useState(false);
     const [editingTopic, setEditingTopic] = useState<Topic | null>(null);
     const [gradeInput, setGradeInput] = useState<string>('');
     const [topicToDelete, setTopicToDelete] = useState<Topic | null>(null);
@@ -310,6 +313,14 @@ export const CourseDetails: React.FC<CourseDetailsProps> = ({ id: propId, onBack
                             <FileText size={18} style={{ marginRight: '8px' }} />
                             {t('modal.bulk_topic.title')}
                         </Button>
+                        <Button
+                            variant="primary"
+                            style={{ flex: '1 1 140px', minHeight: '44px', justifyContent: 'center', backgroundColor: '#6366f1', color: 'white' }}
+                            onClick={() => setIsSyllabusModalOpen(true)}
+                        >
+                            <FileText size={18} style={{ marginRight: '8px' }} />
+                            {courseBlueprintText(language).button}
+                        </Button>
                         {showScheduleRepeat && (
                             <Button
                                 variant="ghost"
@@ -411,6 +422,15 @@ export const CourseDetails: React.FC<CourseDetailsProps> = ({ id: propId, onBack
                 onClose={() => setIsBulkModalOpen(false)}
                 onSave={handleSave}
                 courseId={course.id}
+            />
+
+            <UploadSyllabusModal
+                isOpen={isSyllabusModalOpen}
+                onClose={() => setIsSyllabusModalOpen(false)}
+                onSave={handleSave}
+                courseId={course.id}
+                courseName={course.name}
+                existingTopics={topics}
             />
             {
                 course && (

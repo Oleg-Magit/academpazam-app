@@ -1,0 +1,15 @@
+import type { Language } from '@/app/i18n';
+
+const copy = {
+    en: {
+        button: 'Generate Topics from Syllabus', title: 'Analyze Syllabus with AI', review: 'Review Topics', cancel: 'Cancel', upload: 'Upload PDF, JPEG, PNG, or text', paste: 'Paste syllabus text', placeholder: 'Paste course topics here…', or: 'or', consent: 'Only this syllabus source will be sent for AI processing. Your local AcademPazam database is not uploaded, and nothing is saved until you review and approve the topics.', analyze: 'Analyze', analyzing: 'Analyzing…', save: 'Approve & Save', saving: 'Saving…', titleLabel: 'Title', descriptionLabel: 'Description', select: 'Select topic', duplicate: 'Exact duplicate of an existing or proposed topic; it will not be selected by default.', invalidTitle: 'A selected topic must have a title.', empty: 'The AI did not find any course topics in this source.', unavailable: 'The AI course blueprint service is temporarily unavailable.', genericError: 'Unable to analyze the syllabus.', saveError: 'Unable to save topics.',
+    },
+    he: {
+        button: 'יצירת נושאים מסילבוס', title: 'ניתוח סילבוס באמצעות AI', review: 'בדיקת נושאים', cancel: 'ביטול', upload: 'העלאת PDF, JPEG, PNG או קובץ טקסט', paste: 'הדבקת טקסט הסילבוס', placeholder: 'הדביקו כאן את נושאי הקורס…', or: 'או', consent: 'רק מקור הסילבוס שבחרתם יישלח לעיבוד AI. מסד הנתונים המקומי של AcademPazam לא יועלה, ושום דבר לא יישמר לפני שתבדקו ותאשרו את הנושאים.', analyze: 'ניתוח', analyzing: 'מנתח…', save: 'אישור ושמירה', saving: 'שומר…', titleLabel: 'כותרת', descriptionLabel: 'תיאור', select: 'בחירת נושא', duplicate: 'כפילות מדויקת של נושא קיים או מוצע; הנושא לא ייבחר כברירת מחדל.', invalidTitle: 'נושא שנבחר חייב לכלול כותרת.', empty: 'ה-AI לא מצא נושאי לימוד במקור הזה.', unavailable: 'שירות יצירת הסילבוס באמצעות AI אינו זמין זמנית.', genericError: 'לא ניתן לנתח את הסילבוס.', saveError: 'לא ניתן לשמור את הנושאים.',
+    },
+    ru: {
+        button: 'Создать темы из силлабуса', title: 'Анализ силлабуса с помощью AI', review: 'Проверка тем', cancel: 'Отмена', upload: 'Загрузить PDF, JPEG, PNG или текстовый файл', paste: 'Вставить текст силлабуса', placeholder: 'Вставьте сюда темы курса…', or: 'или', consent: 'Только выбранный источник силлабуса будет отправлен на обработку AI. Локальная база AcademPazam не загружается, и ничего не сохраняется до вашей проверки и подтверждения тем.', analyze: 'Анализировать', analyzing: 'Анализ…', save: 'Подтвердить и сохранить', saving: 'Сохранение…', titleLabel: 'Название', descriptionLabel: 'Описание', select: 'Выбрать тему', duplicate: 'Точное совпадение с существующей или предложенной темой; по умолчанию тема не выбрана.', invalidTitle: 'У выбранной темы должно быть название.', empty: 'AI не нашёл учебных тем в этом источнике.', unavailable: 'Сервис создания плана курса AI временно недоступен.', genericError: 'Не удалось проанализировать силлабус.', saveError: 'Не удалось сохранить темы.',
+    },
+} as const;
+
+export const courseBlueprintText = (language: Language) => copy[language];

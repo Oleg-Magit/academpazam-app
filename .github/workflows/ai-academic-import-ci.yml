@@ -1,0 +1,77 @@
+name: AI Academic Import CI
+
+on:
+  push:
+    branches:
+      - feat/ai-academic-import
+      - integration/ai-academic-navigator
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install frontend dependencies
+        run: npm ci
+      - name: Run full test suite
+        run: npm run test:run
+      - name: Build application
+        run: npm run build
+      - name: Lint AI Academic Import code
+        run: >-
+          npx eslint
+          src/features/ai-import
+          src/core/services/academicImportApiClient.ts
+          src/core/events/dataEvents.ts
+          src/features/courses/UploadSyllabusModal.tsx
+          src/features/courses/courseBlueprintI18n.ts
+          src/features/courses/courseBlueprintNormalizer.ts
+          src/core/services/ai.ts
+
+  worker:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: workers/academic-import
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Worker dependencies
+        run: npm install
+      - name: Generate Cloudflare types
+        run: npm run cf-types
+      - name: Typecheck Worker
+        run: npm run typecheck
+
+  course-blueprint-worker:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: workers/course-blueprint
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Worker dependencies
+        run: npm ci
+      - name: Generate Cloudflare types
+        run: npm run cf-types
+      - name: Typecheck Worker
+        run: npm run typecheck

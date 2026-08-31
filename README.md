@@ -27,7 +27,7 @@ AcademPazam was built to give students a clearer and more private way to plan th
 
 The project focuses on:
 
-- Local-first storage, so student data stays on the device.
+- Local-first storage for regular degree data; optional AI features send only the source you explicitly select and require review before local save.
 - Offline availability through PWA fundamentals.
 - Hebrew, English, and Russian support, including RTL/BiDi layout handling.
 - Academic progress tracking by courses, credits, grades, semesters, and topics.
