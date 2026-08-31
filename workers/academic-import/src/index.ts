@@ -9,9 +9,11 @@ import {
 } from './schema';
 
 const MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
+const ACADEMIC_IMPORT_ROUTE = '/api/v1/extract/academic-import';
 
 interface Env {
     AI: Ai;
+    AI_RATE_LIMITER: RateLimit;
     APP_ENV?: string;
     ALLOWED_ORIGIN?: string;
 }
@@ -45,6 +47,18 @@ const mapProviderError = (error: unknown): ApiError => {
         return new ApiError('AI_QUOTA_EXCEEDED', 'The free AI processing limit is currently unavailable. Try again later or use manual import.', 429);
     }
     return new ApiError('AI_UNAVAILABLE', 'AI processing is temporarily unavailable. Manual import is still available.', 503);
+};
+
+const rateLimitKey = (request: Request) => {
+    const clientIp = request.headers.get('cf-connecting-ip')?.trim() || 'unknown';
+    return `${clientIp}:${ACADEMIC_IMPORT_ROUTE}`;
+};
+
+const enforceAiRateLimit = async (request: Request, env: Env): Promise<void> => {
+    const { success } = await env.AI_RATE_LIMITER.limit({ key: rateLimitKey(request) });
+    if (!success) {
+        throw new ApiError('RATE_LIMITED', 'Too many AI requests. Try again in about a minute.', 429);
+    }
 };
 
 const handleExtraction = async (request: Request, env: Env, requestId: string): Promise<Response> => {
@@ -113,7 +127,8 @@ export default {
             let response: Response;
             if (request.method === 'GET' && url.pathname === '/api/v1/health') {
                 response = Response.json({ ok: true, service: 'academpazam-academic-import' });
-            } else if (request.method === 'POST' && url.pathname === '/api/v1/extract/academic-import') {
+            } else if (request.method === 'POST' && url.pathname === ACADEMIC_IMPORT_ROUTE) {
+                await enforceAiRateLimit(request, env);
                 response = await handleExtraction(request, env, requestId);
             } else {
                 response = Response.json({ ok: false, requestId, error: { code: 'INVALID_REQUEST', message: 'Route not found.' } }, { status: 404 });
