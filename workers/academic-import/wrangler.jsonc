@@ -6,6 +6,16 @@
   "ai": {
     "binding": "AI"
   },
+  "ratelimits": [
+    {
+      "name": "AI_RATE_LIMITER",
+      "namespace_id": "87423101",
+      "simple": {
+        "limit": 10,
+        "period": 60
+      }
+    }
+  ],
   "vars": {
     "APP_ENV": "development",
     "ALLOWED_ORIGIN": "http://localhost:5173"
