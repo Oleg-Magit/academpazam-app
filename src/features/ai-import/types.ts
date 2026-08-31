@@ -43,6 +43,7 @@ export type AcademicImportErrorCode =
     | 'FILE_TOO_LARGE'
     | 'EXTRACTION_FAILED'
     | 'INVALID_MODEL_OUTPUT'
+    | 'RATE_LIMITED'
     | 'AI_QUOTA_EXCEEDED'
     | 'AI_UNAVAILABLE';
 
