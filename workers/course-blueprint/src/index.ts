@@ -1,7 +1,8 @@
 const MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const MAX_TEXT_LENGTH = 100_000;
-interface Env { AI: Ai; ALLOWED_ORIGIN?: string }
+const COURSE_BLUEPRINT_ROUTE = '/api/v1/extract/course-topics';
+interface Env { AI: Ai; AI_RATE_LIMITER: RateLimit; ALLOWED_ORIGIN?: string }
 const cors = (request: Request, env: Env): HeadersInit => {
   const origin = request.headers.get('Origin');
   const allowed = new Set(['http://localhost:5173', 'https://oleg-magit.github.io', ...(env.ALLOWED_ORIGIN ?? '').split(',').map(v => v.trim()).filter(Boolean)]);
@@ -19,12 +20,19 @@ const validTopics = (value: unknown): value is { topics: Array<{ title: string; 
   if (!value || typeof value !== 'object' || !Array.isArray((value as { topics?: unknown }).topics)) return false;
   return (value as { topics: unknown[] }).topics.every(topic => Boolean(topic) && typeof topic === 'object' && typeof (topic as { title?: unknown }).title === 'string' && ((topic as { description?: unknown }).description === null || typeof (topic as { description?: unknown }).description === 'string'));
 };
+const rateLimitKey = (request: Request) => {
+  const clientIp = request.headers.get('cf-connecting-ip')?.trim() || 'unknown';
+  return `${clientIp}:${COURSE_BLUEPRINT_ROUTE}`;
+};
 export default { async fetch(request: Request, env: Env): Promise<Response> {
   if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors(request, env) });
   const id = crypto.randomUUID();
-  if (request.method === 'GET' && new URL(request.url).pathname === '/api/v1/health') return response(request, env, { ok: true, service: 'academpazam-course-blueprint' });
-  if (request.method !== 'POST' || new URL(request.url).pathname !== '/api/v1/extract/course-topics') return response(request, env, { ok: false, requestId: id, error: { code: 'INVALID_REQUEST', message: 'Route not found.' } }, 404);
+  const pathname = new URL(request.url).pathname;
+  if (request.method === 'GET' && pathname === '/api/v1/health') return response(request, env, { ok: true, service: 'academpazam-course-blueprint' });
+  if (request.method !== 'POST' || pathname !== COURSE_BLUEPRINT_ROUTE) return response(request, env, { ok: false, requestId: id, error: { code: 'INVALID_REQUEST', message: 'Route not found.' } }, 404);
   try {
+    const { success } = await env.AI_RATE_LIMITER.limit({ key: rateLimitKey(request) });
+    if (!success) return response(request, env, { ok: false, requestId: id, error: { code: 'RATE_LIMITED', message: 'Too many AI requests. Try again in about a minute.' } }, 429);
     const form = await request.formData();
     const fileValue = form.get('file'); const textValue = form.get('textSyllabus');
     const file = fileValue instanceof File && fileValue.size > 0 ? fileValue : null;
