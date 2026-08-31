@@ -8,6 +8,8 @@ import { saveTopic } from '@/core/db/db';
 import { v4 as uuidv4 } from 'uuid';
 import { useTranslation } from '@/app/i18n/useTranslation';
 import { Trash2, Upload, Brain, Check } from 'lucide-react';
+import { courseBlueprintText } from './courseBlueprintI18n';
+import { prepareCourseBlueprintProposals, validateCourseBlueprintProposals, type CourseBlueprintProposal } from './courseBlueprintNormalizer';
 
 interface UploadSyllabusModalProps {
     isOpen: boolean;
@@ -15,39 +17,39 @@ interface UploadSyllabusModalProps {
     onSave: () => void;
     courseId: string;
     courseName: string;
+    existingTopics: Topic[];
 }
 
-export const UploadSyllabusModal: React.FC<UploadSyllabusModalProps> = ({ isOpen, onClose, onSave, courseId, courseName }) => {
-    const { t } = useTranslation();
+export const UploadSyllabusModal: React.FC<UploadSyllabusModalProps> = ({ isOpen, onClose, onSave, courseId, courseName, existingTopics }) => {
+    const { language } = useTranslation();
+    const text = courseBlueprintText(language);
     const [file, setFile] = useState<File | null>(null);
     const [textSyllabus, setTextSyllabus] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [previewTopics, setPreviewTopics] = useState<Partial<Topic>[]>([]);
+    const [previewTopics, setPreviewTopics] = useState<CourseBlueprintProposal[]>([]);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [consentGiven, setConsentGiven] = useState(false);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
             setFile(e.target.files[0]);
+            setTextSyllabus('');
         }
     };
 
     const handleAnalyze = async () => {
-        if (!file && !textSyllabus.trim()) return;
+        if ((file ? 1 : 0) + (textSyllabus.trim() ? 1 : 0) !== 1) return;
         setIsAnalyzing(true);
         try {
             const extracted = await extractCourseTopics(file, textSyllabus, courseName);
             if (extracted.length === 0) {
-                alert("ה-AI קרא את הקובץ אבל לא הצליח למצוא בו נושאי לימוד. נסה להעלות קובץ אחר או להדביק את הטקסט.");
+                alert(text.empty);
             } else {
-                setPreviewTopics(extracted.map(topic => ({
-                    title: topic.title,
-                    description: topic.description ?? '',
-                })));
+                setPreviewTopics(prepareCourseBlueprintProposals(extracted, existingTopics));
             }
         } catch (err) {
             console.error(err);
-            alert(err instanceof Error ? err.message : 'Error analyzing syllabus');
+            alert(err instanceof Error && err.message.includes('unavailable') ? text.unavailable : text.genericError);
         } finally {
         setIsAnalyzing(false);
         }
@@ -56,18 +58,17 @@ export const UploadSyllabusModal: React.FC<UploadSyllabusModalProps> = ({ isOpen
     const handleSaveTopics = async () => {
         setIsLoading(true);
         try {
-            const seen = new Set<string>();
-            for (const pt of previewTopics) {
-                const title = pt.title?.trim();
-                if (!title) continue;
-                const key = title.toLocaleLowerCase().replace(/\s+/g, ' ');
-                if (seen.has(key)) continue;
-                seen.add(key);
+            const validated = validateCourseBlueprintProposals(previewTopics, existingTopics);
+            if (validated.some(pt => pt.selected && !pt.isValid)) {
+                alert(text.invalidTitle);
+                return;
+            }
+            for (const pt of validated.filter(proposal => proposal.selected && proposal.isValid)) {
                 const newTopic: Topic = {
                     id: uuidv4(),
                     courseId,
-                    title,
-                    description: pt.description || '',
+                    title: pt.title,
+                    description: pt.description,
                     status: 'not_started',
                     createdAt: Date.now(),
                     updatedAt: Date.now()
@@ -78,7 +79,7 @@ export const UploadSyllabusModal: React.FC<UploadSyllabusModalProps> = ({ isOpen
             onClose();
         } catch (err) {
             console.error(err);
-            alert("Error saving topics");
+            alert(text.saveError);
         } finally {
             setIsLoading(false);
         }
@@ -92,9 +93,12 @@ export const UploadSyllabusModal: React.FC<UploadSyllabusModalProps> = ({ isOpen
         setPreviewTopics(prev => {
             const updated = [...prev];
             updated[index] = { ...updated[index], [field]: value };
-            return updated;
+            return validateCourseBlueprintProposals(updated, existingTopics);
         });
     };
+
+    const toggleTopic = (index: number) => setPreviewTopics(prev => prev.map((topic, i) => i === index ? { ...topic, selected: !topic.selected } : topic));
+    const hasSelectedInvalidTitle = previewTopics.some(topic => topic.selected && !topic.title.trim());
 
     const isPreviewMode = previewTopics.length > 0;
 
@@ -102,11 +106,11 @@ export const UploadSyllabusModal: React.FC<UploadSyllabusModalProps> = ({ isOpen
         <Modal
             isOpen={isOpen}
             onClose={onClose}
-            title={isPreviewMode ? 'Review Topics' : 'Analyze Syllabus (AI)'}
+            title={isPreviewMode ? text.review : text.title}
             footer={
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-md)' }}>
                     <Button variant="ghost" onClick={onClose} disabled={isLoading || isAnalyzing}>
-                        {t('action.cancel')}
+                        {text.cancel}
                     </Button>
                     {!isPreviewMode ? (
                         <Button 
@@ -115,12 +119,12 @@ export const UploadSyllabusModal: React.FC<UploadSyllabusModalProps> = ({ isOpen
                             disabled={(!file && !textSyllabus.trim()) || !consentGiven || isAnalyzing}
                         >
                             <Brain size={18} style={{ marginRight: '8px' }} />
-                            {isAnalyzing ? 'Analyzing...' : 'Analyze'}
+                            {isAnalyzing ? text.analyzing : text.analyze}
                         </Button>
                     ) : (
-                        <Button variant="primary" onClick={handleSaveTopics} disabled={isLoading}>
+                        <Button variant="primary" onClick={handleSaveTopics} disabled={isLoading || hasSelectedInvalidTitle}>
                             <Check size={18} style={{ marginRight: '8px' }} />
-                            {isLoading ? 'Saving...' : 'Approve & Save'}
+                            {isLoading ? text.saving : text.save}
                         </Button>
                     )}
                 </div>
@@ -132,8 +136,8 @@ export const UploadSyllabusModal: React.FC<UploadSyllabusModalProps> = ({ isOpen
                         <div style={{ padding: 'var(--space-md)', background: 'var(--color-bg-secondary)', borderRadius: '8px', border: '1px dashed var(--color-border)' }}>
                             <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                                 <Upload size={32} color="var(--color-text-secondary)" />
-                                <span style={{ fontWeight: 500 }}>Upload PDF/Image</span>
-                                <input type="file" accept=".pdf,image/*" onChange={handleFileChange} style={{ display: 'none' }} />
+                                <span style={{ fontWeight: 500 }}>{text.upload}</span>
+                                <input type="file" accept=".pdf,.png,.jpg,.jpeg,.txt" onChange={handleFileChange} style={{ display: 'none' }} />
                                 {file && (
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-primary)' }} onClick={(e) => e.preventDefault()}>
                                         <span>{file.name}</span>
@@ -147,17 +151,17 @@ export const UploadSyllabusModal: React.FC<UploadSyllabusModalProps> = ({ isOpen
 
                         <label style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', fontSize: '0.85rem' }}>
                             <input type="checkbox" checked={consentGiven} onChange={e => setConsentGiven(e.target.checked)} />
-                            <span>Only this syllabus source will be sent for AI processing. Your local AcademPazam database is not uploaded, and nothing is saved until you review and approve the topics.</span>
+                            <span>{text.consent}</span>
                         </label>
 
-                        <div style={{ textAlign: 'center', color: 'var(--color-text-secondary)' }}>OR</div>
+                        <div style={{ textAlign: 'center', color: 'var(--color-text-secondary)' }}>{text.or}</div>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                            <label style={{ fontSize: '0.875rem', fontWeight: 500 }}>Paste Syllabus Text</label>
+                            <label style={{ fontSize: '0.875rem', fontWeight: 500 }}>{text.paste}</label>
                             <textarea
                                 value={textSyllabus}
-                                onChange={(e) => setTextSyllabus(e.target.value)}
-                                placeholder="Paste course topics here..."
+                                onChange={(e) => { setTextSyllabus(e.target.value); if (e.target.value.trim()) setFile(null); }}
+                                placeholder={text.placeholder}
                                 style={{
                                     width: '100%',
                                     minHeight: '120px',
@@ -174,20 +178,22 @@ export const UploadSyllabusModal: React.FC<UploadSyllabusModalProps> = ({ isOpen
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '400px', overflowY: 'auto', paddingRight: '8px' }}>
                         {previewTopics.map((topic, idx) => (
                             <div key={idx} style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', background: 'var(--color-bg-secondary)', padding: '12px', borderRadius: '8px' }}>
+                                <input type="checkbox" aria-label={text.select} checked={topic.selected} onChange={() => toggleTopic(idx)} style={{ marginTop: '10px' }} />
                                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                     <Input
                                         id={`topic-title-${idx}`}
-                                        label="Title"
-                                        value={topic.title || ''}
+                                        label={text.titleLabel}
+                                        value={topic.title}
                                         onChange={(e) => updateTopic(idx, 'title', e.target.value)}
                                     />
                                     <Input
                                         id={`topic-desc-${idx}`}
-                                        label="Description"
-                                        value={topic.description || ''}
+                                        label={text.descriptionLabel}
+                                        value={topic.description}
                                         onChange={(e) => updateTopic(idx, 'description', e.target.value)}
                                     />
                                 </div>
+                                {topic.isDuplicate && <div role="status" style={{ color: 'var(--color-warning)', fontSize: '0.8rem' }}>{text.duplicate}</div>}
                                 <Button variant="ghost" onClick={() => removeTopic(idx)} style={{ color: 'var(--color-danger)', marginTop: '24px' }}>
                                     <Trash2 size={18} />
                                 </Button>

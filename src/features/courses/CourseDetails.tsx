@@ -16,6 +16,7 @@ import { Input } from '@/ui/Input';
 import { ConfirmationModal } from '@/ui/ConfirmationModal';
 import { FailedCourseModal } from './FailedCourseModal';
 import { createRepeatCourse, getBadgeConfiguration } from '@/core/services/courseLifecycle';
+import { courseBlueprintText } from './courseBlueprintI18n';
 
 interface CourseDetailsProps {
     id?: string;
@@ -24,7 +25,7 @@ interface CourseDetailsProps {
 }
 
 export const CourseDetails: React.FC<CourseDetailsProps> = ({ id: propId, onBack, onRefresh }) => {
-    const { t } = useTranslation();
+    const { t, language } = useTranslation();
     const { id: paramId } = useParams<{ id: string }>();
     const id = propId || paramId;
     const navigate = useNavigate();
@@ -318,7 +319,7 @@ export const CourseDetails: React.FC<CourseDetailsProps> = ({ id: propId, onBack
                             onClick={() => setIsSyllabusModalOpen(true)}
                         >
                             <FileText size={18} style={{ marginRight: '8px' }} />
-                            Analyze Syllabus
+                            {courseBlueprintText(language).button}
                         </Button>
                         {showScheduleRepeat && (
                             <Button
@@ -429,6 +430,7 @@ export const CourseDetails: React.FC<CourseDetailsProps> = ({ id: propId, onBack
                 onSave={handleSave}
                 courseId={course.id}
                 courseName={course.name}
+                existingTopics={topics}
             />
             {
                 course && (
